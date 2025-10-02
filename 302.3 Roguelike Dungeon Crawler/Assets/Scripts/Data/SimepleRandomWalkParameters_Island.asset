@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: SimepleRandomWalkParameters_Island
   m_EditorClassIdentifier: 
   iterations: 100
-  walkLength: 20
+  walkLength: 30
   startRandomlyEachIteration: 0
