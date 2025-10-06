@@ -66,8 +66,6 @@ public class PlayerController : MonoBehaviour
         }
 
         canDash = false;
-        yield return new WaitForSeconds(dashCooldown);
-        canDash = true;
         isDashing = true;
         Vector2 dashDirection = moveDirection;
         float dashEndTime = Time.time + dashDuration;
@@ -79,5 +77,7 @@ public class PlayerController : MonoBehaviour
         }
 
         isDashing = false;
+        yield return new WaitForSeconds(dashCooldown);
+        canDash = true;
     }
 }
