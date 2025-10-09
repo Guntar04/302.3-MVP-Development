@@ -41,12 +41,6 @@ public class PlayerController : MonoBehaviour
     private void HandleMovementInput()
     {
         moveX = 0f;
-
-        if (!Input.GetKey(KeyCode.W) && !Input.GetKey(KeyCode.S) && !Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.D))
-        {
-            animator.SetBool("isRunning", false);
-            animator.Play("Idle");
-        }
         moveY = 0f;
 
         if (Input.GetKey(KeyCode.W)) moveY = 1f;
@@ -58,12 +52,11 @@ public class PlayerController : MonoBehaviour
 
         if (moveDirection == Vector2.zero)
         {
-            animator.SetBool("isRunning", false);
+            
+            animator.Play("Idle");
         }
         else
         {
-            animator.SetBool("isRunning", true);
-
             // Set animation direction based on movement
             if (moveY > 0)
             {
@@ -93,7 +86,7 @@ public class PlayerController : MonoBehaviour
     {
         if (!canDash)
         {
-            Debug.Log("Dash is on cooldown!");
+            //Debug.Log("Dash is on cooldown!");
             yield break;
         }
 
