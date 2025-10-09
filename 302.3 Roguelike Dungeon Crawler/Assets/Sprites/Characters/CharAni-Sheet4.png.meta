@@ -642,7 +642,7 @@ TextureImporter:
       name: Knight_RunRight1
       rect:
         serializedVersion: 2
-        x: 42
+        x: 41
         y: 711
         width: 16
         height: 16
@@ -2860,6 +2860,94 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: CharAni-Sheet4_0
+      rect:
+        serializedVersion: 2
+        x: 9
+        y: 743
+        width: 16
+        height: 18
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3b9085921d861a047aba4e297d8dd650
+      internalID: 1505272354
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CharAni-Sheet4_1
+      rect:
+        serializedVersion: 2
+        x: 41
+        y: 743
+        width: 16
+        height: 18
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 105bcca90f108824aba550954e12dfc6
+      internalID: 398692963
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CharAni-Sheet4_2
+      rect:
+        serializedVersion: 2
+        x: 73
+        y: 743
+        width: 16
+        height: 18
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4ea547e353210174f8e0bdf7e54b5bb5
+      internalID: 1302350052
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CharAni-Sheet4_3
+      rect:
+        serializedVersion: 2
+        x: 105
+        y: 743
+        width: 16
+        height: 18
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 35a7fa11e92a0bb49bffc8fe987693e4
+      internalID: 1353454517
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
@@ -2879,6 +2967,7 @@ TextureImporter:
       AttackRight: -1222444176
       AttackUp: 668664120
       CharAni-Sheet4_0: 1505272354
+      CharAni-Sheet4_1: 398692963
       CharAni-Sheet4_101: 6393324679501117440
       CharAni-Sheet4_104: 2093126516168136024
       CharAni-Sheet4_105: -3629137738712128838
@@ -2896,6 +2985,8 @@ TextureImporter:
       CharAni-Sheet4_117: -5909213331259343179
       CharAni-Sheet4_118: 1132601134680484809
       CharAni-Sheet4_119: 4726840599769654849
+      CharAni-Sheet4_2: 1302350052
+      CharAni-Sheet4_3: 1353454517
       CharAni-Sheet4_36: -1015038986214286816
       CharAni-Sheet4_37: -7956563497541155973
       CharAni-Sheet4_38: -5182529425703312998

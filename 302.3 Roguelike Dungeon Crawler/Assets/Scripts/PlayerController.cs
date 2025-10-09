@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    [SerializeField] private Animator animator;
     //public int health = 10;
     //public int maxHealth = 10;
     //public int attackPower = 2;
@@ -11,6 +12,8 @@ public class PlayerController : MonoBehaviour
     public float dashDuration;
     private bool canDash = true;
     public float dashCooldown;
+    private float moveX = 0f;
+    private float moveY = 0f;
 
     private Vector2 moveDirection;
     private bool isDashing = false;
@@ -37,8 +40,14 @@ public class PlayerController : MonoBehaviour
 
     private void HandleMovementInput()
     {
-        float moveX = 0f;
-        float moveY = 0f;
+        moveX = 0f;
+
+        if (!Input.GetKey(KeyCode.W) && !Input.GetKey(KeyCode.S) && !Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.D))
+        {
+            animator.SetBool("isRunning", false);
+            animator.Play("Idle");
+        }
+        moveY = 0f;
 
         if (Input.GetKey(KeyCode.W)) moveY = 1f;
         if (Input.GetKey(KeyCode.S)) moveY = -1f;
@@ -46,9 +55,32 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKey(KeyCode.D)) moveX = 1f;
 
         moveDirection = new Vector2(moveX, moveY).normalized;
+
         if (moveDirection == Vector2.zero)
         {
-            moveDirection = Vector2.zero; // Ensure no movement when no input is provided
+            animator.SetBool("isRunning", false);
+        }
+        else
+        {
+            animator.SetBool("isRunning", true);
+
+            // Set animation direction based on movement
+            if (moveY > 0)
+            {
+                animator.Play("Run_Up");
+            }
+            else if (moveY < 0)
+            {
+                animator.Play("Run_Down");
+            }
+            else if (moveX > 0)
+            {
+                animator.Play("Run_Right");
+            }
+            else if (moveX < 0)
+            {
+                animator.Play("Run_Left");
+            }
         }
     }
 
