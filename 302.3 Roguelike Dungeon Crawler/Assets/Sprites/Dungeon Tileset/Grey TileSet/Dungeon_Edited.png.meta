@@ -1,0 +1,538 @@
+fileFormatVersion: 2
+guid: c4fe9c69c50979f4cbf72f6dfe892335
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 6806552072499711014
+    second: Dungeon_24x24_0
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 16
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: tvOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WindowsStoreApps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Dungeon_TopLeft
+      rect:
+        serializedVersion: 2
+        x: 186
+        y: 152
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b492aabe0c47eb3479ba0c8087907532
+      internalID: 357855804
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Dungeon_LeftCenter
+      rect:
+        serializedVersion: 2
+        x: 258
+        y: 69
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 40ad2e17b6fd7804bb6c3f5cf983e665
+      internalID: -1684400297
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Dungeon_RightCenter
+      rect:
+        serializedVersion: 2
+        x: 62
+        y: 69
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e05bf3fec7f24784cb27ca4735eefa73
+      internalID: -869614667
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Dungeon_LeftTop
+      rect:
+        serializedVersion: 2
+        x: 62
+        y: 128
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: bd5c18ecafdc5cf44bba92bcc87fc8da
+      internalID: 6806552072499711014
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Dungeon_TopCenter
+      rect:
+        serializedVersion: 2
+        x: 82
+        y: 128
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ba52a6da2ca437747abe18ffb74e3056
+      internalID: -1840300243
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Dungeon_24x24_12
+      rect:
+        serializedVersion: 2
+        x: 92
+        y: 38
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 493d0795d9dc46e409ac7874bbf28d57
+      internalID: -1441047063
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Dungeon_BottomLeft
+      rect:
+        serializedVersion: 2
+        x: 134
+        y: 14
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: df171445e3f54c244b9d11f92242de97
+      internalID: -160908447
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Dungeon_BottomRight
+      rect:
+        serializedVersion: 2
+        x: 186
+        y: 14
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8619f16fe3c831b40a4c3da67ad37e20
+      internalID: 318224481
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 84006a568ce031b4daec58d5bb8abebf
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Dungeon_24x24_100: -1028505645
+      Dungeon_24x24_101: 585166854
+      Dungeon_24x24_102: -1660517989
+      Dungeon_24x24_103: -1824661553
+      Dungeon_24x24_104: -1848577682
+      Dungeon_24x24_105: 652698626
+      Dungeon_24x24_106: 950978087
+      Dungeon_24x24_107: 1608169604
+      Dungeon_24x24_108: 1671583815
+      Dungeon_24x24_109: -1751214323
+      Dungeon_24x24_110: -595816157
+      Dungeon_24x24_111: 1054336219
+      Dungeon_24x24_112: -1352173949
+      Dungeon_24x24_113: 1438043359
+      Dungeon_24x24_114: 1978813288
+      Dungeon_24x24_115: 540955397
+      Dungeon_24x24_116: -153639262
+      Dungeon_24x24_117: 681514808
+      Dungeon_24x24_118: 1204371884
+      Dungeon_24x24_119: 1288170939
+      Dungeon_24x24_12: -1441047063
+      Dungeon_24x24_120: 100876334
+      Dungeon_24x24_121: -69536455
+      Dungeon_24x24_122: -1445711061
+      Dungeon_24x24_123: -34334345
+      Dungeon_24x24_124: 1753855669
+      Dungeon_24x24_125: -309767450
+      Dungeon_24x24_126: 1603363240
+      Dungeon_24x24_127: -118942412
+      Dungeon_24x24_128: -1973973396
+      Dungeon_24x24_129: 1738464802
+      Dungeon_24x24_13: 746923067
+      Dungeon_24x24_130: 1659755828
+      Dungeon_24x24_131: -1620409998
+      Dungeon_24x24_132: -1077970091
+      Dungeon_24x24_133: 1897215328
+      Dungeon_24x24_134: 1255707675
+      Dungeon_24x24_135: -791429388
+      Dungeon_24x24_136: -1223009923
+      Dungeon_24x24_137: 613741607
+      Dungeon_24x24_138: 981566715
+      Dungeon_24x24_139: 1113604891
+      Dungeon_24x24_140: 1064918316
+      Dungeon_24x24_141: -1685555247
+      Dungeon_24x24_142: 1952654996
+      Dungeon_24x24_143: -967523852
+      Dungeon_24x24_144: -337357245
+      Dungeon_24x24_145: -47605385
+      Dungeon_24x24_146: -893965599
+      Dungeon_24x24_147: 766886787
+      Dungeon_24x24_148: -916244122
+      Dungeon_24x24_149: 1911304953
+      Dungeon_24x24_150: -1494920272
+      Dungeon_24x24_151: -1961977519
+      Dungeon_24x24_152: 1827961205
+      Dungeon_24x24_153: 2105197344
+      Dungeon_24x24_154: -966753089
+      Dungeon_24x24_155: 1648181550
+      Dungeon_24x24_156: 554600570
+      Dungeon_24x24_157: 735419482
+      Dungeon_24x24_158: 559226218
+      Dungeon_24x24_159: 448887797
+      Dungeon_24x24_16: -885967849
+      Dungeon_24x24_160: 872869866
+      Dungeon_24x24_161: 793470718
+      Dungeon_24x24_162: -474984182
+      Dungeon_24x24_163: 762703439
+      Dungeon_24x24_164: -402248439
+      Dungeon_24x24_165: -325245577
+      Dungeon_24x24_166: -1627579608
+      Dungeon_24x24_167: -73051021
+      Dungeon_24x24_168: 1992322851
+      Dungeon_24x24_169: -437222643
+      Dungeon_24x24_17: 1605208887
+      Dungeon_24x24_170: 339210355
+      Dungeon_24x24_171: 1129788846
+      Dungeon_24x24_172: 579739612
+      Dungeon_24x24_173: 1263887285
+      Dungeon_24x24_174: -1006139578
+      Dungeon_24x24_175: -1987243195
+      Dungeon_24x24_176: 1898093911
+      Dungeon_24x24_177: -1561218703
+      Dungeon_24x24_178: -670617499
+      Dungeon_24x24_179: 1771505205
+      Dungeon_24x24_18: 1971048385
+      Dungeon_24x24_180: 1689575768
+      Dungeon_24x24_181: 793172219
+      Dungeon_24x24_182: -378075502
+      Dungeon_24x24_183: -133917016
+      Dungeon_24x24_184: 57288746
+      Dungeon_24x24_185: -923423983
+      Dungeon_24x24_186: -1840628041
+      Dungeon_24x24_187: 1290376573
+      Dungeon_24x24_188: -111403721
+      Dungeon_24x24_189: 201567950
+      Dungeon_24x24_19: -152954363
+      Dungeon_24x24_2: -1130243924
+      Dungeon_24x24_20: 1980254119
+      Dungeon_24x24_21: 1591173958
+      Dungeon_24x24_22: 600545826
+      Dungeon_24x24_23: -1224874738
+      Dungeon_24x24_24: 1267225119
+      Dungeon_24x24_25: -1853074821
+      Dungeon_24x24_26: -1091348560
+      Dungeon_24x24_27: 27069872
+      Dungeon_24x24_28: -1594404614
+      Dungeon_24x24_29: 1380316959
+      Dungeon_24x24_3: 685650567
+      Dungeon_24x24_30: 359790538
+      Dungeon_24x24_31: 1317198355
+      Dungeon_24x24_32: -23655000
+      Dungeon_24x24_33: -2044075696
+      Dungeon_24x24_34: -44859837
+      Dungeon_24x24_35: -903909887
+      Dungeon_24x24_36: -73072298
+      Dungeon_24x24_37: -1263215900
+      Dungeon_24x24_38: -1157314390
+      Dungeon_24x24_39: 409192627
+      Dungeon_24x24_4: -465296544
+      Dungeon_24x24_40: 1351639769
+      Dungeon_24x24_41: 1879181611
+      Dungeon_24x24_42: -640317567
+      Dungeon_24x24_43: -1067902802
+      Dungeon_24x24_44: 1150559395
+      Dungeon_24x24_45: 1872757809
+      Dungeon_24x24_46: 1833115258
+      Dungeon_24x24_47: 1501954505
+      Dungeon_24x24_48: 857844477
+      Dungeon_24x24_49: 649476737
+      Dungeon_24x24_5: 1584219001
+      Dungeon_24x24_50: -1804923272
+      Dungeon_24x24_51: -2028216032
+      Dungeon_24x24_52: -198115628
+      Dungeon_24x24_53: -1771189313
+      Dungeon_24x24_54: 2024432247
+      Dungeon_24x24_55: -523213585
+      Dungeon_24x24_56: -1875784307
+      Dungeon_24x24_57: -825828087
+      Dungeon_24x24_58: 823503578
+      Dungeon_24x24_59: -74017836
+      Dungeon_24x24_6: 1917242679
+      Dungeon_24x24_60: -229940805
+      Dungeon_24x24_61: 1230154424
+      Dungeon_24x24_62: 1513866955
+      Dungeon_24x24_63: 1217747999
+      Dungeon_24x24_64: 631227993
+      Dungeon_24x24_65: 1357362469
+      Dungeon_24x24_66: -271422317
+      Dungeon_24x24_67: 1793169965
+      Dungeon_24x24_68: -1841436199
+      Dungeon_24x24_69: 962666230
+      Dungeon_24x24_7: -543494640
+      Dungeon_24x24_70: 731402084
+      Dungeon_24x24_71: 79859158
+      Dungeon_24x24_72: 1511165753
+      Dungeon_24x24_73: -1579886755
+      Dungeon_24x24_74: 152838074
+      Dungeon_24x24_75: 969442816
+      Dungeon_24x24_76: -25341324
+      Dungeon_24x24_77: -44718615
+      Dungeon_24x24_78: -902125069
+      Dungeon_24x24_79: -751807029
+      Dungeon_24x24_80: 1169482976
+      Dungeon_24x24_81: -1934156195
+      Dungeon_24x24_82: -635226176
+      Dungeon_24x24_83: -1987244131
+      Dungeon_24x24_84: 1367944830
+      Dungeon_24x24_85: 1488681422
+      Dungeon_24x24_86: 570818986
+      Dungeon_24x24_87: -1162498869
+      Dungeon_24x24_88: -775035952
+      Dungeon_24x24_89: 2136236709
+      Dungeon_24x24_9: -1018175272
+      Dungeon_24x24_90: -492185632
+      Dungeon_24x24_91: 2137136129
+      Dungeon_24x24_92: -1883974934
+      Dungeon_24x24_93: -99057933
+      Dungeon_24x24_94: -237390899
+      Dungeon_24x24_95: -2072564430
+      Dungeon_24x24_96: -983392549
+      Dungeon_24x24_97: -403818510
+      Dungeon_24x24_98: -1492804263
+      Dungeon_24x24_99: 986113506
+      Dungeon_BottomLeft: 350399568
+      Dungeon_BottomRight: 931376259
+      Dungeon_LeftCenter: -1684400297
+      Dungeon_LeftTop: 6806552072499711014
+      Dungeon_RightCenter: -869614667
+      Dungeon_TopCenter: 913228847
+      Dungeon_TopLeft: 357855804
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
