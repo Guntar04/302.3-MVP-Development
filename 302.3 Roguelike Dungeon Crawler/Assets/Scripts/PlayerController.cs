@@ -52,7 +52,7 @@ public class PlayerController : MonoBehaviour
 
         if (moveDirection == Vector2.zero)
         {
-            
+
             animator.Play("Idle");
         }
         else
