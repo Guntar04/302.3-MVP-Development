@@ -152,10 +152,10 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Dungeon_TopLeft
+      name: Dungeon_TopRight
       rect:
         serializedVersion: 2
-        x: 186
+        x: 192
         y: 152
         width: 16
         height: 16
@@ -218,11 +218,11 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Dungeon_LeftTop
+      name: Dungeon_TopLeft
       rect:
         serializedVersion: 2
-        x: 62
-        y: 128
+        x: 128
+        y: 152
         width: 16
         height: 16
       alignment: 0
@@ -262,11 +262,11 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Dungeon_24x24_12
+      name: Dungeon_BottomCenter
       rect:
         serializedVersion: 2
         x: 92
-        y: 38
+        y: 32
         width: 16
         height: 16
       alignment: 0
@@ -287,8 +287,8 @@ TextureImporter:
       name: Dungeon_BottomLeft
       rect:
         serializedVersion: 2
-        x: 134
-        y: 14
+        x: 128
+        y: 8
         width: 16
         height: 16
       alignment: 0
@@ -309,8 +309,8 @@ TextureImporter:
       name: Dungeon_BottomRight
       rect:
         serializedVersion: 2
-        x: 186
-        y: 14
+        x: 192
+        y: 8
         width: 16
         height: 16
       alignment: 0
@@ -323,6 +323,116 @@ TextureImporter:
       bones: []
       spriteID: 8619f16fe3c831b40a4c3da67ad37e20
       internalID: 318224481
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Dungeon_InnerBottomLeft
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 32
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ee002969610e4aa4589ff1eab4f80915
+      internalID: 26488074
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Dungeon_InnerBottomRight
+      rect:
+        serializedVersion: 2
+        x: 192
+        y: 32
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: fa3655cfede5366418688727b78a3378
+      internalID: -347794749
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Dungeon_InnerTopLeft
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 131
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8c3785eaa78ccc5438dcb6670e04813b
+      internalID: 125382645
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Dungeon_InnerTopRight
+      rect:
+        serializedVersion: 2
+        x: 192
+        y: 131
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 25f38b90604c58f4e936e981c2f00e6b
+      internalID: 1949345558
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Dungeon_Center
+      rect:
+        serializedVersion: 2
+        x: 114
+        y: 113
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7931e3353ccbf0440b28bd7b889cf5e4
+      internalID: 1847082384
       vertices: []
       indices: 
       edges: []
@@ -341,196 +451,201 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Dungeon_24x24_100: -1028505645
-      Dungeon_24x24_101: 585166854
-      Dungeon_24x24_102: -1660517989
-      Dungeon_24x24_103: -1824661553
-      Dungeon_24x24_104: -1848577682
-      Dungeon_24x24_105: 652698626
-      Dungeon_24x24_106: 950978087
-      Dungeon_24x24_107: 1608169604
-      Dungeon_24x24_108: 1671583815
-      Dungeon_24x24_109: -1751214323
-      Dungeon_24x24_110: -595816157
-      Dungeon_24x24_111: 1054336219
-      Dungeon_24x24_112: -1352173949
-      Dungeon_24x24_113: 1438043359
-      Dungeon_24x24_114: 1978813288
-      Dungeon_24x24_115: 540955397
-      Dungeon_24x24_116: -153639262
-      Dungeon_24x24_117: 681514808
-      Dungeon_24x24_118: 1204371884
-      Dungeon_24x24_119: 1288170939
-      Dungeon_24x24_12: -1441047063
-      Dungeon_24x24_120: 100876334
-      Dungeon_24x24_121: -69536455
-      Dungeon_24x24_122: -1445711061
-      Dungeon_24x24_123: -34334345
-      Dungeon_24x24_124: 1753855669
-      Dungeon_24x24_125: -309767450
-      Dungeon_24x24_126: 1603363240
-      Dungeon_24x24_127: -118942412
-      Dungeon_24x24_128: -1973973396
-      Dungeon_24x24_129: 1738464802
-      Dungeon_24x24_13: 746923067
-      Dungeon_24x24_130: 1659755828
-      Dungeon_24x24_131: -1620409998
-      Dungeon_24x24_132: -1077970091
-      Dungeon_24x24_133: 1897215328
-      Dungeon_24x24_134: 1255707675
-      Dungeon_24x24_135: -791429388
-      Dungeon_24x24_136: -1223009923
-      Dungeon_24x24_137: 613741607
-      Dungeon_24x24_138: 981566715
-      Dungeon_24x24_139: 1113604891
-      Dungeon_24x24_140: 1064918316
-      Dungeon_24x24_141: -1685555247
-      Dungeon_24x24_142: 1952654996
-      Dungeon_24x24_143: -967523852
-      Dungeon_24x24_144: -337357245
-      Dungeon_24x24_145: -47605385
-      Dungeon_24x24_146: -893965599
-      Dungeon_24x24_147: 766886787
-      Dungeon_24x24_148: -916244122
-      Dungeon_24x24_149: 1911304953
-      Dungeon_24x24_150: -1494920272
-      Dungeon_24x24_151: -1961977519
-      Dungeon_24x24_152: 1827961205
-      Dungeon_24x24_153: 2105197344
-      Dungeon_24x24_154: -966753089
-      Dungeon_24x24_155: 1648181550
-      Dungeon_24x24_156: 554600570
-      Dungeon_24x24_157: 735419482
-      Dungeon_24x24_158: 559226218
-      Dungeon_24x24_159: 448887797
-      Dungeon_24x24_16: -885967849
-      Dungeon_24x24_160: 872869866
-      Dungeon_24x24_161: 793470718
-      Dungeon_24x24_162: -474984182
-      Dungeon_24x24_163: 762703439
-      Dungeon_24x24_164: -402248439
-      Dungeon_24x24_165: -325245577
-      Dungeon_24x24_166: -1627579608
-      Dungeon_24x24_167: -73051021
-      Dungeon_24x24_168: 1992322851
-      Dungeon_24x24_169: -437222643
-      Dungeon_24x24_17: 1605208887
-      Dungeon_24x24_170: 339210355
-      Dungeon_24x24_171: 1129788846
-      Dungeon_24x24_172: 579739612
-      Dungeon_24x24_173: 1263887285
-      Dungeon_24x24_174: -1006139578
-      Dungeon_24x24_175: -1987243195
-      Dungeon_24x24_176: 1898093911
-      Dungeon_24x24_177: -1561218703
-      Dungeon_24x24_178: -670617499
-      Dungeon_24x24_179: 1771505205
-      Dungeon_24x24_18: 1971048385
-      Dungeon_24x24_180: 1689575768
-      Dungeon_24x24_181: 793172219
-      Dungeon_24x24_182: -378075502
-      Dungeon_24x24_183: -133917016
-      Dungeon_24x24_184: 57288746
-      Dungeon_24x24_185: -923423983
-      Dungeon_24x24_186: -1840628041
-      Dungeon_24x24_187: 1290376573
-      Dungeon_24x24_188: -111403721
-      Dungeon_24x24_189: 201567950
-      Dungeon_24x24_19: -152954363
-      Dungeon_24x24_2: -1130243924
-      Dungeon_24x24_20: 1980254119
-      Dungeon_24x24_21: 1591173958
-      Dungeon_24x24_22: 600545826
-      Dungeon_24x24_23: -1224874738
-      Dungeon_24x24_24: 1267225119
-      Dungeon_24x24_25: -1853074821
-      Dungeon_24x24_26: -1091348560
-      Dungeon_24x24_27: 27069872
-      Dungeon_24x24_28: -1594404614
-      Dungeon_24x24_29: 1380316959
-      Dungeon_24x24_3: 685650567
-      Dungeon_24x24_30: 359790538
-      Dungeon_24x24_31: 1317198355
-      Dungeon_24x24_32: -23655000
-      Dungeon_24x24_33: -2044075696
-      Dungeon_24x24_34: -44859837
-      Dungeon_24x24_35: -903909887
-      Dungeon_24x24_36: -73072298
-      Dungeon_24x24_37: -1263215900
-      Dungeon_24x24_38: -1157314390
-      Dungeon_24x24_39: 409192627
-      Dungeon_24x24_4: -465296544
-      Dungeon_24x24_40: 1351639769
-      Dungeon_24x24_41: 1879181611
-      Dungeon_24x24_42: -640317567
-      Dungeon_24x24_43: -1067902802
-      Dungeon_24x24_44: 1150559395
-      Dungeon_24x24_45: 1872757809
-      Dungeon_24x24_46: 1833115258
-      Dungeon_24x24_47: 1501954505
-      Dungeon_24x24_48: 857844477
-      Dungeon_24x24_49: 649476737
-      Dungeon_24x24_5: 1584219001
-      Dungeon_24x24_50: -1804923272
-      Dungeon_24x24_51: -2028216032
-      Dungeon_24x24_52: -198115628
-      Dungeon_24x24_53: -1771189313
-      Dungeon_24x24_54: 2024432247
-      Dungeon_24x24_55: -523213585
-      Dungeon_24x24_56: -1875784307
-      Dungeon_24x24_57: -825828087
-      Dungeon_24x24_58: 823503578
-      Dungeon_24x24_59: -74017836
-      Dungeon_24x24_6: 1917242679
-      Dungeon_24x24_60: -229940805
-      Dungeon_24x24_61: 1230154424
-      Dungeon_24x24_62: 1513866955
-      Dungeon_24x24_63: 1217747999
-      Dungeon_24x24_64: 631227993
-      Dungeon_24x24_65: 1357362469
-      Dungeon_24x24_66: -271422317
-      Dungeon_24x24_67: 1793169965
-      Dungeon_24x24_68: -1841436199
-      Dungeon_24x24_69: 962666230
-      Dungeon_24x24_7: -543494640
-      Dungeon_24x24_70: 731402084
-      Dungeon_24x24_71: 79859158
-      Dungeon_24x24_72: 1511165753
-      Dungeon_24x24_73: -1579886755
-      Dungeon_24x24_74: 152838074
-      Dungeon_24x24_75: 969442816
-      Dungeon_24x24_76: -25341324
-      Dungeon_24x24_77: -44718615
-      Dungeon_24x24_78: -902125069
-      Dungeon_24x24_79: -751807029
-      Dungeon_24x24_80: 1169482976
-      Dungeon_24x24_81: -1934156195
-      Dungeon_24x24_82: -635226176
-      Dungeon_24x24_83: -1987244131
-      Dungeon_24x24_84: 1367944830
-      Dungeon_24x24_85: 1488681422
-      Dungeon_24x24_86: 570818986
-      Dungeon_24x24_87: -1162498869
-      Dungeon_24x24_88: -775035952
-      Dungeon_24x24_89: 2136236709
-      Dungeon_24x24_9: -1018175272
-      Dungeon_24x24_90: -492185632
-      Dungeon_24x24_91: 2137136129
-      Dungeon_24x24_92: -1883974934
-      Dungeon_24x24_93: -99057933
-      Dungeon_24x24_94: -237390899
-      Dungeon_24x24_95: -2072564430
-      Dungeon_24x24_96: -983392549
-      Dungeon_24x24_97: -403818510
-      Dungeon_24x24_98: -1492804263
-      Dungeon_24x24_99: 986113506
-      Dungeon_BottomLeft: 350399568
-      Dungeon_BottomRight: 931376259
+      Dungeon_24x24_100: -38990115
+      Dungeon_24x24_101: -1623229139
+      Dungeon_24x24_102: -221776508
+      Dungeon_24x24_103: -537194485
+      Dungeon_24x24_104: -1261723949
+      Dungeon_24x24_105: -1994675442
+      Dungeon_24x24_106: 41823803
+      Dungeon_24x24_107: -1446654967
+      Dungeon_24x24_108: -92871777
+      Dungeon_24x24_109: 485016014
+      Dungeon_24x24_110: 389105643
+      Dungeon_24x24_111: -466131381
+      Dungeon_24x24_112: 261365223
+      Dungeon_24x24_113: -1607387525
+      Dungeon_24x24_114: -343621373
+      Dungeon_24x24_115: -32215212
+      Dungeon_24x24_116: -565103109
+      Dungeon_24x24_117: -1860141472
+      Dungeon_24x24_118: 1953691117
+      Dungeon_24x24_119: -1804188280
+      Dungeon_24x24_120: 1832995789
+      Dungeon_24x24_121: 575096454
+      Dungeon_24x24_122: -2011515358
+      Dungeon_24x24_123: 87480978
+      Dungeon_24x24_124: 1043873828
+      Dungeon_24x24_125: -750460328
+      Dungeon_24x24_126: 1594564633
+      Dungeon_24x24_127: 1007285586
+      Dungeon_24x24_128: 169337370
+      Dungeon_24x24_129: 1034228448
+      Dungeon_24x24_13: -591307070
+      Dungeon_24x24_130: -1001008558
+      Dungeon_24x24_131: -853659561
+      Dungeon_24x24_132: -914621943
+      Dungeon_24x24_133: -1965349636
+      Dungeon_24x24_134: 735443258
+      Dungeon_24x24_135: -892394101
+      Dungeon_24x24_136: 1165148385
+      Dungeon_24x24_137: 1153449986
+      Dungeon_24x24_138: -2054231907
+      Dungeon_24x24_139: -1621359794
+      Dungeon_24x24_140: 1747045130
+      Dungeon_24x24_141: -1259666134
+      Dungeon_24x24_142: -1614599257
+      Dungeon_24x24_143: 1981355354
+      Dungeon_24x24_144: 1997613559
+      Dungeon_24x24_145: -1389080793
+      Dungeon_24x24_146: -1112838827
+      Dungeon_24x24_147: 290556529
+      Dungeon_24x24_148: 1440502577
+      Dungeon_24x24_149: 733575474
+      Dungeon_24x24_150: -223504521
+      Dungeon_24x24_151: -1234221562
+      Dungeon_24x24_152: -1964139371
+      Dungeon_24x24_153: -1484270607
+      Dungeon_24x24_154: -1239057981
+      Dungeon_24x24_155: -249651704
+      Dungeon_24x24_156: 974682314
+      Dungeon_24x24_157: -1457480521
+      Dungeon_24x24_158: 1530620838
+      Dungeon_24x24_159: -1326574836
+      Dungeon_24x24_16: 1882354917
+      Dungeon_24x24_160: -1069136993
+      Dungeon_24x24_161: -368975141
+      Dungeon_24x24_162: -1596395179
+      Dungeon_24x24_163: -235773087
+      Dungeon_24x24_164: 185526544
+      Dungeon_24x24_165: 584545549
+      Dungeon_24x24_166: -1601016714
+      Dungeon_24x24_167: 1964674558
+      Dungeon_24x24_168: 920300127
+      Dungeon_24x24_169: -599502338
+      Dungeon_24x24_17: -1388363115
+      Dungeon_24x24_170: -1786875087
+      Dungeon_24x24_171: 451342142
+      Dungeon_24x24_172: -754856851
+      Dungeon_24x24_173: -1452351884
+      Dungeon_24x24_174: -1252562066
+      Dungeon_24x24_175: -1655129092
+      Dungeon_24x24_176: 433307069
+      Dungeon_24x24_177: 943954176
+      Dungeon_24x24_178: 565739640
+      Dungeon_24x24_179: 458220881
+      Dungeon_24x24_18: 2011544159
+      Dungeon_24x24_180: 657949990
+      Dungeon_24x24_181: -570952876
+      Dungeon_24x24_182: -1038725865
+      Dungeon_24x24_183: 41661871
+      Dungeon_24x24_184: -1133157507
+      Dungeon_24x24_185: 1432898301
+      Dungeon_24x24_186: -1567133916
+      Dungeon_24x24_187: -714298990
+      Dungeon_24x24_188: -1475965649
+      Dungeon_24x24_189: -1194167428
+      Dungeon_24x24_19: 956437429
+      Dungeon_24x24_2: 411842549
+      Dungeon_24x24_20: -1170587908
+      Dungeon_24x24_21: -1937605386
+      Dungeon_24x24_22: 1831347454
+      Dungeon_24x24_23: -1609934932
+      Dungeon_24x24_24: 1559084320
+      Dungeon_24x24_25: 1688568408
+      Dungeon_24x24_26: 139823444
+      Dungeon_24x24_27: 826968296
+      Dungeon_24x24_28: -910506928
+      Dungeon_24x24_29: -741128038
+      Dungeon_24x24_3: 622640497
+      Dungeon_24x24_30: -807760661
+      Dungeon_24x24_31: -400602719
+      Dungeon_24x24_32: -1923538685
+      Dungeon_24x24_33: 680673379
+      Dungeon_24x24_34: -767989426
+      Dungeon_24x24_35: 2122979594
+      Dungeon_24x24_36: 1173714291
+      Dungeon_24x24_37: 704164483
+      Dungeon_24x24_38: 156277385
+      Dungeon_24x24_39: 1045420997
+      Dungeon_24x24_4: 1632762338
+      Dungeon_24x24_40: -160328365
+      Dungeon_24x24_41: -808330400
+      Dungeon_24x24_42: -4686785
+      Dungeon_24x24_43: -1700147503
+      Dungeon_24x24_44: -893360463
+      Dungeon_24x24_45: -211959704
+      Dungeon_24x24_46: 2074359228
+      Dungeon_24x24_47: -1895412236
+      Dungeon_24x24_48: -504962880
+      Dungeon_24x24_49: -1965926898
+      Dungeon_24x24_5: 1019675231
+      Dungeon_24x24_50: 1007987207
+      Dungeon_24x24_51: 815539580
+      Dungeon_24x24_52: -958438643
+      Dungeon_24x24_53: 1342459236
+      Dungeon_24x24_54: 1806887858
+      Dungeon_24x24_55: 17740664
+      Dungeon_24x24_56: 385402796
+      Dungeon_24x24_57: 457646246
+      Dungeon_24x24_58: -48746906
+      Dungeon_24x24_59: -2097658251
+      Dungeon_24x24_6: 1219419303
+      Dungeon_24x24_60: -861021092
+      Dungeon_24x24_61: 1377799414
+      Dungeon_24x24_62: -485024234
+      Dungeon_24x24_63: -1010174751
+      Dungeon_24x24_64: -2068931052
+      Dungeon_24x24_65: -262806369
+      Dungeon_24x24_66: 123922381
+      Dungeon_24x24_67: 1053664634
+      Dungeon_24x24_68: -1516541256
+      Dungeon_24x24_69: -70142868
+      Dungeon_24x24_7: 104316857
+      Dungeon_24x24_70: 1834311766
+      Dungeon_24x24_71: 142262340
+      Dungeon_24x24_72: -1038500148
+      Dungeon_24x24_73: 1768198622
+      Dungeon_24x24_74: -970767974
+      Dungeon_24x24_75: -2089402150
+      Dungeon_24x24_76: 1956029467
+      Dungeon_24x24_77: 1178989992
+      Dungeon_24x24_78: 1773665019
+      Dungeon_24x24_79: -460769288
+      Dungeon_24x24_80: -883752482
+      Dungeon_24x24_81: -1684756661
+      Dungeon_24x24_82: 1363997565
+      Dungeon_24x24_83: 689116519
+      Dungeon_24x24_84: -2112130105
+      Dungeon_24x24_85: -901981706
+      Dungeon_24x24_86: 75674790
+      Dungeon_24x24_87: 488757375
+      Dungeon_24x24_88: -180690092
+      Dungeon_24x24_89: 1485220727
+      Dungeon_24x24_9: -102347575
+      Dungeon_24x24_90: 350544502
+      Dungeon_24x24_91: 385869386
+      Dungeon_24x24_92: -293075242
+      Dungeon_24x24_93: -1544649589
+      Dungeon_24x24_94: 2001930510
+      Dungeon_24x24_95: 1409351029
+      Dungeon_24x24_96: -1609234316
+      Dungeon_24x24_97: -1577710132
+      Dungeon_24x24_98: -8329663
+      Dungeon_24x24_99: -2126724046
+      Dungeon_BottomCenter: -1441047063
+      Dungeon_BottomLeft: -1820106853
+      Dungeon_BottomRight: 1438211428
+      Dungeon_Center: 219677683
+      Dungeon_InnerBottomLeft: 26488074
+      Dungeon_InnerBottomRight: -347794749
+      Dungeon_InnerTopLeft: 125382645
+      Dungeon_InnerTopRight: 1949345558
       Dungeon_LeftCenter: -1684400297
-      Dungeon_LeftTop: 6806552072499711014
       Dungeon_RightCenter: -869614667
-      Dungeon_TopCenter: 913228847
-      Dungeon_TopLeft: 357855804
+      Dungeon_TopCenter: -493074137
+      Dungeon_TopLeft: 6806552072499711014
+      Dungeon_TopRight: 357855804
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
