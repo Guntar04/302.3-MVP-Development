@@ -19928,9 +19928,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af06b3530f8cd404eacd031044f34016, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tileMapVisualizer: {fileID: 1396166725}
-  startPosition: {x: 0, y: 0}
-  randomWalkParameters: {fileID: 11400000, guid: fb6ba6bb613dd12419d6b3246332f5e8, type: 2}
 --- !u!4 &1253019588
 Transform:
   m_ObjectHideFlags: 0
@@ -19975,12 +19972,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa828e7d4cafbfc4e9ff19f4df7b2033, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tileMapVisualizer: {fileID: 1396166725}
-  startPosition: {x: 0, y: 0}
-  randomWalkParameters: {fileID: 11400000, guid: fb6ba6bb613dd12419d6b3246332f5e8, type: 2}
-  corridorLength: 14
-  corridorCount: 5
-  roomPercent: 0.8
 --- !u!4 &1289686436
 Transform:
   m_ObjectHideFlags: 0
@@ -20158,20 +20149,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8057edc1e91a987498927ce815864915, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  floorTilemap: {fileID: 420158968}
-  wallTileMap: {fileID: 242449982}
-  floorTile: {fileID: 11400000, guid: a81f9b16d8f59fc42b5290ea76b22c7e, type: 2}
-  wallTop: {fileID: 11400000, guid: 28f273877b45e7945bd2fd172c3abec0, type: 2}
-  wallSideRight: {fileID: 11400000, guid: 9ab86855e86fe0a449f40443bc249535, type: 2}
-  wallSideLeft: {fileID: 11400000, guid: dffbd4f1744796d48ad439b13788782e, type: 2}
-  wallBottom: {fileID: 11400000, guid: 9d7540d24147ee34bb7fd63b3d8ff9ce, type: 2}
-  wallFull: {fileID: 11400000, guid: 3924c697c1941794f906663dbef53c20, type: 2}
-  wallInnerCornerDownLeft: {fileID: 11400000, guid: a17db378715ac214abef3b97e98cd588, type: 2}
-  wallInnerCornerDownRight: {fileID: 11400000, guid: 19028fb92c63db04293526c05fc8359c, type: 2}
-  wallDiagonalCornerDownLeft: {fileID: 11400000, guid: 0d70621878dd4fe498ee99a86cae55f4, type: 2}
-  wallDiagonalCornerDownRight: {fileID: 11400000, guid: d239b1563b1550f4aa09f51437af0e64, type: 2}
-  wallDiagonalCornerUpRight: {fileID: 11400000, guid: b05d3e225a89cba4a8d78cffabf59ba8, type: 2}
-  wallDiagonalCornerUpLeft: {fileID: 11400000, guid: c1932f7ddc270984dbaa8a20f3cc073f, type: 2}
 --- !u!4 &1396166726
 Transform:
   m_ObjectHideFlags: 0
@@ -20613,10 +20590,22 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 4720490621211201242, guid: dae046d1a08742442aac6321895dcc66, type: 3}
-      propertyPath: player
-      value: 
-      objectReference: {fileID: 1210053683}
+    - target: {fileID: 2191487234957592249, guid: dae046d1a08742442aac6321895dcc66, type: 3}
+      propertyPath: moveSpeed
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 2191487234957592249, guid: dae046d1a08742442aac6321895dcc66, type: 3}
+      propertyPath: attackRange
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2191487234957592249, guid: dae046d1a08742442aac6321895dcc66, type: 3}
+      propertyPath: attackDuration
+      value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 2191487234957592249, guid: dae046d1a08742442aac6321895dcc66, type: 3}
+      propertyPath: detectionRange
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 5376300376383153040, guid: dae046d1a08742442aac6321895dcc66, type: 3}
       propertyPath: m_LocalPosition.x
       value: -4.477
@@ -20660,10 +20649,6 @@ PrefabInstance:
     - target: {fileID: 7854324369413684749, guid: dae046d1a08742442aac6321895dcc66, type: 3}
       propertyPath: m_Name
       value: Enemy
-      objectReference: {fileID: 0}
-    - target: {fileID: 8035586081252671790, guid: dae046d1a08742442aac6321895dcc66, type: 3}
-      propertyPath: m_Mass
-      value: 0.0001
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -20744,12 +20729,12 @@ PrefabInstance:
       propertyPath: m_Name
       value: PlayerCharacter
       objectReference: {fileID: 0}
-    - target: {fileID: 1956371238402588028, guid: 452e9678bc1b7bc4983be61f36afd012, type: 3}
-      propertyPath: m_IsTrigger
-      value: 0
+    - target: {fileID: 1912324763309228557, guid: 452e9678bc1b7bc4983be61f36afd012, type: 3}
+      propertyPath: attackRange
+      value: 1.5
       objectReference: {fileID: 0}
-    - target: {fileID: 4264565278291924360, guid: 452e9678bc1b7bc4983be61f36afd012, type: 3}
-      propertyPath: m_SortingOrder
+    - target: {fileID: 1912324763309228557, guid: 452e9678bc1b7bc4983be61f36afd012, type: 3}
+      propertyPath: attackRadius
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5430999713117251855, guid: 452e9678bc1b7bc4983be61f36afd012, type: 3}

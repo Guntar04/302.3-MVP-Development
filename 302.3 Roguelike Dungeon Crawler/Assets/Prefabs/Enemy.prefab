@@ -13,8 +13,8 @@ GameObject:
   - component: {fileID: 8753562557560163096}
   - component: {fileID: 8035586081252671790}
   - component: {fileID: 4738075739300005283}
-  - component: {fileID: 4720490621211201242}
-  m_Layer: 0
+  - component: {fileID: 2191487234957592249}
+  m_Layer: 3
   m_Name: Enemy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -149,7 +149,7 @@ Rigidbody2D:
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
-  m_Mass: 1
+  m_Mass: 0.0001
   m_LinearDamping: 0
   m_AngularDamping: 0
   m_GravityScale: 0
@@ -186,7 +186,7 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &4720490621211201242
+--- !u!114 &2191487234957592249
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -195,10 +195,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 7854324369413684749}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 07d4251bab474cd42ad2c2311e862e67, type: 3}
+  m_Script: {fileID: 11500000, guid: e3d123a63683850479bbcddff6717a12, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  maxHealth: 10
+  attackPower: 1
+  attackRange: 1.5
+  attackCooldown: 1
+  attackDuration: 0.5
+  detectionRange: 4
+  moveSpeed: 2
   animator: {fileID: 4738075739300005283}
-  player: {fileID: 79726570976665747, guid: 452e9678bc1b7bc4983be61f36afd012, type: 3}
-  speed: 5
-  distance: 1
