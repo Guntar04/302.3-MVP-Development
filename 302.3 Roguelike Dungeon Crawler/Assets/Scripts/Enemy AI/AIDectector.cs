@@ -2,38 +2,54 @@ using UnityEngine;
 
 public class AIDetection : MonoBehaviour
 {
-    [SerializeField] public bool PlayerInArea { get; private set; }
-    public Transform Player { get; private set; }
+    [SerializeField] private Animator animator;
+    public GameObject player;
+    public float speed = 2f;
+    public float detectionRange = 4f;
 
-    [SerializeField] private string detectionTag = "Player";
+    private Vector2 lastPosition;
+    private Vector3 baseScale;
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    void Start()
     {
-        Debug.Log("OnTriggerEnter2D called with: " + collision.name);
-
-        if (collision.CompareTag(detectionTag))
-        {
-            PlayerInArea = true;
-            Player = collision.transform;
-
-            Debug.Log("Player detected: " + Player.name);
-
-            // Notify the behavior graph about the detected player
-            SendMessage("SetTarget", Player, SendMessageOptions.DontRequireReceiver);
-        }
+        baseScale = transform.localScale;
+        lastPosition = transform.position;
     }
 
-    private void OnTriggerExit2D(Collider2D collision)
+    void Update()
     {
-        if (collision.CompareTag(detectionTag))
+        float distance = Vector2.Distance(transform.position, player.transform.position);
+        Vector2 direction = player.transform.position - transform.position;
+        direction.Normalize();
+
+        // Move toward player if within range
+        if (distance < detectionRange)
         {
-            PlayerInArea = false;
-            Player = null;
+            transform.position = Vector2.MoveTowards(transform.position, player.transform.position, speed * Time.deltaTime);
+        }
 
-            Debug.Log("Player exited detection range.");
+        UpdateAnimation(direction);
+        lastPosition = transform.position;
+    }
 
-            // Clear the target in the behavior graph
-            SendMessage("ClearTarget", SendMessageOptions.DontRequireReceiver);
+    private void UpdateAnimation(Vector2 direction)
+    {
+        Vector2 velocity = (Vector2)transform.position - lastPosition;
+
+        // Check if the AI is actually moving
+        if (velocity.magnitude < 0.01f)
+        {
+            animator.Play("Idle");
+        }
+        else
+        {
+            // Flip sprite / facing direction
+            if (direction.x < 0)
+                transform.localScale = new Vector3(-baseScale.x, baseScale.y, baseScale.z);
+            else if (direction.x > 0)
+                transform.localScale = new Vector3(baseScale.x, baseScale.y, baseScale.z);
+
+            animator.Play("Run");
         }
     }
 }
