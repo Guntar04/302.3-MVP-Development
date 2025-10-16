@@ -61,32 +61,17 @@ public class AIController : MonoBehaviour
         FlipSprite();
     }
 
-    void FixedUpdate()
-    {
-        if (player == null) return;
-
-        float distance = Vector2.Distance(transform.position, player.position);
-
-        // Move only if not attacking and within detection range but outside attack range
-        if (!isAttacking && distance <= detectionRange && distance > attackRange)
-        {
-            Vector2 direction = ((Vector2)player.position - rb.position).normalized;
-            rb.linearVelocity = direction * moveSpeed;  // Updated for Unity 2025+
-        }
-        else
-        {
-            rb.linearVelocity = Vector2.zero; // Stop completely during attack or out of range
-        }
-    }
-
     private IEnumerator Attack()
     {
         isAttacking = true;
 
-        // Optional: play attack animation
+        // only try to play an attack animation if it exists
         if (animator != null)
         {
-            animator.Play("Attack");
+            int layer = 0;
+            int hash = Animator.StringToHash("Attack");
+            if (animator.HasState(layer, hash))
+                animator.Play("Attack", layer);
         }
 
         // Deal damage to player
@@ -107,17 +92,45 @@ public class AIController : MonoBehaviour
     {
         if (animator == null) return;
 
+        // choose the state name you expect in your Animator Controller
+        string stateName = "Idle";
         if (isAttacking)
         {
-            // animator.Play("Attack");
+            // no Attack animation in your controller: fall back to Idle while "attacking"
+            stateName = "Idle";
         }
-        else if (rb.linearVelocity.magnitude > 0.01f)
+        else if (rb != null && rb.linearVelocity.sqrMagnitude > 0.001f)
         {
-            animator.Play("Run");
+            stateName = "Run";
+        }
+
+        int layer = 0;
+        int hash = Animator.StringToHash(stateName);
+
+        // Only try to play the state if it exists on the animator (silently do nothing otherwise)
+        if (animator.HasState(layer, hash))
+        {
+            animator.Play(stateName, layer);
+        }
+        // else: do nothing (avoids repeated warnings)
+    }
+
+    private void FixedUpdate()
+    {
+        if (player == null) return;
+
+        float distance = Vector2.Distance(transform.position, player.position);
+
+        // Move only if not attacking and within detection range but outside attack range
+        if (!isAttacking && distance <= detectionRange && distance > attackRange)
+        {
+            Vector2 direction = ((Vector2)player.position - rb.position).normalized;
+            // use linearVelocity (non-obsolete)
+            rb.linearVelocity = direction * moveSpeed;
         }
         else
         {
-            animator.Play("Idle");
+            rb.linearVelocity = Vector2.zero; // Stop completely during attack or out of range
         }
     }
 
