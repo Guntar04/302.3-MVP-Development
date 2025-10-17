@@ -11,12 +11,71 @@ public class PlayerSpawner : MonoBehaviour
 
     private void Start()
     {
-        StartCoroutine(WaitAndPlacePlayer());
+        // keep Start minimal — defer placement to PlacePlayer which will acquire fresh DungeonData
+        if (autoPlaceOnStart)
+            StartCoroutine(WaitAndPlacePlayerCoroutine(2f));
     }
 
-    private System.Collections.IEnumerator WaitAndPlacePlayer()
+    // public method used by generator or other managers
+    public void PlacePlayer()
     {
-        float timeout = 2f; // seconds to wait for the generator
+        // always resolve DungeonData at call time (avoid stale null captured at Start)
+        dungeonData = FindFirstObjectByType<DungeonData>();
+        if (dungeonData == null || dungeonData.Rooms == null || dungeonData.Rooms.Count == 0)
+        {
+            Debug.LogWarning("PlayerSpawner: No dungeon data/rooms available.");
+            return;
+        }
+
+        // skip if a player already exists (prevents duplicates)
+        if (dungeonData.PlayerReference != null)
+        {
+            Debug.Log("PlayerSpawner: Player already exists, skipping PlacePlayer().");
+            return;
+        }
+
+        if (playerPrefab == null)
+        {
+            Debug.LogWarning("PlayerSpawner: playerPrefab not assigned.");
+            return;
+        }
+
+        int index = playerRoomIndex;
+        if (index < 0 || index >= dungeonData.Rooms.Count)
+        {
+            // compute leftmost room by averaging floor tile positions
+            float minX = float.MaxValue;
+            for (int i = 0; i < dungeonData.Rooms.Count; i++)
+            {
+                var c = GetRoomCenter(dungeonData.Rooms[i]);
+                if (c.x < minX)
+                {
+                    minX = c.x;
+                    index = i;
+                }
+            }
+        }
+
+        var room = dungeonData.Rooms[index];
+        if (room == null || room.FloorTiles == null || room.FloorTiles.Count == 0)
+        {
+            Debug.LogWarning("PlayerSpawner: chosen room has no floor tiles.");
+            return;
+        }
+
+        var candidates = room.FloorTiles.ToList();
+        var chosen = candidates[UnityEngine.Random.Range(0, candidates.Count)];
+        Vector3 world = new Vector3(chosen.x + 0.5f, chosen.y + 0.5f, 0f);
+        var p = Instantiate(playerPrefab, world, Quaternion.identity);
+        dungeonData.PlayerReference = p;
+
+        // optionally immediately assign camera if present
+        var cam = FindFirstObjectByType<CameraFollow>();
+        if (cam != null) cam.player = p.transform;
+    }
+
+    private System.Collections.IEnumerator WaitAndPlacePlayerCoroutine(float timeout)
+    {
         float t = 0f;
         while (t < timeout)
         {
@@ -34,54 +93,7 @@ public class PlayerSpawner : MonoBehaviour
             yield break;
         }
 
-        if (autoPlaceOnStart) PlacePlayer();
-    }
-
-    public void PlacePlayer()
-    {
-        // skip if generator or another spawner already placed a player
-        var dd = FindFirstObjectByType<DungeonData>();
-        if (dd != null && dd.PlayerReference != null)
-        {
-            Debug.Log("PlayerSpawner: Player already exists, skipping PlacePlayer().");
-            return;
-        }
-
-        if (dungeonData == null || dungeonData.Rooms == null || dungeonData.Rooms.Count == 0)
-        {
-            Debug.LogWarning("PlayerSpawner: No dungeon data/rooms available.");
-            return;
-        }
-        if (playerPrefab == null)
-        {
-            Debug.LogWarning("PlayerSpawner: playerPrefab not assigned.");
-            return;
-        }
-
-        int index = playerRoomIndex;
-        if (index < 0 || index >= dungeonData.Rooms.Count)
-        {
-            // pick leftmost room by computing each room's center from its floor tiles
-            float minX = float.MaxValue;
-            for (int i = 0; i < dungeonData.Rooms.Count; i++)
-            {
-                var c = GetRoomCenter(dungeonData.Rooms[i]);
-                if (c.x < minX) { minX = c.x; index = i; }
-            }
-        }
-
-        var room = dungeonData.Rooms[index];
-        if (room == null || room.FloorTiles == null || room.FloorTiles.Count == 0)
-        {
-            Debug.LogWarning("PlayerSpawner: chosen room has no floor tiles.");
-            return;
-        }
-
-        var candidates = room.FloorTiles.ToList();
-        var chosen = candidates[UnityEngine.Random.Range(0, candidates.Count)];
-        Vector3 world = new Vector3(chosen.x + 0.5f, chosen.y + 0.5f, 0f);
-        var p = Instantiate(playerPrefab, world, Quaternion.identity);
-        dungeonData.PlayerReference = p;
+        PlacePlayer();
     }
 
     private Vector2 GetRoomCenter(Room room)
@@ -94,7 +106,6 @@ public class PlayerSpawner : MonoBehaviour
             sy += t.y;
         }
         float cnt = room.FloorTiles.Count;
-        // return center in grid coordinates (no +0.5, used only for comparisons)
         return new Vector2(sx / cnt, sy / cnt);
     }
 }
