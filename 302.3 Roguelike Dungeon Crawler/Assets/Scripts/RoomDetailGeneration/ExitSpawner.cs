@@ -1,5 +1,7 @@
 using System.Linq;
 using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
 
 public class ExitSpawner : MonoBehaviour
 {
@@ -60,5 +62,61 @@ public class ExitSpawner : MonoBehaviour
         }
         float cnt = room.FloorTiles.Count;
         return new Vector2(sx / cnt, sy / cnt);
+    }
+
+    public float spawnCheckRadius = 0.25f;
+    public int spawnPositionAttempts = 12;
+    public float spawnSearchRadius = 1f;
+
+    private bool IsPositionFree(Vector2 pos)
+    {
+        var hits = Physics2D.OverlapCircleAll(pos, spawnCheckRadius);
+        foreach (var h in hits)
+        {
+            if (h == null) continue;
+            if (h.GetComponent<Chest>() != null) return false;
+            if (h.GetComponent<ExitTrigger>() != null) return false;
+            if (h.GetComponent<AIController>() != null) return false;
+            if (h.GetComponent<LootPickup>() != null) return false;
+            if (h.GetComponent<ExitKeyPickup>() != null) return false;
+            if (h.GetComponent<HealthPot>() != null) return false;
+        }
+        return true;
+    }
+
+    private bool FindFreeSpawnPosition(Vector2 origin, out Vector2 result)
+    {
+        if (IsPositionFree(origin))
+        {
+            result = origin;
+            return true;
+        }
+
+        for (int i = 0; i < spawnPositionAttempts; i++)
+        {
+            float angle = (i / (float)spawnPositionAttempts) * Mathf.PI * 2f;
+            float r = Random.Range(0f, spawnSearchRadius);
+            Vector2 candidate = origin + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * r;
+            if (IsPositionFree(candidate))
+            {
+                result = candidate;
+                return true;
+            }
+        }
+
+        result = origin;
+        return false;
+    }
+
+    // Example usage inside your existing spawn method:
+    private void SpawnExitAt(Vector2 spawnPos)
+    {
+        if (!FindFreeSpawnPosition(spawnPos, out Vector2 freePos))
+        {
+            Debug.Log($"ExitSpawner: no free position found near {spawnPos}, skipping exit spawn.");
+            return;
+        }
+
+        Instantiate(exitPrefab, (Vector3)freePos, Quaternion.identity);
     }
 }

@@ -123,8 +123,8 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 46cf818a43d83a4478cfd5875cd4bfa7, type: 2}
+  m_SortingOrder: 1
+  m_Sprite: {fileID: 21300000, guid: 678986e7fee102a4d9d4e1b560cacb9f, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -150,3 +150,5 @@ MonoBehaviour:
   OnRequestNextFloor:
     m_PersistentCalls:
       m_Calls: []
+  noKeyUIPrefab: {fileID: 3283098216751668891, guid: b79e28737bb5aa84c8b43704a5213f12, type: 3}
+  noKeyUIDuration: 3

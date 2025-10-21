@@ -13,13 +13,14 @@ public class DungeonData : MonoBehaviour
     public List<Room> Rooms = new List<Room>();
     public HashSet<Vector2Int> Path = new HashSet<Vector2Int>();
 
+    // New: mark if an exit key has been dropped this level (prevents further drops)
+    public bool ExitKeySpawned = false;
+
     public void Reset()
     {
-        // Clear stored room/path data
         Rooms?.Clear();
         Path?.Clear();
 
-        // If there is a runtime player instance, destroy it safely depending on play/edit mode
         if (PlayerReference != null)
         {
             if (Application.isPlaying)
@@ -29,7 +30,8 @@ public class DungeonData : MonoBehaviour
             PlayerReference = null;
         }
 
-        // Do NOT Destroy(this.gameObject) here — the generator/editor code expects DungeonData to exist.
+        // Reset per-level flag so next generation can drop the exit key again
+        ExitKeySpawned = false;
     }
 
     public IEnumerator TutorialCoroutine(Action code)

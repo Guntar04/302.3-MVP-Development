@@ -209,4 +209,6 @@ MonoBehaviour:
   destroyDelay: 3
   animator: {fileID: 4738075739300005283}
   healthPotPrefab: {fileID: 7530052757700064916, guid: 0eceee51177d5cc43b610553f33f9b1b, type: 3}
-  healthDropChance: 0.3
+  healthDropChance: 0.2
+  exitKeyPrefab: {fileID: 4997379437136380138, guid: 2ed9538f3004ed445b460dbf2ba7dc1b, type: 3}
+  exitKeyDropChance: 0.05

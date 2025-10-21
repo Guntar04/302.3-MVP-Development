@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c56254b463ff67499304139ed1ef6df, type: 3}
+  m_Name: Sword
+  m_EditorClassIdentifier: 
+  lootSprite: {fileID: -7888296697152109952, guid: a900aba64532c714b8df745b7bb0fc6b, type: 3}
+  lootName: Sword
+  dropChance: 100
+  category: 1
+  equipmentType: 0
+  minAttack: 2
+  maxAttack: 10
+  minSpeed: 2
+  maxSpeed: 10
+  minDefense: 0
+  maxDefense: 0

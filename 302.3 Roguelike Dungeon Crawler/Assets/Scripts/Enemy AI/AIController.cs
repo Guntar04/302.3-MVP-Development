@@ -18,20 +18,17 @@ public class AIController : MonoBehaviour
     public float moveSpeed = 2f;
 
     [Header("Stun / Death")]
-    [Tooltip("Seconds stunned after being hit")]
     public float hitStunDuration = 2f;
-    [Tooltip("Fallback seconds to wait before destroying dead enemy if no animation length can be determined")]
     [SerializeField] private float destroyDelay = 3f;
 
     [Header("Animation")]
     [SerializeField] private Animator animator;
 
     [Header("Drops")]
-    [Tooltip("Prefab to spawn when this enemy dies (optional)")]
     public GameObject healthPotPrefab;
-    [Range(0f, 1f)]
-    [Tooltip("Chance (0..1) that a health pot will drop on death")]
-    public float healthDropChance = 0.333f;
+    [Range(0f, 1f)] public float healthDropChance = 0.333f;
+    public GameObject exitKeyPrefab;
+    [Range(0f, 1f)] public float exitKeyDropChance = 0.01f;
 
     private int currentHealth;
     private Transform player;
@@ -52,6 +49,9 @@ public class AIController : MonoBehaviour
 
     // add: avoid re-triggering hit every frame
     private bool hitTriggered = false;
+
+    // new field: set once in Die() if this death must guarantee the exit key
+    private bool guaranteeExitDrop = false;
 
     void Awake()
     {
@@ -198,7 +198,20 @@ public class AIController : MonoBehaviour
     private void Die()
     {
         if (isDead) return;
-        isDead = true;
+
+        // compute alive enemies BEFORE marking this one dead
+        int aliveCount = 0;
+        var allEnemies = UnityEngine.Object.FindObjectsByType<AIController>(UnityEngine.FindObjectsSortMode.None);
+        foreach (var e in allEnemies)
+            if (!e.isDead) aliveCount++;
+
+        // If this is the last alive enemy (aliveCount <= 1) and the dungeon hasn't spawned an exit key yet,
+        // force a guaranteed drop for this death.
+        var dd = UnityEngine.Object.FindAnyObjectByType<DungeonData>();
+        bool exitKeyAlreadySpawned = dd != null && dd.ExitKeySpawned;
+        guaranteeExitDrop = (!exitKeyAlreadySpawned && aliveCount <= 1);
+
+        isDead = true; // mark dead early so other systems see it
 
         StopAllCoroutines();
         if (rb != null) { rb.linearVelocity = Vector2.zero; rb.simulated = false; }
@@ -213,18 +226,28 @@ public class AIController : MonoBehaviour
             animator.Play(deathStateHash, 0, 0f);
         }
 
-        // removed immediate spawn here — drop will occur after death animation finishes
-
         // wait for death animation to finish then destroy (use configured destroyDelay)
         StartCoroutine(WaitForDeathAndDestroy(destroyDelay));
     }
+
     private IEnumerator WaitForDeathAndDestroy(float fallback)
     {
         if (animator == null)
         {
-            // If no animator, spawn drop immediately then destroy after fallback
+            // If no animator, spawn drop(s) immediately then destroy after fallback
             if (healthPotPrefab != null && Random.value <= healthDropChance)
                 Instantiate(healthPotPrefab, transform.position, Quaternion.identity);
+
+            // EXIT KEY: only spawn if not already spawned this level
+            if (exitKeyPrefab != null && (guaranteeExitDrop || Random.value <= exitKeyDropChance))
+            {
+                var dd0 = UnityEngine.Object.FindAnyObjectByType<DungeonData>();
+                if (dd0 == null || dd0.ExitKeySpawned == false)
+                {
+                    Instantiate(exitKeyPrefab, transform.position, Quaternion.identity);
+                    if (dd0 != null) dd0.ExitKeySpawned = true;
+                }
+            }
 
             yield return new WaitForSeconds(fallback);
             Destroy(gameObject);
@@ -252,6 +275,17 @@ public class AIController : MonoBehaviour
             if (healthPotPrefab != null && Random.value <= healthDropChance)
                 Instantiate(healthPotPrefab, transform.position, Quaternion.identity);
 
+            // exit key fallback: respect per-level flag and guarantee flag
+            if (exitKeyPrefab != null && (guaranteeExitDrop || Random.value <= exitKeyDropChance))
+            {
+                var dd1 = UnityEngine.Object.FindAnyObjectByType<DungeonData>();
+                if (dd1 == null || dd1.ExitKeySpawned == false)
+                {
+                    Instantiate(exitKeyPrefab, transform.position, Quaternion.identity);
+                    if (dd1 != null) dd1.ExitKeySpawned = true;
+                }
+            }
+
             Destroy(gameObject);
             yield break;
         }
@@ -262,9 +296,20 @@ public class AIController : MonoBehaviour
             var info = animator.GetCurrentAnimatorStateInfo(layer);
             if (info.shortNameHash == deathHash && info.normalizedTime >= 1f)
             {
-                // spawn drop at enemy position immediately before destroying
+                // spawn health pot (chance)
                 if (healthPotPrefab != null && Random.value <= healthDropChance)
                     Instantiate(healthPotPrefab, transform.position, Quaternion.identity);
+
+                // spawn exit key only if not already spawned this level and either guaranteed or passed chance
+                if (exitKeyPrefab != null && (guaranteeExitDrop || Random.value <= exitKeyDropChance))
+                {
+                    var dd2 = UnityEngine.Object.FindAnyObjectByType<DungeonData>();
+                    if (dd2 == null || dd2.ExitKeySpawned == false)
+                    {
+                        Instantiate(exitKeyPrefab, transform.position, Quaternion.identity);
+                        if (dd2 != null) dd2.ExitKeySpawned = true;
+                    }
+                }
 
                 // prevent Animator from snapping back to Idle by disabling it before destruction
                 animator.enabled = false;
@@ -278,6 +323,16 @@ public class AIController : MonoBehaviour
             {
                 if (healthPotPrefab != null && Random.value <= healthDropChance)
                     Instantiate(healthPotPrefab, transform.position, Quaternion.identity);
+
+                if (exitKeyPrefab != null && (guaranteeExitDrop || Random.value <= exitKeyDropChance))
+                {
+                    var dd3 = UnityEngine.Object.FindAnyObjectByType<DungeonData>();
+                    if (dd3 == null || dd3.ExitKeySpawned == false)
+                    {
+                        Instantiate(exitKeyPrefab, transform.position, Quaternion.identity);
+                        if (dd3 != null) dd3.ExitKeySpawned = true;
+                    }
+                }
 
                 Destroy(gameObject);
                 yield break;

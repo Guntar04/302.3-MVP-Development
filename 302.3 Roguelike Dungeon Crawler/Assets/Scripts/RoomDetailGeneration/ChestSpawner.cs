@@ -1,7 +1,7 @@
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 
 public class ChestSpawner : MonoBehaviour
 {
@@ -11,6 +11,13 @@ public class ChestSpawner : MonoBehaviour
     [SerializeField] private int maxChests = 2;
     [SerializeField] private bool autoSpawnOnStart = true;
     [SerializeField] private float waitTimeout = 2f;
+
+    [Tooltip("Radius used to detect existing objects when choosing a spawn position")]
+    public float spawnCheckRadius = 0.25f;
+    [Tooltip("Number of attempts to find a nearby free position")]
+    public int spawnPositionAttempts = 12;
+    [Tooltip("Max distance (world units) to search around the desired tile")]
+    public float spawnSearchRadius = 1f;
 
     private DungeonData dd;
 
@@ -110,5 +117,61 @@ public class ChestSpawner : MonoBehaviour
         }
 
         SpawnChests();
+    }
+
+    private bool IsPositionFree(Vector2 pos)
+    {
+        // check colliders overlapping the spot
+        var hits = Physics2D.OverlapCircleAll(pos, spawnCheckRadius);
+        foreach (var h in hits)
+        {
+            if (h == null) continue;
+            // check known components that represent blocking/important objects
+            if (h.GetComponent<Chest>() != null) return false;
+            if (h.GetComponent<ExitTrigger>() != null) return false;
+            if (h.GetComponent<AIController>() != null) return false;
+            if (h.GetComponent<LootPickup>() != null) return false;
+            if (h.GetComponent<ExitKeyPickup>() != null) return false;
+            if (h.GetComponent<HealthPot>() != null) return false;
+            // you can add other checks (tags/layers) as needed
+        }
+        return true;
+    }
+
+    private bool FindFreeSpawnPosition(Vector2 origin, out Vector2 result)
+    {
+        if (IsPositionFree(origin))
+        {
+            result = origin;
+            return true;
+        }
+
+        // try several random offsets in a circle around the origin
+        for (int i = 0; i < spawnPositionAttempts; i++)
+        {
+            float angle = (i / (float)spawnPositionAttempts) * Mathf.PI * 2f;
+            float r = Random.Range(0f, spawnSearchRadius);
+            Vector2 candidate = origin + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * r;
+            if (IsPositionFree(candidate))
+            {
+                result = candidate;
+                return true;
+            }
+        }
+
+        result = origin;
+        return false;
+    }
+
+    // Example usage inside your existing spawn method:
+    private void SpawnChestAt(Vector2 spawnPos)
+    {
+        if (!FindFreeSpawnPosition(spawnPos, out Vector2 freePos))
+        {
+            Debug.Log($"ChestSpawner: no free position found near {spawnPos}, skipping chest spawn.");
+            return;
+        }
+
+        Instantiate(chestPrefab, (Vector3)freePos, Quaternion.identity);
     }
 }
