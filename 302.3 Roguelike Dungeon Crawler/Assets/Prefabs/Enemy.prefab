@@ -213,3 +213,6 @@ MonoBehaviour:
   exitKeyPrefab: {fileID: 4997379437136380138, guid: 2ed9538f3004ed445b460dbf2ba7dc1b, type: 3}
   exitKeyDropChance: 0.05
   hpBarPrefab: {fileID: 5010947230403562031, guid: abf7a5fecb1e55149aef770099a446fd, type: 3}
+  playerLayerMask:
+    serializedVersion: 2
+    m_Bits: 64

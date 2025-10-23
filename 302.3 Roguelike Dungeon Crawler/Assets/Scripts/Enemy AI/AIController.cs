@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 
-[RequireComponent(typeof(Rigidbody2D))] // Ensure Rigidbody2D is attached
+[RequireComponent(typeof(Rigidbody2D))]
 public class AIController : MonoBehaviour
 {
     [Header("Stats")]
@@ -54,10 +54,19 @@ public class AIController : MonoBehaviour
     private bool hitTriggered = false;
     private bool guaranteeExitDrop = false;
 
+    [Header("Attack Settings")]
+    public LayerMask playerLayerMask = Physics2D.DefaultRaycastLayers;
+    // store previous body type while performing an attack (to prevent physics push)
+    private RigidbodyType2D savedBodyType = RigidbodyType2D.Dynamic;
+
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         baseScale = transform.localScale;
+
+        // fallback: if no layer mask was assigned, use all layers so tag-checking still works
+        if (playerLayerMask == 0)
+            playerLayerMask = Physics2D.DefaultRaycastLayers;
     }
 
     void Start()
@@ -85,9 +94,26 @@ public class AIController : MonoBehaviour
 
         float distance = Vector2.Distance(transform.position, player.position);
 
-        shouldMoveFlag = !isDead && !isStunned && !isAttacking && distance <= detectionRange && distance > attackRange;
+        Collider2D[] hits;
 
-        if (!isStunned && !isAttacking && distance <= attackRange && attackTimer <= 0f)
+        hits = Physics2D.OverlapCircleAll(transform.position, attackRange, playerLayerMask);
+
+        bool playerInAttackRange = false;
+        foreach (var h in hits)
+        {
+            if (h == null) continue;
+            if (h.CompareTag("Player") || (h.attachedRigidbody != null && h.attachedRigidbody.gameObject.CompareTag("Player")))
+            {
+                playerInAttackRange = true;
+                break;
+            }
+        }
+
+        // move only when not dead/stunned/attacking and player is within detection range but NOT in attack range
+        shouldMoveFlag = !isDead && !isStunned && !isAttacking && distance <= detectionRange && !playerInAttackRange;
+
+        // if player is within attackRange and attack timer ready -> start attack
+        if (!isStunned && !isAttacking && playerInAttackRange && attackTimer <= 0f)
         {
             StartCoroutine(Attack());
             attackTimer = attackCooldown;
@@ -122,8 +148,6 @@ public class AIController : MonoBehaviour
 
         animator.SetBool(ParamIsMoving, shouldMoveFlag);
 
-        // remove continuous trigger here — only trigger Hit once when damage happens
-        // if (isStunned) animator.SetTrigger(ParamHit);
         if (isDead)
         {
             animator.SetBool(ParamIsMoving, false);
@@ -136,17 +160,62 @@ public class AIController : MonoBehaviour
         if (isDead || isStunned) yield break;
 
         isAttacking = true;
+        shouldMoveFlag = false;
+        UpdateAnimationParameters();
+
+        if (rb != null)
+        {
+            savedBodyType = rb.bodyType;
+            rb.bodyType = RigidbodyType2D.Kinematic;
+            rb.linearVelocity = Vector2.zero;
+        }
 
         if (animator != null) animator.SetTrigger(ParamAttack);
 
-        if (player != null)
+        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, attackRange, playerLayerMask);
+        foreach (var hit in hits)
         {
-            var playerController = player.GetComponent<PlayerController>();
-            if (playerController != null) playerController.health -= attackPower;
+            if (hit == null) continue;
+            if (hit.CompareTag("Player") || (hit.attachedRigidbody != null && hit.attachedRigidbody.gameObject.CompareTag("Player")))
+            {
+                var pc = hit.GetComponent<PlayerController>() ?? hit.GetComponentInParent<PlayerController>();
+                if (pc != null)
+                {
+                    var method = pc.GetType().GetMethod("ApplyHit", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
+                    if (method != null)
+                    {
+                        try { method.Invoke(pc, new object[] { attackPower, 0.05f }); }
+                        catch { }
+                    }
+                    else
+                    {
+                        var field = pc.GetType().GetField("health", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
+                        if (field != null && field.FieldType == typeof(int))
+                        {
+                            int prev = (int)field.GetValue(pc);
+                            field.SetValue(pc, prev - attackPower);
+                        }
+                    }
+                }
+                break;
+            }
         }
 
-        yield return new WaitForSeconds(attackDuration);
+        float t = 0f;
+        while (t < attackDuration)
+        {
+            t += Time.deltaTime;
+            yield return null;
+        }
+
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+            rb.bodyType = savedBodyType;
+        }
+
         isAttacking = false;
+        hitTriggered = false;
     }
 
     public void TakeDamage(int damage)
@@ -442,5 +511,14 @@ public class AIController : MonoBehaviour
             if (rb.bodyType != RigidbodyType2D.Dynamic)
                 rb.MovePosition(rb.position);
         }
+    }
+
+    // draw attack range in editor to help tuning
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, attackRange);
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, detectionRange);
     }
 }
