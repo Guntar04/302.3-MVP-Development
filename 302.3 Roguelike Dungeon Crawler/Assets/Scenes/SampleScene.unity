@@ -9059,8 +9059,8 @@ MonoBehaviour:
   randomWalkParameters: {fileID: 11400000, guid: fb6ba6bb613dd12419d6b3246332f5e8, type: 2}
   minRoomWidth: 8
   minRoomHeight: 8
-  dungeonWidth: 40
-  dungeonHeight: 40
+  dungeonWidth: 50
+  dungeonHeight: 50
   offset: 2
   randomWalkRooms: 1
   autoGenerateOnStart: 1
@@ -9387,7 +9387,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 5
   m_TargetDisplay: 0
 --- !u!224 &2031378554
 RectTransform:

@@ -32,11 +32,11 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
     private void CreateRooms()
     {
         var space = new BoundsInt((Vector3Int)startPosition, new Vector3Int(dungeonWidth, dungeonHeight, 0));
-        Debug.Log($"RoomFirstDungeonGenerator: Creating rooms in space {space} (minRoom {minRoomWidth}x{minRoomHeight}, offset {offset})");
+        //Debug.Log($"RoomFirstDungeonGenerator: Creating rooms in space {space} (minRoom {minRoomWidth}x{minRoomHeight}, offset {offset})");
 
         var roomsList = ProceduralGenerationAlgorithms.BinarySpacePartitioning(space, minRoomWidth, minRoomHeight);
         int bspCount = roomsList == null ? 0 : roomsList.Count;
-        Debug.Log($"RoomFirstDungeonGenerator: BSP returned {bspCount} rooms.");
+        //Debug.Log($"RoomFirstDungeonGenerator: BSP returned {bspCount} rooms.");
 
         if (roomsList == null || roomsList.Count == 0)
         {
@@ -51,7 +51,7 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
         else
             floor = CreateSimpleRooms(roomsList);
 
-        Debug.Log($"RoomFirstDungeonGenerator: Floor positions generated: {floor.Count}");
+        //Debug.Log($"RoomFirstDungeonGenerator: Floor positions generated: {floor.Count}");
 
         List<Vector2Int> roomCenters = new List<Vector2Int>();
         foreach (var room in roomsList)
@@ -60,7 +60,7 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
         HashSet<Vector2Int> corridors = ConnectRooms(roomCenters);
         floor.UnionWith(corridors);
 
-        Debug.Log($"RoomFirstDungeonGenerator: After connecting rooms floor count={floor.Count} corridors={corridors.Count}");
+        //Debug.Log($"RoomFirstDungeonGenerator: After connecting rooms floor count={floor.Count} corridors={corridors.Count}");
 
         if (tileMapVisualizer == null)
         {
@@ -92,7 +92,7 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
             if (resetMethod != null)
             {
                 resetMethod.Invoke(dd, null);
-                Debug.Log("RoomFirstDungeonGenerator: Called DungeonData.Reset().");
+                //Debug.Log("RoomFirstDungeonGenerator: Called DungeonData.Reset().");
             }
             else
             {
@@ -130,7 +130,7 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
         }
 
         dd.Path = new HashSet<Vector2Int>(corridors);
-        Debug.Log($"RoomFirstDungeonGenerator: Populated DungeonData with {addedRooms} rooms. DungeonData.Path count={dd.Path?.Count ?? 0}");
+        //Debug.Log($"RoomFirstDungeonGenerator: Populated DungeonData with {addedRooms} rooms. DungeonData.Path count={dd.Path?.Count ?? 0}");
 
         // invoke downstream processors (they should check dd.Rooms)
         // use reflection helper to avoid compile-time dependency on optional processor types

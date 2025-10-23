@@ -1,56 +1,57 @@
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
-[RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(Rigidbody2D))] // Ensure Rigidbody2D is attached
 public class AIController : MonoBehaviour
 {
     [Header("Stats")]
-    public int maxHealth = 10;
-    public int attackPower = 1;
+    public int maxHealth = 10; // Maximum health of the enemy
+    public int attackPower = 1; // Damage dealt to the player per attack
 
     [Header("Combat")]
-    public float attackRange = 1.5f;
-    public float attackCooldown = 1f;
-    public float attackDuration = 0.5f;
+    public float attackRange = 1.5f; // Range at which the enemy can attack
+    public float attackCooldown = 1f; // Time between attacks
+    public float attackDuration = 0.5f; // Duration of the attack animation
 
     [Header("Detection & Movement")]
-    public float detectionRange = 4f;
-    public float moveSpeed = 2f;
+    public float detectionRange = 4f; // Range at which the enemy detects the player
+    public float moveSpeed = 2f; // Movement speed of the enemy
 
     [Header("Stun / Death")]
-    public float hitStunDuration = 2f;
-    [SerializeField] private float destroyDelay = 3f;
+    public float hitStunDuration = 2f; // Duration of stun when hit
+    [SerializeField] private float destroyDelay = 3f; // Delay before destroying the enemy after death
 
     [Header("Animation")]
-    [SerializeField] private Animator animator;
+    [SerializeField] private Animator animator; // Reference to the Animator component
 
     [Header("Drops")]
-    public GameObject healthPotPrefab;
-    [Range(0f, 1f)] public float healthDropChance = 0.333f;
-    public GameObject exitKeyPrefab;
-    [Range(0f, 1f)] public float exitKeyDropChance = 0.01f;
+    public GameObject healthPotPrefab; // Prefab for health potion
+    [Range(0f, 1f)] public float healthDropChance = 0.333f; // The % chance to drop a health potion
+    public GameObject exitKeyPrefab; // Prefab for exit key
+    [Range(0f, 1f)] public float exitKeyDropChance = 0.01f; // The % chance to drop an exit key
 
-    private int currentHealth;
-    private Transform player;
-    private Rigidbody2D rb;
+    [SerializeField] private GameObject hpBarPrefab; // Prefab for the HP bar
+    private GameObject hpBarInstance; // Instance of the HP bar
+    private RectTransform greenBar; // Reference to the green bar
+    private RectTransform redBar; // Reference to the red bar
+
+    private int currentHealth; // Current health of the enemy
+    private Transform player; // Reference to the player's transform
+    private Rigidbody2D rb; // Reference to the Rigidbody2D component
     private bool isAttacking = false;
     private bool isStunned = false;
     private bool isDead = false;
     private float attackTimer = 0f;
 
     private Vector3 baseScale;
-    // Animator parameter names (change here if you rename in the controller)
     private static readonly int ParamIsMoving = Animator.StringToHash("isMoving");
     private static readonly int ParamHit = Animator.StringToHash("Hit");
     private static readonly int ParamAttack = Animator.StringToHash("Attack");
     private static readonly int ParamDeath = Animator.StringToHash("Death");
 
     private bool shouldMoveFlag = false;
-
-    // add: avoid re-triggering hit every frame
     private bool hitTriggered = false;
-
-    // new field: set once in Die() if this death must guarantee the exit key
     private bool guaranteeExitDrop = false;
 
     void Awake()
@@ -77,7 +78,6 @@ public class AIController : MonoBehaviour
 
         if (player == null)
         {
-            // ensure animator reflects idle
             shouldMoveFlag = false;
             UpdateAnimationParameters();
             return;
@@ -85,7 +85,6 @@ public class AIController : MonoBehaviour
 
         float distance = Vector2.Distance(transform.position, player.position);
 
-        // movement intent: chase when within detection but outside attack range
         shouldMoveFlag = !isDead && !isStunned && !isAttacking && distance <= detectionRange && distance > attackRange;
 
         if (!isStunned && !isAttacking && distance <= attackRange && attackTimer <= 0f)
@@ -96,6 +95,13 @@ public class AIController : MonoBehaviour
 
         UpdateAnimationParameters();
         FlipSprite();
+
+        // Update HP bar position
+        if (hpBarInstance != null)
+        {
+            Vector2 screenPosition = Camera.main.WorldToScreenPoint(transform.position + new Vector3(0, 1, 0));
+            hpBarInstance.GetComponent<RectTransform>().position = screenPosition;
+        }
     }
 
     private void TryAssignPlayer()
@@ -151,7 +157,42 @@ public class AIController : MonoBehaviour
 
         if (currentHealth > 0)
         {
-            // only trigger hit animation once per hit/stun
+            // Show the HP bar if it hasn't been instantiated yet
+            if (hpBarInstance == null)
+            {
+                if (hpBarPrefab == null)
+                {
+                    Debug.LogError("HP Bar Prefab is not assigned!");
+                    return;
+                }
+
+                var canvas = GameObject.Find("Canvas");
+                if (canvas == null)
+                {
+                    Debug.LogError("Canvas not found in the scene!");
+                    return;
+                }
+
+                // Instantiate the HP bar as a child of the Canvas
+                hpBarInstance = Instantiate(hpBarPrefab, canvas.transform);
+                greenBar = hpBarInstance.transform.Find("GreenBar")?.GetComponent<RectTransform>();
+                redBar = hpBarInstance.transform.Find("RedBar")?.GetComponent<RectTransform>();
+
+                if (greenBar == null || redBar == null)
+                {
+                    Debug.LogError("GreenBar or RedBar is missing in the HP Bar prefab!");
+                    return;
+                }
+
+                // Set the position of the HP bar relative to the enemy
+                Vector2 screenPosition = Camera.main.WorldToScreenPoint(transform.position + new Vector3(0, 1, 0));
+                hpBarInstance.GetComponent<RectTransform>().position = screenPosition;
+            }
+
+            // Update the HP bar
+            UpdateHPBar();
+
+            // Trigger hit animation
             if (!hitTriggered)
             {
                 hitTriggered = true;
@@ -164,6 +205,28 @@ public class AIController : MonoBehaviour
         {
             Die();
         }
+    }
+
+    private void UpdateHPBar()
+    {
+        if (hpBarPrefab == null)
+        {
+            Debug.LogError("HP Bar Prefab is not assigned!");
+            return;
+        }
+        if (greenBar == null || redBar == null)
+        {
+            Debug.LogError("GreenBar or RedBar is missing in the HP Bar prefab!");
+            return;
+        }
+
+        float healthPercentage = (float)currentHealth / maxHealth;
+
+        // Update the green bar (remaining HP)
+        greenBar.GetComponent<Image>().fillAmount = healthPercentage;
+
+        // Update the red bar (missing HP)
+        redBar.GetComponent<Image>().fillAmount = 1 - healthPercentage;
     }
 
     private IEnumerator HitStunCoroutine(float duration)
@@ -199,19 +262,7 @@ public class AIController : MonoBehaviour
     {
         if (isDead) return;
 
-        // compute alive enemies BEFORE marking this one dead
-        int aliveCount = 0;
-        var allEnemies = UnityEngine.Object.FindObjectsByType<AIController>(UnityEngine.FindObjectsSortMode.None);
-        foreach (var e in allEnemies)
-            if (!e.isDead) aliveCount++;
-
-        // If this is the last alive enemy (aliveCount <= 1) and the dungeon hasn't spawned an exit key yet,
-        // force a guaranteed drop for this death.
-        var dd = UnityEngine.Object.FindAnyObjectByType<DungeonData>();
-        bool exitKeyAlreadySpawned = dd != null && dd.ExitKeySpawned;
-        guaranteeExitDrop = (!exitKeyAlreadySpawned && aliveCount <= 1);
-
-        isDead = true; // mark dead early so other systems see it
+        isDead = true;
 
         StopAllCoroutines();
         if (rb != null) { rb.linearVelocity = Vector2.zero; rb.simulated = false; }
@@ -221,12 +272,15 @@ public class AIController : MonoBehaviour
         if (animator != null)
         {
             animator.SetBool(ParamIsMoving, false);
-            // force Play Death instantly so we can wait for its end
-            int deathStateHash = Animator.StringToHash("Death");
-            animator.Play(deathStateHash, 0, 0f);
+            animator.SetTrigger(ParamDeath);
         }
 
-        // wait for death animation to finish then destroy (use configured destroyDelay)
+        // Destroy the HP bar
+        if (hpBarInstance != null)
+        {
+            Destroy(hpBarInstance);
+        }
+
         StartCoroutine(WaitForDeathAndDestroy(destroyDelay));
     }
 

@@ -30,7 +30,7 @@ Transform:
   m_GameObject: {fileID: 7854324369413684749}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -4.477, y: 2.562, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 5, y: 5, z: 5}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -135,7 +135,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.13, y: 0.19}
+  m_Size: {x: 0.17922655, y: 0.19777268}
   m_EdgeRadius: 0
 --- !u!50 &8035586081252671790
 Rigidbody2D:
@@ -212,3 +212,4 @@ MonoBehaviour:
   healthDropChance: 0.2
   exitKeyPrefab: {fileID: 4997379437136380138, guid: 2ed9538f3004ed445b460dbf2ba7dc1b, type: 3}
   exitKeyDropChance: 0.05
+  hpBarPrefab: {fileID: 5010947230403562031, guid: abf7a5fecb1e55149aef770099a446fd, type: 3}
