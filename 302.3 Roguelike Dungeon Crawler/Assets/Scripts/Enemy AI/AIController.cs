@@ -31,10 +31,19 @@ public class AIController : MonoBehaviour
     public GameObject exitKeyPrefab; // Prefab for exit key
     [Range(0f, 1f)] public float exitKeyDropChance = 0.01f; // The % chance to drop an exit key
 
-    [SerializeField] private GameObject hpBarPrefab; // Prefab for the HP bar
-    private GameObject hpBarInstance; // Instance of the HP bar
-    private RectTransform greenBar; // Reference to the green bar
-    private RectTransform redBar; // Reference to the red bar
+    [Header("HP Bar")]
+    public GameObject hpBarPrefab;
+    public Transform hpAnchor;           // optional: assign a child transform that follows the sprite/animation
+    public Vector3 hpOffset = new Vector3(0f, 1f, 0f); // fallback offset if no anchor
+
+    private GameObject hpBarInstance;
+    private RectTransform greenBar;
+    private RectTransform redBar;
+
+    // cached canvas for UI positioning
+    private Canvas cachedCanvas;
+    private RectTransform cachedCanvasRect;
+    private Camera cachedCanvasCamera;
 
     private int currentHealth; // Current health of the enemy
     private Transform player; // Reference to the player's transform
@@ -52,6 +61,7 @@ public class AIController : MonoBehaviour
 
     private bool shouldMoveFlag = false;
     private bool hitTriggered = false;
+    // new field to remember if this death must guarantee the exit key
     private bool guaranteeExitDrop = false;
 
     [Header("Attack Settings")]
@@ -71,6 +81,34 @@ public class AIController : MonoBehaviour
 
     void Start()
     {
+        rb = GetComponent<Rigidbody2D>();
+        baseScale = transform.localScale;
+
+        // cache canvas and camera once
+        cachedCanvas = UnityEngine.Object.FindAnyObjectByType<Canvas>();
+        if (cachedCanvas != null)
+        {
+            cachedCanvasRect = cachedCanvas.GetComponent<RectTransform>();
+            cachedCanvasCamera = (cachedCanvas.renderMode == RenderMode.ScreenSpaceOverlay) ? null : cachedCanvas.worldCamera ?? Camera.main;
+        }
+
+        // If no explicit hpAnchor assigned, try to find a child named "HPAnchor" (create in prefab under the animated graphics)
+        if (hpAnchor == null)
+        {
+            var found = transform.Find("HPAnchor");
+            if (found != null) hpAnchor = found;
+            else
+            {
+                // try common child name "Graphics" then its child "HPAnchor"
+                var g = transform.Find("Graphics");
+                if (g != null)
+                {
+                    var h = g.Find("HPAnchor");
+                    if (h != null) hpAnchor = h;
+                }
+            }
+        }
+
         currentHealth = maxHealth;
         if (rb != null) rb.simulated = true;
         if (animator != null) animator.applyRootMotion = false;
@@ -79,6 +117,13 @@ public class AIController : MonoBehaviour
 
     void Update()
     {
+        // Create HP bar lazily if needed
+        if (currentHealth < maxHealth) CreateHpBarIfNeeded();
+
+        // Update fills and position every frame so it follows animation (alive or dying)
+        UpdateHPBar();
+        UpdateHPBarPosition();
+
         if (isDead) return;
 
         if (player == null) TryAssignPlayer();
@@ -121,13 +166,6 @@ public class AIController : MonoBehaviour
 
         UpdateAnimationParameters();
         FlipSprite();
-
-        // Update HP bar position
-        if (hpBarInstance != null)
-        {
-            Vector2 screenPosition = Camera.main.WorldToScreenPoint(transform.position + new Vector3(0, 1, 0));
-            hpBarInstance.GetComponent<RectTransform>().position = screenPosition;
-        }
     }
 
     private void TryAssignPlayer()
@@ -227,36 +265,7 @@ public class AIController : MonoBehaviour
         if (currentHealth > 0)
         {
             // Show the HP bar if it hasn't been instantiated yet
-            if (hpBarInstance == null)
-            {
-                if (hpBarPrefab == null)
-                {
-                    Debug.LogError("HP Bar Prefab is not assigned!");
-                    return;
-                }
-
-                var canvas = GameObject.Find("Canvas");
-                if (canvas == null)
-                {
-                    Debug.LogError("Canvas not found in the scene!");
-                    return;
-                }
-
-                // Instantiate the HP bar as a child of the Canvas
-                hpBarInstance = Instantiate(hpBarPrefab, canvas.transform);
-                greenBar = hpBarInstance.transform.Find("GreenBar")?.GetComponent<RectTransform>();
-                redBar = hpBarInstance.transform.Find("RedBar")?.GetComponent<RectTransform>();
-
-                if (greenBar == null || redBar == null)
-                {
-                    Debug.LogError("GreenBar or RedBar is missing in the HP Bar prefab!");
-                    return;
-                }
-
-                // Set the position of the HP bar relative to the enemy
-                Vector2 screenPosition = Camera.main.WorldToScreenPoint(transform.position + new Vector3(0, 1, 0));
-                hpBarInstance.GetComponent<RectTransform>().position = screenPosition;
-            }
+            CreateHpBarIfNeeded();
 
             // Update the HP bar
             UpdateHPBar();
@@ -276,26 +285,47 @@ public class AIController : MonoBehaviour
         }
     }
 
+    // Ensure HP bar exists (create and cache references)
+    private void CreateHpBarIfNeeded()
+    {
+        if (hpBarInstance != null || hpBarPrefab == null || cachedCanvas == null) return;
+
+        hpBarInstance = Instantiate(hpBarPrefab, cachedCanvas.transform);
+        // preserve prefab layout/scaling
+        hpBarInstance.transform.SetParent(cachedCanvas.transform, false);
+
+        greenBar = hpBarInstance.transform.Find("GreenBar")?.GetComponent<RectTransform>();
+        redBar = hpBarInstance.transform.Find("RedBar")?.GetComponent<RectTransform>();
+    }
+
     private void UpdateHPBar()
     {
-        if (hpBarPrefab == null)
-        {
-            Debug.LogError("HP Bar Prefab is not assigned!");
-            return;
-        }
-        if (greenBar == null || redBar == null)
-        {
-            Debug.LogError("GreenBar or RedBar is missing in the HP Bar prefab!");
-            return;
-        }
+        if (hpBarInstance == null || greenBar == null || redBar == null) return;
 
-        float healthPercentage = (float)currentHealth / maxHealth;
+        float healthPercentage = Mathf.Clamp01((float)currentHealth / (float)maxHealth);
+        var greenImg = greenBar.GetComponent<Image>();
+        var redImg = redBar.GetComponent<Image>();
+        if (greenImg != null) greenImg.fillAmount = healthPercentage;
+        if (redImg != null) redImg.fillAmount = 1f - healthPercentage;
+    }
 
-        // Update the green bar (remaining HP)
-        greenBar.GetComponent<Image>().fillAmount = healthPercentage;
+    private void UpdateHPBarPosition()
+    {
+        if (hpBarInstance == null || cachedCanvasRect == null) return;
 
-        // Update the red bar (missing HP)
-        redBar.GetComponent<Image>().fillAmount = 1 - healthPercentage;
+        // Use hpAnchor if provided (should be a child that moves with animation), otherwise fallback to transform.position + offset
+        Vector3 worldPos;
+        if (hpAnchor != null) worldPos = hpAnchor.position;
+        else worldPos = transform.position + hpOffset;
+
+        Vector2 screenPoint = Camera.main.WorldToScreenPoint(worldPos);
+
+        Vector2 localPoint;
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(cachedCanvasRect, screenPoint, cachedCanvasCamera, out localPoint);
+
+        var rt = hpBarInstance.GetComponent<RectTransform>();
+        if (rt != null)
+            rt.anchoredPosition = localPoint;
     }
 
     private IEnumerator HitStunCoroutine(float duration)
@@ -338,16 +368,13 @@ public class AIController : MonoBehaviour
 
         foreach (var c in GetComponents<Collider2D>()) c.enabled = false;
 
+        // keep HP bar visible and anchored to corpse until object is destroyed
+        // Do NOT destroy hpBarInstance here.
+
         if (animator != null)
         {
             animator.SetBool(ParamIsMoving, false);
             animator.SetTrigger(ParamDeath);
-        }
-
-        // Destroy the HP bar
-        if (hpBarInstance != null)
-        {
-            Destroy(hpBarInstance);
         }
 
         StartCoroutine(WaitForDeathAndDestroy(destroyDelay));
@@ -355,22 +382,35 @@ public class AIController : MonoBehaviour
 
     private IEnumerator WaitForDeathAndDestroy(float fallback)
     {
+        // helper to spawn exit key safely (sets DungeonData flag)
+        System.Action SpawnExitKeySafe = () =>
+        {
+            if (exitKeyPrefab == null)
+            {
+                Debug.LogWarning("AIController: exitKeyPrefab is null, cannot spawn exit key.");
+                return;
+            }
+
+            var dd = FindFirstObjectByType<DungeonData>();
+            if (dd != null && dd.ExitKeySpawned)
+            {
+                Debug.Log("AIController: ExitKeySpawned already true, skipping spawn.");
+                return;
+            }
+
+            Instantiate(exitKeyPrefab, transform.position, Quaternion.identity);
+            if (dd != null) dd.ExitKeySpawned = true;
+            Debug.Log("AIController: Exit key spawned by " + name);
+        };
+
         if (animator == null)
         {
-            // If no animator, spawn drop(s) immediately then destroy after fallback
+            // immediate spawn path
             if (healthPotPrefab != null && Random.value <= healthDropChance)
                 Instantiate(healthPotPrefab, transform.position, Quaternion.identity);
 
-            // EXIT KEY: only spawn if not already spawned this level
-            if (exitKeyPrefab != null && (guaranteeExitDrop || Random.value <= exitKeyDropChance))
-            {
-                var dd0 = UnityEngine.Object.FindAnyObjectByType<DungeonData>();
-                if (dd0 == null || dd0.ExitKeySpawned == false)
-                {
-                    Instantiate(exitKeyPrefab, transform.position, Quaternion.identity);
-                    if (dd0 != null) dd0.ExitKeySpawned = true;
-                }
-            }
+            if (guaranteeExitDrop || Random.value <= exitKeyDropChance)
+                SpawnExitKeySafe();
 
             yield return new WaitForSeconds(fallback);
             Destroy(gameObject);
@@ -382,7 +422,7 @@ public class AIController : MonoBehaviour
         float elapsed = 0f;
         const float pollInterval = 0.02f;
 
-        // wait until animator enters the Death state (with a short fallback)
+        // wait until death state, with fallback
         while (elapsed < fallback)
         {
             var info = animator.GetCurrentAnimatorStateInfo(layer);
@@ -391,71 +431,45 @@ public class AIController : MonoBehaviour
             yield return new WaitForSeconds(pollInterval);
         }
 
-        // if we never entered the death state, fallback-destroy now (spawn drop immediately)
+        // if no death animation, spawn immediately using same logic
         var current = animator.GetCurrentAnimatorStateInfo(layer);
         if (current.shortNameHash != deathHash)
         {
             if (healthPotPrefab != null && Random.value <= healthDropChance)
                 Instantiate(healthPotPrefab, transform.position, Quaternion.identity);
 
-            // exit key fallback: respect per-level flag and guarantee flag
-            if (exitKeyPrefab != null && (guaranteeExitDrop || Random.value <= exitKeyDropChance))
-            {
-                var dd1 = UnityEngine.Object.FindAnyObjectByType<DungeonData>();
-                if (dd1 == null || dd1.ExitKeySpawned == false)
-                {
-                    Instantiate(exitKeyPrefab, transform.position, Quaternion.identity);
-                    if (dd1 != null) dd1.ExitKeySpawned = true;
-                }
-            }
+            if (guaranteeExitDrop || Random.value <= exitKeyDropChance)
+                SpawnExitKeySafe();
 
             Destroy(gameObject);
             yield break;
         }
 
-        // wait until the Death state's playback has reached its end (normalizedTime >= 1)
+        // wait until death animation finishes
         while (true)
         {
             var info = animator.GetCurrentAnimatorStateInfo(layer);
             if (info.shortNameHash == deathHash && info.normalizedTime >= 1f)
             {
-                // spawn health pot (chance)
                 if (healthPotPrefab != null && Random.value <= healthDropChance)
                     Instantiate(healthPotPrefab, transform.position, Quaternion.identity);
 
-                // spawn exit key only if not already spawned this level and either guaranteed or passed chance
-                if (exitKeyPrefab != null && (guaranteeExitDrop || Random.value <= exitKeyDropChance))
-                {
-                    var dd2 = UnityEngine.Object.FindAnyObjectByType<DungeonData>();
-                    if (dd2 == null || dd2.ExitKeySpawned == false)
-                    {
-                        Instantiate(exitKeyPrefab, transform.position, Quaternion.identity);
-                        if (dd2 != null) dd2.ExitKeySpawned = true;
-                    }
-                }
+                if (guaranteeExitDrop || Random.value <= exitKeyDropChance)
+                    SpawnExitKeySafe();
 
-                // prevent Animator from snapping back to Idle by disabling it before destruction
                 animator.enabled = false;
                 Destroy(gameObject);
                 yield break;
             }
 
-            // safety timeout: if somehow it never finishes, break after fallback
             elapsed += pollInterval;
             if (elapsed >= fallback)
             {
                 if (healthPotPrefab != null && Random.value <= healthDropChance)
                     Instantiate(healthPotPrefab, transform.position, Quaternion.identity);
 
-                if (exitKeyPrefab != null && (guaranteeExitDrop || Random.value <= exitKeyDropChance))
-                {
-                    var dd3 = UnityEngine.Object.FindAnyObjectByType<DungeonData>();
-                    if (dd3 == null || dd3.ExitKeySpawned == false)
-                    {
-                        Instantiate(exitKeyPrefab, transform.position, Quaternion.identity);
-                        if (dd3 != null) dd3.ExitKeySpawned = true;
-                    }
-                }
+                if (guaranteeExitDrop || Random.value <= exitKeyDropChance)
+                    SpawnExitKeySafe();
 
                 Destroy(gameObject);
                 yield break;
@@ -520,5 +534,21 @@ public class AIController : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position, attackRange);
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, detectionRange);
+    }
+
+    // ensure any leftover UI is removed if this object is destroyed by other systems
+    private void OnDestroy()
+    {
+        if (hpBarInstance != null)
+        {
+#if UNITY_EDITOR
+            DestroyImmediate(hpBarInstance);
+#else
+            Destroy(hpBarInstance);
+#endif
+            hpBarInstance = null;
+            greenBar = null;
+            redBar = null;
+        }
     }
 }
