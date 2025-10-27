@@ -7,6 +7,14 @@ public class ExitKeyPickup : MonoBehaviour
     [Tooltip("Player tag")]
     public string playerTag = "Player";
 
+    [Tooltip("UI prefab to show when no key is acquired")]
+    public GameObject noKeyUIPrefab;
+
+    [Tooltip("Duration to show the no key UI")]
+    public float noKeyUIDuration = 2f;
+
+    private bool hasTriggered = false;
+
     private void Reset()
     {
         var col = GetComponent<Collider2D>();
@@ -15,9 +23,20 @@ public class ExitKeyPickup : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        if (hasTriggered) return; // Prevent multiple triggers
+        hasTriggered = true;
+
         if (!other.CompareTag(playerTag)) return;
+
+        // Show the key acquired UI before destroying the object
+        ShowKeyAcquiredUI(other.transform);
+
+        // Give the key to the player
         GiveKeyToPlayer(other.gameObject);
+
         Debug.Log("ExitKeyPickup: Player picked up exit key.");
+
+        // Destroy the ExitKeyPickup GameObject
         Destroy(gameObject);
     }
 
@@ -38,11 +57,11 @@ public class ExitKeyPickup : MonoBehaviour
         try
         {
             var f = type.GetField("hasExitKey", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            if (f != null && f.FieldType == typeof(bool)) { f.SetValue(pc, true); return; }
+            if (f != null && f.FieldType == typeof(bool)) { f.SetValue(pc, true); }
 
             var p = type.GetProperty("hasExitKey", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                     ?? type.GetProperty("HasExitKey", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            if (p != null && p.PropertyType == typeof(bool)) { p.SetValue(pc, true); return; }
+            if (p != null && p.PropertyType == typeof(bool)) { p.SetValue(pc, true); }
 
             var m = type.GetMethod("GiveExitKey", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                     ?? type.GetMethod("AddExitKey", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
@@ -53,5 +72,34 @@ public class ExitKeyPickup : MonoBehaviour
         {
             // ignore reflection errors
         }
+
+        // Show the key acquired UI
+        ShowKeyAcquiredUI(player.transform);
+    }
+
+    private void ShowKeyAcquiredUI(Transform player)
+    {
+        if (noKeyUIPrefab == null || player == null)
+        {
+            Debug.LogError("NoKeyUIPrefab or player is null!");
+            return;
+        }
+
+        var canvas = FindFirstObjectByType<Canvas>();
+        if (canvas == null)
+        {
+            Debug.LogError("Canvas not found in the scene!");
+            return;
+        }
+
+        Debug.Log("Instantiating Key Acquired UI...");
+        var keyUIInstance = Instantiate(noKeyUIPrefab, canvas.transform);
+        var rectTransform = keyUIInstance.GetComponent<RectTransform>();
+
+        // Convert player's position to screen space
+        Vector2 screenPosition = Camera.main.WorldToScreenPoint(player.position);
+        rectTransform.position = screenPosition;
+
+        Destroy(keyUIInstance, noKeyUIDuration); // Automatically destroy the UI after the duration
     }
 }
