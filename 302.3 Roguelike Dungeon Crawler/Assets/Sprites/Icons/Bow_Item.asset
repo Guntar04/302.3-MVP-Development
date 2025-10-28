@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b9d561d5e608e4446829ec0a7ede8ea9, type: 3}
   m_Name: Bow_Item
   m_EditorClassIdentifier: 
-  itemName: 
-  icon: {fileID: 0}
-  itemType: 0
+  itemName: Bow
+  icon: {fileID: -4953979536192513964, guid: 14db38c6446769f4d92a5bbace96a980, type: 3}
+  itemType: 4
   shieldBonus: 0
   healthBonus: 0

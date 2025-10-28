@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b9d561d5e608e4446829ec0a7ede8ea9, type: 3}
   m_Name: Chestplate_Item
   m_EditorClassIdentifier: 
-  itemName: 
-  icon: {fileID: 0}
-  itemType: 0
-  shieldBonus: 0
+  itemName: Chestplate
+  icon: {fileID: 2104987436190434118, guid: 8394adb506a12804ba6b3e10144ca333, type: 3}
+  itemType: 2
+  shieldBonus: 25
   healthBonus: 0

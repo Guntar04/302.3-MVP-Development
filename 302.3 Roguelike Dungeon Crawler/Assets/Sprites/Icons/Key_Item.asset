@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b9d561d5e608e4446829ec0a7ede8ea9, type: 3}
   m_Name: Key_Item
   m_EditorClassIdentifier: 
-  itemName: 
-  icon: {fileID: 0}
-  itemType: 0
+  itemName: Key
+  icon: {fileID: -587179304692365718, guid: e262d70ec966a484eb02db5b1f8efa1c, type: 3}
+  itemType: 6
   shieldBonus: 0
   healthBonus: 0

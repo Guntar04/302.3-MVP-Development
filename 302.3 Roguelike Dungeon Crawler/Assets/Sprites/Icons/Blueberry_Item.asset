@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b9d561d5e608e4446829ec0a7ede8ea9, type: 3}
   m_Name: Blueberry_Item
   m_EditorClassIdentifier: 
-  itemName: 
-  icon: {fileID: 0}
-  itemType: 0
+  itemName: Blueberry
+  icon: {fileID: 6811605874705167542, guid: 551271f740714ed40bf87611de9131d8, type: 3}
+  itemType: 5
   shieldBonus: 0
-  healthBonus: 0
+  healthBonus: 2

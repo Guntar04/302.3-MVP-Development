@@ -5,15 +5,15 @@ public class EquipSlot : MonoBehaviour
 {
     [Header("Slot Info")]
     public ItemType acceptedType;          // e.g. Helmet, Armor, Weapon
-    public Image itemIcon;                 // the icon that shows the equipped item
-    public InventoryManager inventoryManager; // reference for unequipping items
+    public Image itemIcon;                 // icon for the equipped item
+    public PlayerStats playerStats;        // reference to PlayerStats
+    public InventoryManager inventoryManager; // reference for returning items to inventory
 
-    private ItemData currentItem;          // the item currently equipped
+    private ItemData currentItem;          // currently equipped item
 
     private void Awake()
     {
-        // Make sure slot looks empty at start
-        ClearSlot();
+        ClearSlot(); // make sure the slot looks empty at start
     }
 
     /// <summary>
@@ -39,6 +39,12 @@ public class EquipSlot : MonoBehaviour
         // Equip the new item
         currentItem = newItem;
         UpdateIcon();
+
+        // Update player stats and HUD
+        if (playerStats != null)
+            playerStats.RecalculateStats();
+
+
         Debug.Log($"Equipped {newItem.itemName} in {acceptedType} slot!");
         return true;
     }
@@ -54,6 +60,11 @@ public class EquipSlot : MonoBehaviour
         }
 
         ClearSlot();
+
+        // Update player stats and HUD
+        if (playerStats != null)
+            playerStats.RecalculateStats();
+
     }
 
     /// <summary>
