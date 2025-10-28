@@ -4,7 +4,8 @@ using UnityEngine.UI;
 public class InventoryManager : MonoBehaviour
 {
     public InventorySlot[] slots;     // Assign your slots in the Inspector
-    public Sprite[] testItems;        // Add a few test item sprites here
+    public ItemData[] testItems;        // Add a few test item sprites here
+
 
     private void Start()
     {
@@ -20,8 +21,9 @@ public class InventoryManager : MonoBehaviour
         {
             if (testItems.Length > 0)
             {
-                Sprite randomItem = testItems[Random.Range(0, testItems.Length)];
-                AddItem(randomItem);
+                ItemData randomItem = testItems[Random.Range(0, testItems.Length)];
+AddItem(randomItem);
+
                 Debug.Log("Picked up an item!");
             }
         }
@@ -37,20 +39,19 @@ public class InventoryManager : MonoBehaviour
     }
 
     // Add an item to the first empty slot
-    public bool AddItem(Sprite itemSprite)
+    public void AddItem(ItemData item)
+{
+    foreach (InventorySlot slot in slots)
     {
-        foreach (var slot in slots)
+        if (!slot.HasItem())
         {
-            if (!slot.HasItem())
-            {
-                slot.SetItem(itemSprite);
-                return true;
-            }
+            slot.SetItem(item);
+            return;
         }
-
-        Debug.Log("Inventory full!");
-        return false;
     }
+    Debug.Log("Inventory full!");
+}
+
 
     // Remove an item by index
     public void RemoveItem(int index)
