@@ -214,26 +214,12 @@ public class AIController : MonoBehaviour
         foreach (var hit in hits)
         {
             if (hit == null) continue;
-            if (hit.CompareTag("Player") || (hit.attachedRigidbody != null && hit.attachedRigidbody.gameObject.CompareTag("Player")))
+            if (hit.CompareTag("Player"))
             {
-                var pc = hit.GetComponent<PlayerController>() ?? hit.GetComponentInParent<PlayerController>();
-                if (pc != null)
+                var playerController = hit.GetComponent<PlayerController>();
+                if (playerController != null)
                 {
-                    var method = pc.GetType().GetMethod("ApplyHit", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
-                    if (method != null)
-                    {
-                        try { method.Invoke(pc, new object[] { attackPower, 0.05f }); }
-                        catch { }
-                    }
-                    else
-                    {
-                        var field = pc.GetType().GetField("health", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
-                        if (field != null && field.FieldType == typeof(int))
-                        {
-                            int prev = (int)field.GetValue(pc);
-                            field.SetValue(pc, prev - attackPower);
-                        }
-                    }
+                    playerController.TakeDamage(attackPower); // Directly call TakeDamage
                 }
                 break;
             }

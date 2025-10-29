@@ -28,7 +28,7 @@ public class ExitKeyPickup : MonoBehaviour
 
         if (!other.CompareTag(playerTag)) return;
 
-        // Show the key acquired UI before destroying the object
+        // Show the key acquired UI above the player
         ShowKeyAcquiredUI(other.transform);
 
         // Give the key to the player
@@ -79,25 +79,16 @@ public class ExitKeyPickup : MonoBehaviour
 
     private void ShowKeyAcquiredUI(Transform player)
     {
-        if (noKeyUIPrefab == null || player == null)
-        {
-            Debug.LogError("NoKeyUIPrefab or player is null!");
-            return;
-        }
+        if (noKeyUIPrefab == null || player == null) return;
 
         var canvas = FindFirstObjectByType<Canvas>();
-        if (canvas == null)
-        {
-            Debug.LogError("Canvas not found in the scene!");
-            return;
-        }
+        if (canvas == null) return;
 
-        Debug.Log("Instantiating Key Acquired UI...");
         var keyUIInstance = Instantiate(noKeyUIPrefab, canvas.transform);
         var rectTransform = keyUIInstance.GetComponent<RectTransform>();
 
-        // Convert player's position to screen space
-        Vector2 screenPosition = Camera.main.WorldToScreenPoint(player.position);
+        // Convert player's position to screen space and offset it above the player
+        Vector2 screenPosition = Camera.main.WorldToScreenPoint(player.position + new Vector3(0, 1, 0));
         rectTransform.position = screenPosition;
 
         Destroy(keyUIInstance, noKeyUIDuration); // Automatically destroy the UI after the duration

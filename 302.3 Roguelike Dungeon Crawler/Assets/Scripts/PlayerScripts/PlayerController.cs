@@ -21,12 +21,16 @@ public class PlayerController : MonoBehaviour
     public float attackRadius = 0.6f;
     public LayerMask enemyLayer; // Assign your enemy layer in Inspector
 
+    [Header("Critical Hit Settings")]
+    public float criticalHitChance = 0.2f; // 20% chance for a critical hit
+
     private Vector2 moveDirection;
     private Vector2 lastMoveDirection = Vector2.down; // default facing down
 
     private bool canDash = true;
     private bool isDashing = false;
     private bool isAttacking = false;
+    private bool isInvincible = false; // Tracks if the player is invincible
 
     private void Update()
     {
@@ -137,7 +141,18 @@ public class PlayerController : MonoBehaviour
         {
             AIController ai = enemy.GetComponent<AIController>();
             if (ai != null)
-                ai.TakeDamage(attackDamage);
+            {
+                // Determine if the attack is a critical hit
+                bool isCriticalHit = Random.value < criticalHitChance;
+                int damage = isCriticalHit ? attackDamage * 2 : attackDamage;
+
+                ai.TakeDamage(damage);
+
+                if (isCriticalHit)
+                {
+                    Debug.Log("Critical Hit! Damage: " + damage);
+                }
+            }
         }
 
         yield return new WaitForSeconds(0.3f); // adjust to match animation length
@@ -155,6 +170,7 @@ public class PlayerController : MonoBehaviour
 
         canDash = false;
         isDashing = true;
+        isInvincible = true; // Enable invincibility during dash
 
         Vector2 dashDirection = moveDirection == Vector2.zero ? lastMoveDirection : moveDirection;
         float dashEndTime = Time.time + dashDuration;
@@ -166,8 +182,59 @@ public class PlayerController : MonoBehaviour
         }
 
         isDashing = false;
+        isInvincible = false; // Disable invincibility after dash
+
         yield return new WaitForSeconds(dashCooldown);
         canDash = true;
+    }
+
+    public void TakeDamage(int damage)
+    {
+        if (isInvincible) return; // Prevent damage if the player is invincible
+
+        health -= damage;
+
+        if (health <= 0)
+        {
+            health = 0;
+            Debug.Log("Player has died.");
+            if (animator != null)
+            {
+                animator.Play("Death");
+            }
+            else
+            {
+                Debug.LogError("Animator is not assigned to PlayerController.");
+            }
+            // Add death logic here (e.g., trigger game over screen)
+        }
+        else
+        {
+            Debug.Log($"Player took {damage} damage. Remaining health: {health}");
+            StartCoroutine(FlashRedOnHit());
+        }
+        UpdatePlayerHealth();
+    }
+
+    private IEnumerator FlashRedOnHit()
+    {
+        SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer != null)
+        {
+            Color originalColor = spriteRenderer.color;
+            spriteRenderer.color = Color.red;
+            yield return new WaitForSeconds(0.1f); // Flash duration
+            spriteRenderer.color = originalColor;
+        }
+        else
+        {
+            Debug.LogError("SpriteRenderer is not assigned to PlayerController.");
+        }
+    }
+
+    public void UpdatePlayerHealth()
+    {
+        //Add in the updated when Olivia has made the UI for it
     }
 
     // Draw attack hitbox in Scene view for debugging
