@@ -23,7 +23,7 @@ public class PlayerStats : MonoBehaviour
     public ItemData equippedPants;
      public ItemData equippedBoots;
     public ItemData equippedWeapon;
-    public ItemData equippedShield;
+    public ItemData equippedBlock;
 
 
 private void Start()
@@ -58,8 +58,8 @@ private IEnumerator NotifyAfterStart()
         case ItemType.Boots:
             equippedBoots = item;
             break;
-        case ItemType.Shield:
-            equippedShield = item; // or create a separate equippedShield variable if you prefer
+        case ItemType.Block:
+            equippedBlock = item; // or create a separate equippedShield variable if you prefer
             break;
         case ItemType.Weapon:
             equippedWeapon = item;
@@ -93,7 +93,7 @@ private IEnumerator NotifyAfterStart()
         case ItemType.Chestplate: if (equippedChestplate == item) equippedChestplate = null; break;
         case ItemType.Pants: if (equippedPants == item) equippedPants = null; break;
         case ItemType.Boots: if (equippedBoots == item) equippedBoots = null; break;
-        case ItemType.Shield: if (equippedShield == item) equippedShield = null; break; // <-- fix here
+        case ItemType.Block: if (equippedBlock == item) equippedBlock = null; break; // <-- fix here
         case ItemType.Weapon: if (equippedWeapon == item) equippedWeapon = null; break;
     }
 
@@ -109,7 +109,7 @@ public void RecalculateStats()
     if (equippedChestplate != null) totalShield += equippedChestplate.shieldBonus;
     if (equippedPants != null) totalShield += equippedPants.shieldBonus;
     if (equippedBoots != null) totalShield += equippedBoots.shieldBonus;
-    if (equippedShield != null) totalShield += equippedShield.shieldBonus;
+    if (equippedBlock != null) totalShield += equippedBlock.shieldBonus;
     if (equippedWeapon != null) totalShield += equippedWeapon.shieldBonus;
 
     currentShield = totalShield;
@@ -158,7 +158,7 @@ public int GetMaxHealth()
     if (equippedChestplate != null) max += equippedChestplate.healthBonus;
     if (equippedPants != null) max += equippedPants.healthBonus;
     if (equippedBoots != null) max += equippedBoots.healthBonus;
-    if (equippedShield != null) max += equippedShield.healthBonus;
+    if (equippedBlock != null) max += equippedBlock.healthBonus;
     if (equippedWeapon != null) max += equippedWeapon.healthBonus;
     return max;
 }
@@ -170,7 +170,7 @@ public int GetMaxShield()
     if (equippedChestplate != null) max += equippedChestplate.shieldBonus;
     if (equippedPants != null) max += equippedPants.shieldBonus;
     if (equippedBoots != null) max += equippedBoots.shieldBonus;
-    if (equippedShield != null) max += equippedShield.shieldBonus;
+    if (equippedBlock != null) max += equippedBlock.shieldBonus;
     if (equippedWeapon != null) max += equippedWeapon.shieldBonus;
      Debug.Log($"[GetMaxShield] Total shield: {max}");
     return max;

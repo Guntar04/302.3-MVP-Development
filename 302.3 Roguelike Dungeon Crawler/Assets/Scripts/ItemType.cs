@@ -5,8 +5,8 @@ public enum ItemType
     Chestplate,
     Pants,
     Boots,
-    Shield,
     Weapon,
+    Block,
     Consumable,
     Misc
 }
