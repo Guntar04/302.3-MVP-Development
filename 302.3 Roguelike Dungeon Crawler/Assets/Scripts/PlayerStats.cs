@@ -1,9 +1,13 @@
 using UnityEngine;
 using System;
+using System.Collections;
+using System.Collections.Generic;
+
 
 public class PlayerStats : MonoBehaviour
 {
     public static event Action OnStatsChanged;
+    public List<ItemData> equippedItems = new List<ItemData>();
 
     [Header("Base Stats")]
     public int baseHealth = 100;
@@ -17,35 +21,61 @@ public class PlayerStats : MonoBehaviour
     public ItemData equippedHelmet;
     public ItemData equippedArmor;
     public ItemData equippedWeapon;
+    public ItemData equippedShield;
 
-    private void Start()
-    {
-        // Initialize with max values on start
-        RecalculateStats();
-        currentHealth = GetMaxHealth();
-        currentShield = GetMaxShield();
-        NotifyStatsChanged();
-    }
+
+private void Start()
+{
+    RecalculateStats();
+    currentHealth = GetMaxHealth();
+    currentShield = GetMaxShield();
+    StartCoroutine(NotifyAfterStart());
+}
+
+private IEnumerator NotifyAfterStart()
+{
+    yield return null; // wait one frame
+    NotifyStatsChanged();
+}
 
     public void EquipItem(ItemData item)
+{
+    if (item == null) return;
+
+    switch (item.itemType)
     {
-        if (item == null) return;
-
-        switch (item.itemType)
-        {
-            case ItemType.Helmet: equippedHelmet = item; break;
-            case ItemType.Armor: equippedArmor = item; break;
-            case ItemType.Weapon: equippedWeapon = item; break;
-        }
-
-        RecalculateStats();
-
-        // Ensure shield/health are topped up to new max if needed
-        currentHealth = Mathf.Min(currentHealth, GetMaxHealth());
-        currentShield = Mathf.Min(currentShield, GetMaxShield());
-
-        NotifyStatsChanged();
+        case ItemType.Helmet:
+            equippedHelmet = item;
+            break;
+        case ItemType.Armor:
+            equippedArmor = item;
+            break;
+        case ItemType.Shield:
+            equippedShield = item; // or create a separate equippedShield variable if you prefer
+            break;
+        case ItemType.Weapon:
+            equippedWeapon = item;
+            break;
     }
+
+        equippedItems.RemoveAll(i => i.itemType == item.itemType);
+
+    // Add new one
+    equippedItems.Add(item);
+
+    RecalculateStats();
+
+    // Fill up to the new max
+    currentHealth = GetMaxHealth();
+    currentShield = GetMaxShield();
+
+  Debug.Log($"[EquipItem] Equipped {item.itemName} | New MaxShield: {GetMaxShield()} | CurrentShield: {currentShield}");
+
+    NotifyStatsChanged();
+}
+
+
+    
 
     public void UnequipItem(ItemData item)
     {
@@ -62,15 +92,27 @@ public class PlayerStats : MonoBehaviour
         NotifyStatsChanged();
     }
 
-    public void RecalculateStats()
-    {
-        int totalHealth = GetMaxHealth();
-        int totalShield = GetMaxShield();
+   public void RecalculateStats()
+{
+    int totalShield = baseShield;
 
-        // Clamp current values so they never exceed the new max
-        currentHealth = Mathf.Clamp(currentHealth, 0, totalHealth);
-        currentShield = Mathf.Clamp(currentShield, 0, totalShield);
+    // Loop through equipped items
+    foreach (var item in equippedItems)
+    {
+        if (item == null) continue;
+
+        if (item.itemType == ItemType.Armor || item.itemType == ItemType.Shield)
+        {
+            totalShield += item.shieldBonus;
+        }
     }
+
+    currentShield = totalShield;
+    Debug.Log("[RecalculateStats] Total shield recalculated: " + totalShield);
+
+    NotifyStatsChanged();
+}
+
 
     public void TakeDamage(int damage)
     {
@@ -102,23 +144,27 @@ public class PlayerStats : MonoBehaviour
         NotifyStatsChanged();
     }
 
-    public int GetMaxHealth()
-    {
-        int max = baseHealth;
-        if (equippedHelmet != null) max += equippedHelmet.healthBonus;
-        if (equippedArmor != null) max += equippedArmor.healthBonus;
-        if (equippedWeapon != null) max += equippedWeapon.healthBonus;
-        return max;
-    }
+public int GetMaxHealth()
+{
+    int max = baseHealth;
+    if (equippedHelmet != null) max += equippedHelmet.healthBonus;
+    if (equippedArmor != null) max += equippedArmor.healthBonus;
+    if (equippedShield != null) max += equippedShield.healthBonus;
+    if (equippedWeapon != null) max += equippedWeapon.healthBonus;
+    return max;
+}
 
-    public int GetMaxShield()
-    {
-        int max = baseShield;
-        if (equippedHelmet != null) max += equippedHelmet.shieldBonus;
-        if (equippedArmor != null) max += equippedArmor.shieldBonus;
-        if (equippedWeapon != null) max += equippedWeapon.shieldBonus;
-        return max;
-    }
+public int GetMaxShield()
+{
+    int max = baseShield;
+    if (equippedHelmet != null) max += equippedHelmet.shieldBonus;
+    if (equippedArmor != null) max += equippedArmor.shieldBonus;
+    if (equippedShield != null) max += equippedShield.shieldBonus;
+    if (equippedWeapon != null) max += equippedWeapon.shieldBonus;
+     Debug.Log($"[GetMaxShield] Total shield: {max}");
+    return max;
+}
+
 
     public void AddShield(int amount)
     {
@@ -137,3 +183,4 @@ public class PlayerStats : MonoBehaviour
         OnStatsChanged?.Invoke();
     }
 }
+

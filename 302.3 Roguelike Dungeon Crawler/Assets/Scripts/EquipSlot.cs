@@ -20,34 +20,37 @@ public class EquipSlot : MonoBehaviour
     /// Try to equip an item. Returns true if successful.
     /// </summary>
     public bool AcceptItem(ItemData newItem)
+{
+    if (newItem == null)
+        return false;
+
+    if (newItem.itemType != acceptedType)
     {
-        if (newItem == null)
-            return false;
-
-        if (newItem.itemType != acceptedType)
-        {
-            Debug.Log($"{newItem.itemName} cannot be equipped in {acceptedType} slot!");
-            return false; // wrong type, reject
-        }
-
-        // If slot already has an item, send it back to inventory
-        if (currentItem != null && inventoryManager != null)
-        {
-            inventoryManager.AddItem(currentItem);
-        }
-
-        // Equip the new item
-        currentItem = newItem;
-        UpdateIcon();
-
-        // Update player stats and HUD
-        if (playerStats != null)
-            playerStats.RecalculateStats();
-
-
-        Debug.Log($"Equipped {newItem.itemName} in {acceptedType} slot!");
-        return true;
+        Debug.Log($"{newItem.itemName} cannot be equipped in {acceptedType} slot!");
+        return false; // wrong type
     }
+
+    // Return the old item to inventory if one is already equipped
+    if (currentItem != null && inventoryManager != null)
+    {
+        inventoryManager.AddItem(currentItem);
+    }
+
+    // Equip the new item
+    currentItem = newItem;
+    UpdateIcon();
+
+    // ✅ Notify PlayerStats properly
+    if (playerStats != null)
+    {
+        playerStats.EquipItem(newItem);
+        Debug.Log($"[EquipSlot] Sent {newItem.itemName} to PlayerStats. ShieldBonus = {newItem.shieldBonus}");
+    }
+
+    Debug.Log($"Equipped {newItem.itemName} in {acceptedType} slot!");
+    return true;
+}
+
 
     /// <summary>
     /// Unequip current item and return to inventory

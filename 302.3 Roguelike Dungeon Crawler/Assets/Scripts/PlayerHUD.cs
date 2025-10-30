@@ -6,25 +6,21 @@ public class PlayerHUD : MonoBehaviour
 {
     [Header("Health Settings")]
     public PlayerStats playerStats;
-    public GameObject healthBarPrefab;
+    public GameObject healthChunkPrefab; // prefab = single chunk
     public Transform healthBarContainer;
     public Sprite fullChunkSprite, threeQuarterSprite, halfSprite, quarterSprite, emptySprite;
 
     [Header("Shield Settings")]
-    public GameObject shieldBarPrefab;
+    public GameObject shieldBarPrefab; // prefab = single bar container
     public Transform shieldBarContainer;
-    public Sprite shieldFullSprite, shieldThreeQuarterSprite, shieldHalfSprite, shieldQuarterSprite, shieldEmptySprite;
+    public List<Sprite> shieldChunkSprites; // index 0 = 1 chunk, index 4 = 5 chunks (full bar)
 
     [Header("Layout Settings")]
-    public int maxChunksPerRow = 4;
-    public float chunkSpacing = 30f;
-    public float rowSpacing = 20f;
+    public int chunksPerBar = 4; // max chunks per bar
+    public float barSpacing = 10f; // vertical spacing between bars
 
-    private List<Image> healthChunks = new List<Image>();
-    private List<Image> shieldChunks = new List<Image>();
-
-    private int lastMaxHealth = -1;
-    private int lastMaxShield = -1;
+    private List<GameObject> healthChunks = new List<GameObject>();
+    private List<GameObject> shieldBars = new List<GameObject>();
 
     private void Start()
     {
@@ -34,14 +30,16 @@ public class PlayerHUD : MonoBehaviour
             return;
         }
 
-        // Initialize stats to full if starting new
+        // Initialize health and shield
         playerStats.currentHealth = playerStats.GetMaxHealth();
         playerStats.currentShield = playerStats.GetMaxShield();
 
         PlayerStats.OnStatsChanged += UpdateHUD;
 
-        BuildBars();
-        UpdateHUD();
+        BuildHealthBar();
+        BuildShieldBars();
+        UpdateHealth();
+        UpdateShield();
     }
 
     private void OnDestroy()
@@ -49,108 +47,116 @@ public class PlayerHUD : MonoBehaviour
         PlayerStats.OnStatsChanged -= UpdateHUD;
     }
 
-    private void BuildBars()
-    {
-        BuildHealthBars();
-        BuildShieldBars();
-    }
-
-    private void BuildHealthBars()
+    // -----------------------------
+    // Health
+    // -----------------------------
+    private void BuildHealthBar()
     {
         foreach (Transform child in healthBarContainer)
             Destroy(child.gameObject);
         healthChunks.Clear();
 
-        int totalHealthChunks = Mathf.CeilToInt(playerStats.GetMaxHealth() / 25f);
-
-        for (int i = 0; i < totalHealthChunks; i++)
+        int totalChunks = Mathf.CeilToInt(playerStats.GetMaxHealth() / 25f);
+        for (int i = 0; i < totalChunks; i++)
         {
-            GameObject chunk = Instantiate(healthBarPrefab, healthBarContainer);
-            Image img = chunk.GetComponent<Image>() ?? chunk.GetComponentInChildren<Image>();
-            healthChunks.Add(img);
+            GameObject chunk = Instantiate(healthChunkPrefab, healthBarContainer);
+            healthChunks.Add(chunk);
         }
-
-        lastMaxHealth = playerStats.GetMaxHealth();
-    }
-
-    private void BuildShieldBars()
-    {
-        foreach (Transform child in shieldBarContainer)
-            Destroy(child.gameObject);
-        shieldChunks.Clear();
-
-        int totalShieldChunks = Mathf.CeilToInt(playerStats.GetMaxShield() / 25f);
-
-        for (int i = 0; i < totalShieldChunks; i++)
-        {
-            GameObject chunk = Instantiate(shieldBarPrefab, shieldBarContainer);
-            Image img = chunk.GetComponent<Image>() ?? chunk.GetComponentInChildren<Image>();
-            shieldChunks.Add(img);
-        }
-
-        lastMaxShield = playerStats.GetMaxShield();
-    }
-
-    public void UpdateHUD()
-    {
-        if (playerStats == null) return;
-
-        // Rebuild only if max health/shield changed
-        if (playerStats.GetMaxHealth() != lastMaxHealth)
-            BuildHealthBars();
-
-        if (playerStats.GetMaxShield() != lastMaxShield)
-            BuildShieldBars();
-
-        UpdateHealth();
-        UpdateShield();
     }
 
     private void UpdateHealth()
     {
         int totalHealth = playerStats.currentHealth;
-        int maxHealth = playerStats.GetMaxHealth();
-        int totalChunks = Mathf.CeilToInt(maxHealth / 25f);
 
-        for (int i = 0; i < totalChunks; i++)
+        for (int i = 0; i < healthChunks.Count; i++)
         {
-            int row = i / maxChunksPerRow;
-            int column = i % maxChunksPerRow;
-            Image chunkImage = healthChunks[i];
-            chunkImage.rectTransform.localPosition = new Vector3(column * chunkSpacing, -row * rowSpacing, 0);
+            int remaining = Mathf.Clamp(totalHealth - i * 25, 0, 25);
+            Image img = healthChunks[i].GetComponent<Image>();
+            if (img == null) continue;
 
-            int chunkStart = i * 25;
-            int remaining = Mathf.Clamp(totalHealth - chunkStart, 0, 25);
-
-            if (remaining == 25) chunkImage.sprite = fullChunkSprite;
-            else if (remaining >= 19) chunkImage.sprite = threeQuarterSprite;
-            else if (remaining >= 13) chunkImage.sprite = halfSprite;
-            else if (remaining >= 7) chunkImage.sprite = quarterSprite;
-            else chunkImage.sprite = emptySprite;
+            if (remaining == 25) img.sprite = fullChunkSprite;
+            else if (remaining >= 19) img.sprite = threeQuarterSprite;
+            else if (remaining >= 13) img.sprite = halfSprite;
+            else if (remaining >= 7) img.sprite = quarterSprite;
+            else img.sprite = emptySprite;
         }
+    }
+
+    // -----------------------------
+    // Shield
+    // -----------------------------
+    private void BuildShieldBars()
+    {
+        foreach (Transform child in shieldBarContainer)
+            Destroy(child.gameObject);
+        shieldBars.Clear();
+
+        int totalShield = playerStats.currentShield;
+        int barsNeeded = Mathf.CeilToInt((float)totalShield / (chunksPerBar * 25));
+
+        for (int i = 0; i < barsNeeded; i++)
+        {
+            CreateShieldBar(i, totalShield);
+        }
+    }
+
+    private void CreateShieldBar(int index, int totalShield)
+    {
+        GameObject bar = Instantiate(shieldBarPrefab, shieldBarContainer);
+        bar.transform.localPosition = new Vector3(0, -index * barSpacing, 0);
+        shieldBars.Add(bar);
+
+        Image barImage = bar.GetComponent<Image>();
+        if (barImage == null) return;
+
+        int remainingShield = Mathf.Clamp(totalShield - index * chunksPerBar * 25, 0, chunksPerBar * 25);
+        int chunksInBar = Mathf.CeilToInt((float)remainingShield / 25f);
+        chunksInBar = Mathf.Clamp(chunksInBar, 0, shieldChunkSprites.Count);
+
+        // Indexing: 0 = 1 chunk, 4 = full bar
+        barImage.sprite = (chunksInBar > 0) ? shieldChunkSprites[chunksInBar - 1] : shieldChunkSprites[0];
     }
 
     private void UpdateShield()
     {
         int totalShield = playerStats.currentShield;
-        int maxShield = playerStats.GetMaxShield();
-        int totalChunks = Mathf.CeilToInt(maxShield / 25f);
+        int barsNeeded = Mathf.CeilToInt((float)totalShield / (chunksPerBar * 25));
 
-        for (int i = 0; i < totalChunks; i++)
+        // Add new bars if needed
+        while (shieldBars.Count < barsNeeded)
         {
-            int row = i / maxChunksPerRow;
-            int column = i % maxChunksPerRow;
-            Image chunkImage = shieldChunks[i];
-            chunkImage.rectTransform.localPosition = new Vector3(column * chunkSpacing, -row * rowSpacing, 0);
-
-            int chunkStart = i * 25;
-            int remaining = Mathf.Clamp(totalShield - chunkStart, 0, 25);
-
-            if (remaining == 25) chunkImage.sprite = shieldFullSprite;
-            else if (remaining >= 19) chunkImage.sprite = shieldThreeQuarterSprite;
-            else if (remaining >= 13) chunkImage.sprite = shieldHalfSprite;
-            else if (remaining >= 7) chunkImage.sprite = shieldQuarterSprite;
-            else chunkImage.sprite = shieldEmptySprite;
+            CreateShieldBar(shieldBars.Count, totalShield);
         }
+
+        // Remove excess bars if shield decreased
+        while (shieldBars.Count > barsNeeded)
+        {
+            Destroy(shieldBars[shieldBars.Count - 1]);
+            shieldBars.RemoveAt(shieldBars.Count - 1);
+        }
+
+        // Update each bar sprite based on current shield
+        for (int i = 0; i < shieldBars.Count; i++)
+        {
+            Image barImage = shieldBars[i].GetComponent<Image>();
+            if (barImage == null) continue;
+
+            int remainingShield = Mathf.Clamp(totalShield - i * chunksPerBar * 25, 0, chunksPerBar * 25);
+            int chunksInBar = Mathf.CeilToInt((float)remainingShield / 25f);
+            chunksInBar = Mathf.Clamp(chunksInBar, 0, shieldChunkSprites.Count);
+
+            barImage.sprite = (chunksInBar > 0) ? shieldChunkSprites[chunksInBar - 1] : shieldChunkSprites[0];
+        }
+    }
+
+    // -----------------------------
+    // Public update
+    // -----------------------------
+    public void UpdateHUD()
+    {
+        BuildHealthBar();
+        BuildShieldBars();
+        UpdateHealth();
+        UpdateShield();
     }
 }
