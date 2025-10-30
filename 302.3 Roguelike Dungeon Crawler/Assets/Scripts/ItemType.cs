@@ -2,7 +2,9 @@ public enum ItemType
 {
     None,
     Helmet,
-    Armor,
+    Chestplate,
+    Pants,
+    Boots,
     Shield,
     Weapon,
     Consumable,

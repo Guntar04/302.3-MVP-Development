@@ -19,7 +19,9 @@ public class PlayerStats : MonoBehaviour
 
     [Header("Equipped Items")]
     public ItemData equippedHelmet;
-    public ItemData equippedArmor;
+    public ItemData equippedChestplate;
+    public ItemData equippedPants;
+     public ItemData equippedBoots;
     public ItemData equippedWeapon;
     public ItemData equippedShield;
 
@@ -47,8 +49,14 @@ private IEnumerator NotifyAfterStart()
         case ItemType.Helmet:
             equippedHelmet = item;
             break;
-        case ItemType.Armor:
-            equippedArmor = item;
+        case ItemType.Chestplate:
+            equippedChestplate = item;
+            break;
+        case ItemType.Pants:
+            equippedPants = item;
+            break;
+        case ItemType.Boots:
+            equippedBoots = item;
             break;
         case ItemType.Shield:
             equippedShield = item; // or create a separate equippedShield variable if you prefer
@@ -75,8 +83,6 @@ private IEnumerator NotifyAfterStart()
 }
 
 
-    
-
     public void UnequipItem(ItemData item)
     {
         if (item == null) return;
@@ -84,8 +90,11 @@ private IEnumerator NotifyAfterStart()
         switch (item.itemType)
         {
             case ItemType.Helmet: if (equippedHelmet == item) equippedHelmet = null; break;
-            case ItemType.Armor: if (equippedArmor == item) equippedArmor = null; break;
+            case ItemType.Chestplate: if (equippedChestplate == item) equippedChestplate = null; break;
+            case ItemType.Pants: if (equippedPants == item) equippedPants = null; break;
+            case ItemType.Boots: if (equippedBoots == item) equippedBoots = null; break;
             case ItemType.Weapon: if (equippedWeapon == item) equippedWeapon = null; break;
+            case ItemType.Shield: if (equippedWeapon == item) equippedWeapon = null; break;
         }
 
         RecalculateStats();
@@ -101,10 +110,11 @@ private IEnumerator NotifyAfterStart()
     {
         if (item == null) continue;
 
-        if (item.itemType == ItemType.Armor || item.itemType == ItemType.Shield)
-        {
-            totalShield += item.shieldBonus;
-        }
+        if (item.shieldBonus > 0)
+{
+    totalShield += item.shieldBonus;
+}
+
     }
 
     currentShield = totalShield;
@@ -148,7 +158,9 @@ public int GetMaxHealth()
 {
     int max = baseHealth;
     if (equippedHelmet != null) max += equippedHelmet.healthBonus;
-    if (equippedArmor != null) max += equippedArmor.healthBonus;
+    if (equippedChestplate != null) max += equippedChestplate.healthBonus;
+    if (equippedPants != null) max += equippedPants.healthBonus;
+    if (equippedBoots != null) max += equippedBoots.healthBonus;
     if (equippedShield != null) max += equippedShield.healthBonus;
     if (equippedWeapon != null) max += equippedWeapon.healthBonus;
     return max;
@@ -158,7 +170,9 @@ public int GetMaxShield()
 {
     int max = baseShield;
     if (equippedHelmet != null) max += equippedHelmet.shieldBonus;
-    if (equippedArmor != null) max += equippedArmor.shieldBonus;
+    if (equippedChestplate != null) max += equippedChestplate.shieldBonus;
+    if (equippedPants != null) max += equippedPants.shieldBonus;
+    if (equippedBoots != null) max += equippedBoots.shieldBonus;
     if (equippedShield != null) max += equippedShield.shieldBonus;
     if (equippedWeapon != null) max += equippedWeapon.shieldBonus;
      Debug.Log($"[GetMaxShield] Total shield: {max}");

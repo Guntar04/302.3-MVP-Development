@@ -349,7 +349,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &137071590
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -830,7 +830,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8702a9d88cf627740a00e2c6f93dc81a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  acceptedType: 1
+  acceptedType: 5
   itemIcon: {fileID: 1385952448}
   playerStats: {fileID: 2039056879}
   inventoryManager: {fileID: 794802687}
@@ -2660,6 +2660,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 336470692}
+  - component: {fileID: 336470693}
+  - component: {fileID: 336470694}
   m_Layer: 5
   m_Name: HealthBarContainer
   m_TagString: Untagged
@@ -2681,11 +2683,51 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 2039056877}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.000061035, y: 272}
-  m_SizeDelta: {x: 502.82, y: 180.565}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 180.565}
+  m_Pivot: {x: 0, y: 1}
+--- !u!114 &336470693
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 336470691}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_HorizontalFit: 2
+  m_VerticalFit: 0
+--- !u!114 &336470694
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 336470691}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59f8146938fff824cb5fd77236b75775, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Padding:
+    m_Left: 0
+    m_Right: 0
+    m_Top: 0
+    m_Bottom: 0
+  m_ChildAlignment: 3
+  m_Spacing: 0
+  m_ChildForceExpandWidth: 0
+  m_ChildForceExpandHeight: 0
+  m_ChildControlWidth: 0
+  m_ChildControlHeight: 0
+  m_ChildScaleWidth: 0
+  m_ChildScaleHeight: 0
+  m_ReverseArrangement: 0
 --- !u!1 &367854788
 GameObject:
   m_ObjectHideFlags: 0
@@ -4664,7 +4706,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8702a9d88cf627740a00e2c6f93dc81a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  acceptedType: 2
+  acceptedType: 3
   itemIcon: {fileID: 1866784666}
   playerStats: {fileID: 2039056879}
   inventoryManager: {fileID: 794802687}
@@ -7337,7 +7379,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8702a9d88cf627740a00e2c6f93dc81a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  acceptedType: 2
+  acceptedType: 1
   itemIcon: {fileID: 375435699}
   playerStats: {fileID: 2039056879}
   inventoryManager: {fileID: 794802687}
@@ -8072,6 +8114,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1379456737}
+  - component: {fileID: 1379456738}
+  - component: {fileID: 1379456739}
   m_Layer: 5
   m_Name: ShieldBarContainer
   m_TagString: Untagged
@@ -8093,11 +8137,51 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 2039056877}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 1014.9304, y: -554.5889}
-  m_SizeDelta: {x: 2029.8408, y: 462.6378}
+  m_AnchorMin: {x: 0, y: 0.5}
+  m_AnchorMax: {x: 0, y: 0.5}
+  m_AnchoredPosition: {x: 226, y: 181}
+  m_SizeDelta: {x: 0, y: 180.565}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1379456738
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1379456736}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_HorizontalFit: 2
+  m_VerticalFit: 0
+--- !u!114 &1379456739
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1379456736}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59f8146938fff824cb5fd77236b75775, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Padding:
+    m_Left: 0
+    m_Right: 0
+    m_Top: 0
+    m_Bottom: 0
+  m_ChildAlignment: 3
+  m_Spacing: 0
+  m_ChildForceExpandWidth: 0
+  m_ChildForceExpandHeight: 0
+  m_ChildControlWidth: 0
+  m_ChildControlHeight: 0
+  m_ChildScaleWidth: 0
+  m_ChildScaleHeight: 0
+  m_ReverseArrangement: 0
 --- !u!1 &1385952446
 GameObject:
   m_ObjectHideFlags: 0
@@ -8492,7 +8576,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8702a9d88cf627740a00e2c6f93dc81a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  acceptedType: 2
+  acceptedType: 6
   itemIcon: {fileID: 169895872}
   playerStats: {fileID: 2039056879}
   inventoryManager: {fileID: 794802687}
@@ -9757,7 +9841,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8702a9d88cf627740a00e2c6f93dc81a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  acceptedType: 3
+  acceptedType: 2
   itemIcon: {fileID: 991185832}
   playerStats: {fileID: 2039056879}
   inventoryManager: {fileID: 794802687}
@@ -10633,29 +10717,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerStats: {fileID: 2039056879}
-  healthBarPrefab: {fileID: 5397095711690039964, guid: bd2c5ad33f955784ab682575502d67a1, type: 3}
+  healthChunkPrefab: {fileID: 5397095711690039964, guid: bd2c5ad33f955784ab682575502d67a1, type: 3}
   healthBarContainer: {fileID: 336470692}
   fullChunkSprite: {fileID: -7310718435115833628, guid: 3237858a58ea9fa47bd1955f95ab40e2, type: 3}
   threeQuarterSprite: {fileID: -3460609258686177541, guid: 3237858a58ea9fa47bd1955f95ab40e2, type: 3}
   halfSprite: {fileID: 5321405506712674580, guid: 3237858a58ea9fa47bd1955f95ab40e2, type: 3}
   quarterSprite: {fileID: -8142078518724970007, guid: 3237858a58ea9fa47bd1955f95ab40e2, type: 3}
   emptySprite: {fileID: 3666395730429428221, guid: 3237858a58ea9fa47bd1955f95ab40e2, type: 3}
-  shieldBarPrefab: {fileID: 218861231354627603, guid: 0b71fdbdafe67af4e933311a52f68b51, type: 3}
+  shieldBarPrefab: {fileID: 9018991106143619029, guid: 5ad70e94414c5594097dc897361dabf4, type: 3}
   shieldBarContainer: {fileID: 1379456737}
-  shieldFullSprite: {fileID: 21300000, guid: 42221d876ddea3e4eaae496600a541c0, type: 2}
-  shieldThreeQuarterSprite: {fileID: -1558173570600255707, guid: 3237858a58ea9fa47bd1955f95ab40e2, type: 3}
-  shieldHalfSprite: {fileID: -2159092337048555947, guid: 3237858a58ea9fa47bd1955f95ab40e2, type: 3}
-  shieldQuarterSprite: {fileID: -3196215182155280146, guid: 3237858a58ea9fa47bd1955f95ab40e2, type: 3}
-  shieldEmptySprite: {fileID: 21300000, guid: 8288d3336e12efc42b9b3102903e5a22, type: 2}
-  maxChunksPerRow: 4
-  chunkSpacing: 30
-  rowSpacing: 20
-  shieldChunkPrefabs:
-  - {fileID: 218861231354627603, guid: 0b71fdbdafe67af4e933311a52f68b51, type: 3}
-  - {fileID: 7006962545547611219, guid: 3c87b2e4932d27c459e030d77532599c, type: 3}
-  - {fileID: 1826551073997348738, guid: 764f19ac951e72644b97d78ee45eeedd, type: 3}
-  - {fileID: 9018991106143619029, guid: 5ad70e94414c5594097dc897361dabf4, type: 3}
-  - {fileID: 2389897729375533009, guid: cdacc8adc2c410641bc9f1bc9e65dd19, type: 3}
+  shieldChunkSprites:
+  - {fileID: 21300000, guid: 69ccecbb91fe81746936dad275841f45, type: 2}
+  - {fileID: 21300000, guid: 561f1eb532219f9468963ded9c4755c7, type: 2}
+  - {fileID: 21300000, guid: a607162e5427fdd4d804a186bd9d4b29, type: 2}
+  - {fileID: 21300000, guid: 42221d876ddea3e4eaae496600a541c0, type: 2}
+  chunksPerBar: 4
+  barSpacing: 10
 --- !u!114 &2039056879
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10674,7 +10751,9 @@ MonoBehaviour:
   currentHealth: 0
   currentShield: 0
   equippedHelmet: {fileID: 0}
-  equippedArmor: {fileID: 0}
+  equippedChestplate: {fileID: 0}
+  equippedPants: {fileID: 0}
+  equippedBoots: {fileID: 0}
   equippedWeapon: {fileID: 0}
   equippedShield: {fileID: 0}
 --- !u!1 &2056314275

@@ -14,6 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemName: Key
   icon: {fileID: -587179304692365718, guid: e262d70ec966a484eb02db5b1f8efa1c, type: 3}
-  itemType: 6
-  shieldBonus: 0
+  itemType: 4
+  shieldBonus: 25
   healthBonus: 0
