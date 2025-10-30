@@ -186,7 +186,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      berriesicon_0: 6811605874705167542
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

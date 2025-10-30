@@ -186,7 +186,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      classic_dungeon_entrance_by_rolltonotdie_dd2sc9f-375w-2x_0: -8604700101961619006
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

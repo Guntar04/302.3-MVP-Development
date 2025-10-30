@@ -186,7 +186,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      bowicon_0: -4953979536192513964
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
