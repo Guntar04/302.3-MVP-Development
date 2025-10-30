@@ -59,11 +59,13 @@ MonoBehaviour:
   dashDuration: 0.2
   dashCooldown: 1.2
   attackRange: 1.5
-  attackRadius: 1
+  attackRadius: 1.5
   enemyLayer:
     serializedVersion: 2
     m_Bits: 8
-  criticalHitChance: 0.1
+  criticalHitChance: 1
+  criticalHitUIPrefab: {fileID: 3283098216751668891, guid: 64d3580928f6b2041b9d2ac5315caa3b, type: 3}
+  criticalHitUIDuration: 0.2
 --- !u!114 &-6988257082530981728
 MonoBehaviour:
   m_ObjectHideFlags: 0

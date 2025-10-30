@@ -24,6 +24,10 @@ public class PlayerController : MonoBehaviour
     [Header("Critical Hit Settings")]
     public float criticalHitChance = 0.2f; // 20% chance for a critical hit
 
+    [Header("UI Settings")]
+    public GameObject criticalHitUIPrefab;
+    public float criticalHitUIDuration = 1f; // Duration to display the UI
+
     private Vector2 moveDirection;
     private Vector2 lastMoveDirection = Vector2.down; // default facing down
 
@@ -31,6 +35,7 @@ public class PlayerController : MonoBehaviour
     private bool isDashing = false;
     private bool isAttacking = false;
     private bool isInvincible = false; // Tracks if the player is invincible
+    private Coroutine flashCoroutine;
 
     private void Update()
     {
@@ -137,6 +142,8 @@ public class PlayerController : MonoBehaviour
 
         // Detect enemies in hitbox
         Collider2D[] hitEnemies = Physics2D.OverlapBoxAll(attackOrigin, attackSize, 0f, enemyLayer);
+        Debug.Log($"Number of enemies detected: {hitEnemies.Length}");
+
         foreach (Collider2D enemy in hitEnemies)
         {
             AIController ai = enemy.GetComponent<AIController>();
@@ -151,6 +158,36 @@ public class PlayerController : MonoBehaviour
                 if (isCriticalHit)
                 {
                     Debug.Log("Critical Hit! Damage: " + damage);
+
+                    // Display critical hit UI
+                    if (criticalHitUIPrefab != null)
+                    {
+                        var canvas = FindFirstObjectByType<Canvas>();
+                        if (canvas != null)
+                        {
+                            var criticalHitUIInstance = Instantiate(criticalHitUIPrefab, canvas.transform);
+                            var rectTransform = criticalHitUIInstance.GetComponent<RectTransform>();
+
+                            if (rectTransform != null)
+                            {
+                                Vector3 worldPosition = transform.position + new Vector3(0, 1, 0); // Offset by 1 unit vertically
+                                rectTransform.position = Camera.main.WorldToScreenPoint(worldPosition); // Convert world position to screen position
+                                Destroy(criticalHitUIInstance, criticalHitUIDuration); // Automatically destroy the UI after the duration
+                            }
+                            else
+                            {
+                                Debug.LogError("Critical Hit UI prefab does not have a RectTransform component.");
+                            }
+                        }
+                        else
+                        {
+                            Debug.LogError("No Canvas found in the scene.");
+                        }
+                    }
+                    else
+                    {
+                        Debug.LogError("CriticalHitUIPrefab is not assigned in the Inspector.");
+                    }
                 }
             }
         }
@@ -194,10 +231,16 @@ public class PlayerController : MonoBehaviour
 
         health -= damage;
 
+        Debug.Log($"Player Health: {health}");
         if (health <= 0)
         {
             health = 0;
             Debug.Log("Player has died.");
+            SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.color = Color.white; // Reset color to default
+            }
             if (animator != null)
             {
                 animator.Play("Death");
@@ -207,11 +250,19 @@ public class PlayerController : MonoBehaviour
                 Debug.LogError("Animator is not assigned to PlayerController.");
             }
             // Add death logic here (e.g., trigger game over screen)
+            if (flashCoroutine != null)
+            {
+                StopCoroutine(flashCoroutine); // Stop flashing if the player dies
+            }
         }
         else
         {
             Debug.Log($"Player took {damage} damage. Remaining health: {health}");
-            StartCoroutine(FlashRedOnHit());
+            if (flashCoroutine != null)
+            {
+                StopCoroutine(flashCoroutine);
+            }
+            flashCoroutine = StartCoroutine(FlashRedOnHit());
         }
         UpdatePlayerHealth();
     }
@@ -222,9 +273,9 @@ public class PlayerController : MonoBehaviour
         if (spriteRenderer != null)
         {
             Color originalColor = spriteRenderer.color;
-            spriteRenderer.color = Color.red;
+            spriteRenderer.color = Color.red; // Change to red to indicate damage
             yield return new WaitForSeconds(0.1f); // Flash duration
-            spriteRenderer.color = originalColor;
+            spriteRenderer.color = originalColor; // Revert to original color
         }
         else
         {
