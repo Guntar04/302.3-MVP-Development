@@ -84,44 +84,41 @@ private IEnumerator NotifyAfterStart()
 
 
     public void UnequipItem(ItemData item)
+{
+    if (item == null) return;
+
+    switch (item.itemType)
     {
-        if (item == null) return;
-
-        switch (item.itemType)
-        {
-            case ItemType.Helmet: if (equippedHelmet == item) equippedHelmet = null; break;
-            case ItemType.Chestplate: if (equippedChestplate == item) equippedChestplate = null; break;
-            case ItemType.Pants: if (equippedPants == item) equippedPants = null; break;
-            case ItemType.Boots: if (equippedBoots == item) equippedBoots = null; break;
-            case ItemType.Weapon: if (equippedWeapon == item) equippedWeapon = null; break;
-            case ItemType.Shield: if (equippedWeapon == item) equippedWeapon = null; break;
-        }
-
-        RecalculateStats();
-        NotifyStatsChanged();
+        case ItemType.Helmet: if (equippedHelmet == item) equippedHelmet = null; break;
+        case ItemType.Chestplate: if (equippedChestplate == item) equippedChestplate = null; break;
+        case ItemType.Pants: if (equippedPants == item) equippedPants = null; break;
+        case ItemType.Boots: if (equippedBoots == item) equippedBoots = null; break;
+        case ItemType.Shield: if (equippedShield == item) equippedShield = null; break; // <-- fix here
+        case ItemType.Weapon: if (equippedWeapon == item) equippedWeapon = null; break;
     }
 
-   public void RecalculateStats()
+    RecalculateStats();    // recalculates currentShield based on equipped items
+    NotifyStatsChanged();   // triggers HUD update, so shield bars shrink/remove chunks
+}
+
+public void RecalculateStats()
 {
     int totalShield = baseShield;
 
-    // Loop through equipped items
-    foreach (var item in equippedItems)
-    {
-        if (item == null) continue;
-
-        if (item.shieldBonus > 0)
-{
-    totalShield += item.shieldBonus;
-}
-
-    }
+    if (equippedHelmet != null) totalShield += equippedHelmet.shieldBonus;
+    if (equippedChestplate != null) totalShield += equippedChestplate.shieldBonus;
+    if (equippedPants != null) totalShield += equippedPants.shieldBonus;
+    if (equippedBoots != null) totalShield += equippedBoots.shieldBonus;
+    if (equippedShield != null) totalShield += equippedShield.shieldBonus;
+    if (equippedWeapon != null) totalShield += equippedWeapon.shieldBonus;
 
     currentShield = totalShield;
-    Debug.Log("[RecalculateStats] Total shield recalculated: " + totalShield);
+
+    Debug.Log("[RecalculateStats] Total shield: " + currentShield);
 
     NotifyStatsChanged();
 }
+
 
 
     public void TakeDamage(int damage)

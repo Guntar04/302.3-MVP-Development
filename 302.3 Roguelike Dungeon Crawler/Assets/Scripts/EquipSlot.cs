@@ -4,74 +4,76 @@ using UnityEngine.UI;
 public class EquipSlot : MonoBehaviour
 {
     [Header("Slot Info")]
-    public ItemType acceptedType;          // e.g. Helmet, Armor, Weapon
-    public Image itemIcon;                 // icon for the equipped item
-    public PlayerStats playerStats;        // reference to PlayerStats
-    public InventoryManager inventoryManager; // reference for returning items to inventory
+    public ItemType acceptedType;               // e.g. Helmet, Chestplate, Shield
+    public Image itemIcon;                      // icon for the equipped item
+    public PlayerStats playerStats;             // reference to PlayerStats
+    public InventoryManager inventoryManager;   // reference to return items to inventory
+    public PlayerHUD playerHUD;                 // reference to update shield/health bars
 
-    private ItemData currentItem;          // currently equipped item
+    private ItemData currentItem;               // currently equipped item
 
     private void Awake()
     {
-        ClearSlot(); // make sure the slot looks empty at start
+        ClearSlot(); // start empty
     }
 
     /// <summary>
-    /// Try to equip an item. Returns true if successful.
+    /// Try to equip a new item
     /// </summary>
     public bool AcceptItem(ItemData newItem)
-{
-    if (newItem == null)
-        return false;
-
-    if (newItem.itemType != acceptedType)
     {
-        Debug.Log($"{newItem.itemName} cannot be equipped in {acceptedType} slot!");
-        return false; // wrong type
+        if (newItem == null) return false;
+
+        if (newItem.itemType != acceptedType)
+        {
+            Debug.Log($"{newItem.itemName} cannot be equipped in {acceptedType} slot!");
+            return false; // wrong type
+        }
+
+        // Unequip current item first
+        if (currentItem != null)
+            Unequip();
+
+        // Equip the new item
+        currentItem = newItem;
+        UpdateIcon();
+
+        // Update player stats
+        if (playerStats != null)
+            playerStats.EquipItem(newItem);
+
+        // Update HUD if needed
+        if (playerHUD != null)
+            playerHUD.UpdateHUD();
+
+        Debug.Log($"Equipped {newItem.itemName} in {acceptedType} slot!");
+        return true;
     }
-
-    // Return the old item to inventory if one is already equipped
-    if (currentItem != null && inventoryManager != null)
-    {
-        inventoryManager.AddItem(currentItem);
-    }
-
-    // Equip the new item
-    currentItem = newItem;
-    UpdateIcon();
-
-    // ✅ Notify PlayerStats properly
-    if (playerStats != null)
-    {
-        playerStats.EquipItem(newItem);
-        Debug.Log($"[EquipSlot] Sent {newItem.itemName} to PlayerStats. ShieldBonus = {newItem.shieldBonus}");
-    }
-
-    Debug.Log($"Equipped {newItem.itemName} in {acceptedType} slot!");
-    return true;
-}
-
 
     /// <summary>
     /// Unequip current item and return to inventory
     /// </summary>
     public void Unequip()
+{
+    if (currentItem == null) return;
+
+    // Return to inventory
+    if (inventoryManager != null)
+        inventoryManager.AddItem(currentItem);
+
+    // Update player stats
+    if (playerStats != null)
     {
-        if (currentItem != null && inventoryManager != null)
-        {
-            inventoryManager.AddItem(currentItem);
-        }
-
-        ClearSlot();
-
-        // Update player stats and HUD
-        if (playerStats != null)
-            playerStats.RecalculateStats();
-
+        playerStats.UnequipItem(currentItem); // important for shield/health recalculation
+        // playerStats.NotifyStatsChanged(); // not needed if UnequipItem already calls it
     }
 
+    ClearSlot();
+}
+
+
     /// <summary>
-    /// Clears the slot visually and logically
+    /// Clear slot visually and logically
     /// </summary>
     public void ClearSlot()
     {
@@ -79,7 +81,7 @@ public class EquipSlot : MonoBehaviour
         if (itemIcon != null)
         {
             itemIcon.sprite = null;
-            itemIcon.enabled = false; // hide icon when empty
+            itemIcon.enabled = false;
         }
     }
 
@@ -89,7 +91,7 @@ public class EquipSlot : MonoBehaviour
     public ItemData GetEquippedItem() => currentItem;
 
     /// <summary>
-    /// Updates the visual icon based on currentItem
+    /// Update icon based on current item
     /// </summary>
     private void UpdateIcon()
     {
@@ -104,6 +106,17 @@ public class EquipSlot : MonoBehaviour
         {
             itemIcon.sprite = null;
             itemIcon.enabled = false;
+        }
+    }
+
+    /// <summary>
+    /// Call this when the slot is clicked
+    /// </summary>
+    public void OnClickSlot()
+    {
+        if (currentItem != null)
+        {
+            Unequip();
         }
     }
 }

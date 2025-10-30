@@ -118,36 +118,35 @@ public class PlayerHUD : MonoBehaviour
     }
 
     private void UpdateShield()
+{
+    int totalShield = playerStats.currentShield;
+    int barsNeeded = Mathf.CeilToInt((float)totalShield / (chunksPerBar * 25));
+
+    // Add new bars if needed
+    while (shieldBars.Count < barsNeeded)
     {
-        int totalShield = playerStats.currentShield;
-        int barsNeeded = Mathf.CeilToInt((float)totalShield / (chunksPerBar * 25));
-
-        // Add new bars if needed
-        while (shieldBars.Count < barsNeeded)
-        {
-            CreateShieldBar(shieldBars.Count, totalShield);
-        }
-
-        // Remove excess bars if shield decreased
-        while (shieldBars.Count > barsNeeded)
-        {
-            Destroy(shieldBars[shieldBars.Count - 1]);
-            shieldBars.RemoveAt(shieldBars.Count - 1);
-        }
-
-        // Update each bar sprite based on current shield
-        for (int i = 0; i < shieldBars.Count; i++)
-        {
-            Image barImage = shieldBars[i].GetComponent<Image>();
-            if (barImage == null) continue;
-
-            int remainingShield = Mathf.Clamp(totalShield - i * chunksPerBar * 25, 0, chunksPerBar * 25);
-            int chunksInBar = Mathf.CeilToInt((float)remainingShield / 25f);
-            chunksInBar = Mathf.Clamp(chunksInBar, 0, shieldChunkSprites.Count);
-
-            barImage.sprite = (chunksInBar > 0) ? shieldChunkSprites[chunksInBar - 1] : shieldChunkSprites[0];
-        }
+        CreateShieldBar(shieldBars.Count, totalShield);
     }
+
+    // Remove extra bars if needed
+    while (shieldBars.Count > barsNeeded)
+    {
+        Destroy(shieldBars[shieldBars.Count - 1]);
+        shieldBars.RemoveAt(shieldBars.Count - 1);
+    }
+
+    // Update each bar's sprite based on how many chunks it has
+    for (int i = 0; i < shieldBars.Count; i++)
+    {
+        Image barImage = shieldBars[i].GetComponent<Image>();
+        if (barImage == null) continue;
+
+        int remainingShield = Mathf.Clamp(totalShield - i * chunksPerBar * 25, 0, chunksPerBar * 25);
+        int chunksInBar = Mathf.Clamp(Mathf.CeilToInt((float)remainingShield / 25f), 0, shieldChunkSprites.Count);
+
+        barImage.sprite = (chunksInBar > 0) ? shieldChunkSprites[chunksInBar - 1] : shieldChunkSprites[0];
+    }
+}
 
     // -----------------------------
     // Public update
