@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using UnityEngine.UI; // Required for UI components like Image
 
 public class PlayerController : MonoBehaviour
 {
@@ -28,14 +29,36 @@ public class PlayerController : MonoBehaviour
     public GameObject criticalHitUIPrefab;
     public float criticalHitUIDuration = 1f; // Duration to display the UI
 
+
+
     private Vector2 moveDirection;
     private Vector2 lastMoveDirection = Vector2.down; // default facing down
+    public Image dashIconOverlay;
 
     private bool canDash = true;
     private bool isDashing = false;
     private bool isAttacking = false;
     private bool isInvincible = false; // Tracks if the player is invincible
     private Coroutine flashCoroutine;
+
+    private void Start()
+    {
+        // Dynamically assign the DashIconOverlay from the UIManager
+        if (UIManager.Instance != null)
+        {
+            dashIconOverlay = UIManager.Instance.dashIconOverlay;
+        }
+        else
+        {
+            Debug.LogError("UIManager is not present in the scene.");
+        }
+
+        // Initialize the dash icon overlay to show the ability is not ready
+        if (dashIconOverlay != null)
+        {
+            dashIconOverlay.fillAmount = 0f; // Fully filled (ability not ready)
+        }
+    }
 
     private void Update()
     {
@@ -212,6 +235,7 @@ public class PlayerController : MonoBehaviour
         Vector2 dashDirection = moveDirection == Vector2.zero ? lastMoveDirection : moveDirection;
         float dashEndTime = Time.time + dashDuration;
 
+        // Perform the dash
         while (Time.time < dashEndTime)
         {
             transform.Translate(dashDirection * dashSpeed * Time.deltaTime);
@@ -221,8 +245,27 @@ public class PlayerController : MonoBehaviour
         isDashing = false;
         isInvincible = false; // Disable invincibility after dash
 
+        // Start cooldown visual
+        StartCoroutine(DashCooldownVisual());
+
         yield return new WaitForSeconds(dashCooldown);
         canDash = true;
+    }
+
+    // Cooldown visual logic
+    private IEnumerator DashCooldownVisual()
+    {
+        float elapsedTime = 0f;
+
+        while (elapsedTime < dashCooldown)
+        {
+            elapsedTime += Time.deltaTime;
+            float fillAmount = 1f - (elapsedTime / dashCooldown); // Calculate fill amount
+            dashIconOverlay.fillAmount = fillAmount; // Update overlay fill amount
+            yield return null;
+        }
+
+        dashIconOverlay.fillAmount = 0f; // Reset overlay when cooldown is complete
     }
 
     public void TakeDamage(int damage)
