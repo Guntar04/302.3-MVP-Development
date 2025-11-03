@@ -270,6 +270,15 @@ public class PlayerController : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
+        // First check shield component (blocks one attack if available)
+        var shield = GetComponent<Shield>();
+        if (shield != null && shield.TryConsumeShield())
+        {
+            Debug.Log("PlayerShield: blocked incoming damage.");
+            // Optional: play shield block VFX/sound/animation here
+            return; // damage blocked, do not reduce HP
+        }
+
         if (isInvincible) return; // Prevent damage if the player is invincible
 
         health -= damage;
