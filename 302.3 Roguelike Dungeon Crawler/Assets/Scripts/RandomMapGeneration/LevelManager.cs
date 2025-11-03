@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
+using TMPro; // Required for TextMeshPro
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -17,11 +19,16 @@ public class LevelManager : MonoBehaviour
     public UnityEvent<int> OnBeforeFloorUnload;
     public UnityEvent<int> OnAfterFloorLoad;
 
-    void Awake()
+    [Header("Level UI")]
+    public GameObject nextLevelUI; // Reference to the NextLevelUI GameObject
+    public TextMeshProUGUI levelText; // Reference to the TextMeshPro component
+
+    private void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
         DontDestroyOnLoad(gameObject);
+        StartCoroutine(DisplayLevelUI(currentFloor));
     }
 
     public void GoToNextFloor(GameObject player)
@@ -44,7 +51,7 @@ public class LevelManager : MonoBehaviour
         // Clear player's key immediately (so it doesn't carry to next floor)
         TryClearPlayerKey(player);
 
-        // notify listeners
+        // Notify listeners
         OnBeforeFloorUnload?.Invoke(currentFloor);
 
         // Reset per-level data
@@ -55,20 +62,23 @@ public class LevelManager : MonoBehaviour
             catch (Exception ex) { Debug.LogWarning($"LevelManager: DungeonData.Reset threw: {ex.Message}"); }
         }
 
-        // CLEANUP previous floor objects (important)
+        // Cleanup previous floor objects
         CleanupPreviousFloor(player);
 
-        // increment floor
+        // Increment floor
         currentFloor++;
         Debug.Log($"LevelManager: Generating floor {currentFloor}...");
 
-        // small frame
+        // Display the level UI
+        StartCoroutine(DisplayLevelUI(currentFloor));
+
+        // Small frame
         yield return null;
 
-        // invoke generator
+        // Invoke generator
         bool generated = TryInvokeGenerator();
 
-        // give generator a frame
+        // Give generator a frame
         yield return null;
 
         // Fallback: call common spawners so player/enemies/chests/exit get placed reliably
@@ -181,6 +191,28 @@ public class LevelManager : MonoBehaviour
 
         OnAfterFloorLoad?.Invoke(currentFloor);
         Debug.Log($"LevelManager: floor {currentFloor} ready.");
+    }
+
+    private IEnumerator DisplayLevelUI(int level)
+    {
+        if (nextLevelUI != null && levelText != null)
+        {
+            // Update the level text
+            levelText.text = $"{level:D2}";
+
+            // Show the UI
+            nextLevelUI.SetActive(true);
+
+            // Wait for 5 seconds
+            yield return new WaitForSeconds(5f);
+
+            // Hide the UI
+            nextLevelUI.SetActive(false);
+        }
+        else
+        {
+            Debug.LogWarning("LevelManager: NextLevelUI or LevelText is not assigned.");
+        }
     }
 
     // New: destroys typical per-floor spawned objects so next floor starts clean

@@ -174,7 +174,7 @@ public class PlayerController : MonoBehaviour
 
         // Detect enemies in hitbox
         Collider2D[] hitEnemies = Physics2D.OverlapBoxAll(attackOrigin, attackSize, 0f, enemyLayer);
-        Debug.Log($"Number of enemies detected: {hitEnemies.Length}");
+        //Debug.Log($"Number of enemies detected: {hitEnemies.Length}");
 
         foreach (Collider2D enemy in hitEnemies)
         {
