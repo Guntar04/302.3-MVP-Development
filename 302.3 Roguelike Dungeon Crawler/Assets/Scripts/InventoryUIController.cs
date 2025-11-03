@@ -11,8 +11,6 @@ public class InventoryUIController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.I))
             ToggleInventory();
 
-        if (isOpen && Input.GetKeyDown(KeyCode.Escape))
-            ToggleInventory();
     }
 
     public void ToggleInventory()
