@@ -64,10 +64,20 @@ public class AIController : MonoBehaviour
     // new field to remember if this death must guarantee the exit key
     private bool guaranteeExitDrop = false;
 
+    [Header("Debug")]
+    public bool debugDraw = false;
+    public float debugRayDistance = 0.6f;
+
     [Header("Attack Settings")]
     public LayerMask playerLayerMask = Physics2D.DefaultRaycastLayers;
     // store previous body type while performing an attack (to prevent physics push)
     private RigidbodyType2D savedBodyType = RigidbodyType2D.Dynamic;
+    
+    [Header("Range Offsets")]
+    // Offsets allow the attack/detection circles to be shifted relative to the
+    // enemy root position (useful when sprite visuals are offset from physics root)
+    public Vector2 attackRangeOffset = Vector2.zero;
+    public Vector2 detectionRangeOffset = Vector2.zero;
 
     void Awake()
     {
@@ -137,11 +147,16 @@ public class AIController : MonoBehaviour
             return;
         }
 
-        float distance = Vector2.Distance(transform.position, player.position);
+    // measure distance from the detection center (allows offsetting the detection
+    // circle if visuals/anchor are not at the physics root)
+    Vector2 detectionCenter = (Vector2)transform.position + detectionRangeOffset;
+    float distance = Vector2.Distance(detectionCenter, player.position);
 
         Collider2D[] hits;
 
-        hits = Physics2D.OverlapCircleAll(transform.position, attackRange, playerLayerMask);
+    // check attack hits around the attack center (supports an offset)
+    Vector2 attackCenter = (Vector2)transform.position + attackRangeOffset;
+    hits = Physics2D.OverlapCircleAll(attackCenter, attackRange, playerLayerMask);
 
         bool playerInAttackRange = false;
         foreach (var h in hits)
@@ -210,7 +225,9 @@ public class AIController : MonoBehaviour
 
         if (animator != null) animator.SetTrigger(ParamAttack);
 
-        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, attackRange, playerLayerMask);
+    // use the same attack center offset when performing attack checks
+    Vector2 attackCenterLocal = (Vector2)transform.position + attackRangeOffset;
+    Collider2D[] hits = Physics2D.OverlapCircleAll(attackCenterLocal, attackRange, playerLayerMask);
         foreach (var hit in hits)
         {
             if (hit == null) continue;
@@ -494,6 +511,37 @@ public class AIController : MonoBehaviour
         {
             Vector2 direction = ((Vector2)player.position - rb.position).normalized;
 
+            // Simple local avoidance: if a direct raycast to the player hits an obstacle
+            // (not the player), try to move around it by using a perpendicular offset.
+            // This helps avoid getting stuck on single colliders or tile edges.
+            RaycastHit2D hit = Physics2D.Raycast(rb.position, direction, debugRayDistance);
+            if (debugDraw)
+            {
+                Debug.DrawRay(rb.position, direction * debugRayDistance, hit.collider == null ? Color.green : Color.red, 0.1f);
+            }
+            if (hit.collider != null && !hit.collider.CompareTag("Player"))
+            {
+                // Try two perpendicular directions and pick the first clear one
+                Vector2 perp = Vector2.Perpendicular(direction).normalized;
+                Vector2 tryDir1 = (direction + perp * 0.6f).normalized;
+                Vector2 tryDir2 = (direction - perp * 0.6f).normalized;
+
+                bool clear1 = Physics2D.Raycast(rb.position, tryDir1, debugRayDistance).collider == null;
+                bool clear2 = Physics2D.Raycast(rb.position, tryDir2, debugRayDistance).collider == null;
+
+                if (debugDraw)
+                {
+                    Debug.DrawRay(rb.position, tryDir1 * debugRayDistance, clear1 ? Color.cyan : Color.magenta, 0.1f);
+                    Debug.DrawRay(rb.position, tryDir2 * debugRayDistance, clear2 ? Color.cyan : Color.magenta, 0.1f);
+                }
+
+                if (clear1)
+                    direction = tryDir1;
+                else if (clear2)
+                    direction = tryDir2;
+                // else keep original direction and let physics attempt to resolve collision
+            }
+
             if (rb.bodyType == RigidbodyType2D.Dynamic)
             {
                 rb.linearVelocity = direction * moveSpeed;
@@ -516,10 +564,14 @@ public class AIController : MonoBehaviour
     // draw attack range in editor to help tuning
     private void OnDrawGizmosSelected()
     {
+        // draw attack and detection spheres at their configured offset centers
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, attackRange);
+        Gizmos.DrawWireSphere((Vector3)transform.position + (Vector3)attackRangeOffset, attackRange);
+        // mark the center
+        Gizmos.DrawWireSphere((Vector3)transform.position + (Vector3)attackRangeOffset, 0.05f);
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, detectionRange);
+        Gizmos.DrawWireSphere((Vector3)transform.position + (Vector3)detectionRangeOffset, detectionRange);
+        Gizmos.DrawWireSphere((Vector3)transform.position + (Vector3)detectionRangeOffset, 0.05f);
     }
 
     // ensure any leftover UI is removed if this object is destroyed by other systems

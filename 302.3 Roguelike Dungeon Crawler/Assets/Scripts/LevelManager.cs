@@ -1,14 +1,18 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class LevelManager : MonoBehaviour
+namespace Game.UI
 {
-    [SerializeField] private int floorNumber = 1;
-
-    void Start()
+    // Small helper used to show a banner when a specific scene loads.
+    // Renamed from LevelManager to avoid collision with the runtime LevelManager in RandomMapGeneration.
+    public class LevelBanner : MonoBehaviour
     {
-        // When the level (scene) loads, show the banner
-        //FindObjectOfType<LevelBannerUI>()?.ShowBanner($"Floor {floorNumber}");
-    }
+        [SerializeField] private int floorNumber = 1;
 
+        void Start()
+        {
+            // When the level (scene) loads, show the banner
+            //FindObjectOfType<LevelBannerUI>()?.ShowBanner($"Floor {floorNumber}");
+        }
+    }
 }

@@ -52,6 +52,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   animator: {fileID: 2947050818536567491}
   health: 15
+  healthSlider: {fileID: 0}
   maxHealth: 15
   attackDamage: 2
   defense: 1
@@ -64,7 +65,7 @@ MonoBehaviour:
   enemyLayer:
     serializedVersion: 2
     m_Bits: 8
-  criticalHitChance: 0.1
+  criticalHitChance: 0.15
   criticalHitUIPrefab: {fileID: 3283098216751668891, guid: 64d3580928f6b2041b9d2ac5315caa3b, type: 3}
   criticalHitUIDuration: 0.2
   dashIconOverlay: {fileID: 0}

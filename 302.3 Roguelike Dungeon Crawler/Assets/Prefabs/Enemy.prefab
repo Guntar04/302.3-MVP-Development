@@ -10,10 +10,11 @@ GameObject:
   m_Component:
   - component: {fileID: 5376300376383153040}
   - component: {fileID: 8080206979167558064}
-  - component: {fileID: 2305447559026505574}
+  - component: {fileID: 8861908506252215748}
   - component: {fileID: 8035586081252671790}
+  - component: {fileID: 6983568506320735195}
+  - component: {fileID: 2785292164954992783}
   - component: {fileID: 4738075739300005283}
-  - component: {fileID: 2191487234957592249}
   m_Layer: 3
   m_Name: Enemy
   m_TagString: Untagged
@@ -30,7 +31,7 @@ Transform:
   m_GameObject: {fileID: 7854324369413684749}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -0.31, y: 0.42, z: 0}
   m_LocalScale: {x: 5, y: 5, z: 5}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -92,7 +93,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!70 &2305447559026505574
+--- !u!70 &8861908506252215748
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -126,8 +127,8 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -0.03, y: 0.105000004}
-  m_Size: {x: 0.1, y: 0.17}
+  m_Offset: {x: -0.03314854, y: 0.10500001}
+  m_Size: {x: 0.113702916, y: 0.15}
   m_Direction: 0
 --- !u!50 &8035586081252671790
 Rigidbody2D:
@@ -156,6 +157,59 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 4
+--- !u!114 &6983568506320735195
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7854324369413684749}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf550693865e51d4f8f2b3bc6fe96e3a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  capsule: {fileID: 8861908506252215748}
+  spriteRenderer: {fileID: 8080206979167558064}
+  alignOnStart: 1
+  alignContinuously: 1
+  sizeMultiplier: {x: 0.1, y: 0.15}
+--- !u!114 &2785292164954992783
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7854324369413684749}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e3d123a63683850479bbcddff6717a12, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 4
+  attackPower: 1
+  attackRange: 0.6
+  attackCooldown: 1
+  attackDuration: 0.4
+  detectionRange: 5
+  moveSpeed: 3
+  hitStunDuration: 0.6
+  destroyDelay: 3
+  animator: {fileID: 4738075739300005283}
+  healthPotPrefab: {fileID: 7530052757700064916, guid: 0eceee51177d5cc43b610553f33f9b1b, type: 3}
+  healthDropChance: 0.2
+  exitKeyPrefab: {fileID: 4997379437136380138, guid: 2ed9538f3004ed445b460dbf2ba7dc1b, type: 3}
+  exitKeyDropChance: 0.05
+  hpBarPrefab: {fileID: 5010947230403562031, guid: abf7a5fecb1e55149aef770099a446fd, type: 3}
+  hpAnchor: {fileID: 7674248178709286282}
+  hpOffset: {x: 0, y: 1, z: 0}
+  debugDraw: 0
+  debugRayDistance: 0.6
+  playerLayerMask:
+    serializedVersion: 2
+    m_Bits: 64
+  attackRangeOffset: {x: 0, y: 0}
+  detectionRangeOffset: {x: 0, y: 0}
 --- !u!95 &4738075739300005283
 Animator:
   serializedVersion: 7
@@ -178,38 +232,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &2191487234957592249
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7854324369413684749}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e3d123a63683850479bbcddff6717a12, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxHealth: 4
-  attackPower: 1
-  attackRange: 0.6
-  attackCooldown: 1
-  attackDuration: 0.4
-  detectionRange: 5
-  moveSpeed: 4
-  hitStunDuration: 0.6
-  destroyDelay: 3
-  animator: {fileID: 4738075739300005283}
-  healthPotPrefab: {fileID: 7530052757700064916, guid: 0eceee51177d5cc43b610553f33f9b1b, type: 3}
-  healthDropChance: 0.2
-  exitKeyPrefab: {fileID: 4997379437136380138, guid: 2ed9538f3004ed445b460dbf2ba7dc1b, type: 3}
-  exitKeyDropChance: 0.05
-  hpBarPrefab: {fileID: 5010947230403562031, guid: abf7a5fecb1e55149aef770099a446fd, type: 3}
-  hpAnchor: {fileID: 7674248178709286282}
-  hpOffset: {x: 0, y: 1, z: 0}
-  playerLayerMask:
-    serializedVersion: 2
-    m_Bits: 64
 --- !u!1 &7882004651615866237
 GameObject:
   m_ObjectHideFlags: 0

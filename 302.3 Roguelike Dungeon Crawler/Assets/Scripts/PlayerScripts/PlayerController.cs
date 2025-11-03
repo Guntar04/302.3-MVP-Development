@@ -7,6 +7,7 @@ public class PlayerController : MonoBehaviour
     [Header("Stats")]
     [SerializeField] private Animator animator;
     public int health = 10;
+    public Slider healthSlider;
     public int maxHealth = 10;
     public int attackDamage = 2;
     public int defense = 1;
@@ -47,6 +48,14 @@ public class PlayerController : MonoBehaviour
         if (UIManager.Instance != null)
         {
             dashIconOverlay = UIManager.Instance.dashIconOverlay;
+            // Try to get the health slider from the UIManager if available.
+            if (healthSlider == null && UIManager.Instance.healthSlider != null)
+            {
+                healthSlider = UIManager.Instance.healthSlider;
+                // initialize slider values
+                healthSlider.maxValue = maxHealth;
+                healthSlider.value = health;
+            }
         }
         else
         {
@@ -337,7 +346,29 @@ public class PlayerController : MonoBehaviour
 
     public void UpdatePlayerHealth()
     {
-        //Add in the updated when Olivia has made the UI for it
+        // Update the assigned UI slider (if present). This method is called
+        // whenever health changes (e.g. TakeDamage) so the UI reflects current HP.
+        if (healthSlider != null)
+        {
+            // ensure slider ranges are correct
+            healthSlider.maxValue = maxHealth;
+            healthSlider.value = Mathf.Clamp(health, 0, maxHealth);
+        }
+        else
+        {
+            // fallback: try to find a Slider named "HealthUI" in the scene (non-Editor-safe)
+            var go = GameObject.Find("HealthUI");
+            if (go != null)
+            {
+                var s = go.GetComponent<UnityEngine.UI.Slider>();
+                if (s != null)
+                {
+                    healthSlider = s;
+                    healthSlider.maxValue = maxHealth;
+                    healthSlider.value = Mathf.Clamp(health, 0, maxHealth);
+                }
+            }
+        }
     }
 
     // Draw attack hitbox in Scene view for debugging
