@@ -4,10 +4,10 @@ using UnityEngine.Events;
 [RequireComponent(typeof(Collider2D))]
 public class HealthPot : MonoBehaviour
 {
-    [Tooltip("Amount of health restored when picked up")]
+    //Amount of health restored when picked up
     public int healAmount = 2;
 
-    [Tooltip("Tag used to identify the player")]
+    //Tag used to identify the player
     public string playerTag = "Player";
 
     public UnityEvent OnPickedUp;
@@ -25,13 +25,19 @@ public class HealthPot : MonoBehaviour
     {
         if (!other.CompareTag(playerTag)) return;
 
-        // Try to heal via PlayerController.health (keeps simple)
+        // Try to heal via PlayerController.health
         var pc = other.GetComponent<PlayerController>();
         if (pc != null)
         {
             Debug.Log("HealthPot picked up, healing player by " + healAmount);
             pc.health += healAmount;
-            // optional: clamp if PlayerController has maxHealth (not assumed here)
+
+            // Clamp health to maxHealth
+            pc.health = Mathf.Clamp(pc.health, 0, pc.maxHealth);
+
+            // Update the health bar UI
+            pc.UpdatePlayerHealth();
+
             Debug.Log("Player health is now " + pc.health);
         }
 
