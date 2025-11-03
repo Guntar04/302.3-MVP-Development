@@ -8,7 +8,7 @@ public class LevelManager : MonoBehaviour
     void Start()
     {
         // When the level (scene) loads, show the banner
-        FindObjectOfType<LevelBannerUI>()?.ShowBanner($"Floor {floorNumber}");
+        //FindObjectOfType<LevelBannerUI>()?.ShowBanner($"Floor {floorNumber}");
     }
 
 }

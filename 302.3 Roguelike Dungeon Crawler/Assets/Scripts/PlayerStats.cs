@@ -28,10 +28,29 @@ public class PlayerStats : MonoBehaviour
 
 private void Start()
 {
-    RecalculateStats();
+    // Recalculate base stats silently (don’t notify yet)
+    RecalculateStatsWithoutNotify();
+
     currentHealth = GetMaxHealth();
     currentShield = GetMaxShield();
-    StartCoroutine(NotifyAfterStart());
+
+    // Now that everything is initialized, notify once
+    NotifyStatsChanged();
+}
+
+private void RecalculateStatsWithoutNotify()
+{
+    int totalShield = baseShield;
+
+    if (equippedHelmet != null) totalShield += equippedHelmet.shieldBonus;
+    if (equippedChestplate != null) totalShield += equippedChestplate.shieldBonus;
+    if (equippedPants != null) totalShield += equippedPants.shieldBonus;
+    if (equippedBoots != null) totalShield += equippedBoots.shieldBonus;
+    if (equippedBlock != null) totalShield += equippedBlock.shieldBonus;
+    if (equippedWeapon != null) totalShield += equippedWeapon.shieldBonus;
+
+    currentShield = totalShield;
+    Debug.Log("[RecalculateStatsWithoutNotify] Total shield: " + currentShield);
 }
 
 private IEnumerator NotifyAfterStart()
@@ -119,31 +138,35 @@ public void RecalculateStats()
     NotifyStatsChanged();
 }
 
+public void TakeDamage(int damage)
+{
+    int remainingDamage = damage;
 
-
-    public void TakeDamage(int damage)
+    // First, reduce shield
+    if (currentShield > 0)
     {
-        int remaining = damage;
-
-        if (currentShield > 0)
+        if (currentShield >= remainingDamage)
         {
-            if (currentShield >= remaining)
-            {
-                currentShield -= remaining;
-                remaining = 0;
-            }
-            else
-            {
-                remaining -= currentShield;
-                currentShield = 0;
-            }
+            currentShield -= remainingDamage;
+            remainingDamage = 0;
         }
-
-        if (remaining > 0)
-            currentHealth = Mathf.Max(currentHealth - remaining, 0);
-
-        NotifyStatsChanged();
+        else
+        {
+            remainingDamage -= currentShield;
+            currentShield = 0;
+        }
     }
+
+    // Reduce health only if shield is gone
+    if (remainingDamage > 0)
+    {
+        currentHealth = Mathf.Max(currentHealth - remainingDamage, 0);
+    }
+
+    Debug.Log($"TakeDamage: Damage={damage}, Shield={currentShield}, Health={currentHealth}");
+    NotifyStatsChanged();
+}
+
 
     public void Heal(int amount)
     {

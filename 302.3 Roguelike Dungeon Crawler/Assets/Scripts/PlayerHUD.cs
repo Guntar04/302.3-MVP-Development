@@ -21,6 +21,8 @@ public class PlayerHUD : MonoBehaviour
 
     private List<GameObject> healthChunks = new List<GameObject>();
     private List<GameObject> shieldBars = new List<GameObject>();
+    private bool healthBuilt = false;
+
 
     private void Start()
     {
@@ -36,10 +38,14 @@ public class PlayerHUD : MonoBehaviour
 
         PlayerStats.OnStatsChanged += UpdateHUD;
 
+        Debug.Log("PlayerHUD Start on object: " + gameObject.name);
+
+
         BuildHealthBar();
         BuildShieldBars();
         UpdateHealth();
         UpdateShield();
+
     }
 
     private void OnDestroy()
@@ -47,40 +53,62 @@ public class PlayerHUD : MonoBehaviour
         PlayerStats.OnStatsChanged -= UpdateHUD;
     }
 
+private void Update()
+{
+    if (Input.GetKeyDown(KeyCode.H))
+        playerStats.TakeDamage(25); // shield first, then health
+
+    if (Input.GetKeyDown(KeyCode.J))
+        playerStats.RemoveShield(25); // shield only
+
+    if (Input.GetKeyDown(KeyCode.K))
+        playerStats.AddShield(25); // shield only
+}
+
+
+
     // -----------------------------
     // Health
     // -----------------------------
-    private void BuildHealthBar()
-    {
-        foreach (Transform child in healthBarContainer)
-            Destroy(child.gameObject);
-        healthChunks.Clear();
+private void BuildHealthBar()
+{
+    if (healthBarContainer.childCount > 0)
+        return;
 
-        int totalChunks = Mathf.CeilToInt(playerStats.GetMaxHealth() / 25f);
-        for (int i = 0; i < totalChunks; i++)
-        {
-            GameObject chunk = Instantiate(healthChunkPrefab, healthBarContainer);
-            healthChunks.Add(chunk);
-        }
-    }
+    foreach (Transform child in healthBarContainer)
+        Destroy(child.gameObject);
+    healthChunks.Clear();
 
-    private void UpdateHealth()
-    {
-        int totalHealth = playerStats.currentHealth;
+    // Always create only one chunk
+    GameObject chunk = Instantiate(healthChunkPrefab, healthBarContainer);
+    chunk.name = "HealthChunk";
+    chunk.transform.localPosition = Vector3.zero;
+    chunk.transform.localScale = Vector3.one;
+    healthChunks.Add(chunk);
 
-        for (int i = 0; i < healthChunks.Count; i++)
-        {
-            int remaining = Mathf.Clamp(totalHealth - i * 25, 0, 25);
-            Image img = healthChunks[i].GetComponent<Image>();
-            if (img == null) continue;
+    healthBuilt = true;
+}
 
-            if (remaining == 25) img.sprite = fullChunkSprite;
-            else if (remaining >= 19) img.sprite = threeQuarterSprite;
-            else if (remaining >= 13) img.sprite = halfSprite;
-            else if (remaining >= 7) img.sprite = quarterSprite;
-            else img.sprite = emptySprite;
-        }
-    }
+private void UpdateHealth()
+{
+    if (healthChunks.Count == 0)
+        return;
+
+    Image img = healthChunks[0].GetComponent<Image>();
+    if (img == null) return;
+
+    float healthPercent = (float)playerStats.currentHealth / playerStats.GetMaxHealth();
+
+    if (healthPercent > 0.75f) img.sprite = fullChunkSprite;
+    else if (healthPercent > 0.5f) img.sprite = threeQuarterSprite;
+    else if (healthPercent > 0.25f) img.sprite = halfSprite;
+    else if (healthPercent > 0f) img.sprite = quarterSprite;
+    else img.sprite = emptySprite;
+}
+
+
+
+
 
     // -----------------------------
     // Shield
@@ -153,7 +181,7 @@ public class PlayerHUD : MonoBehaviour
     // -----------------------------
     public void UpdateHUD()
     {
-        BuildHealthBar();
+
         BuildShieldBars();
         UpdateHealth();
         UpdateShield();
