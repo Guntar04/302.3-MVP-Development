@@ -20,14 +20,59 @@ public class LevelManager : MonoBehaviour
     public UnityEvent<int> OnAfterFloorLoad;
 
     [Header("Level UI")]
-    public GameObject nextLevelUI; // Reference to the NextLevelUI GameObject
+    public GameObject nextLevelUI; // (optional) Reference to the NextLevelUI GameObject (kept for backwards compatibility)
     public TextMeshProUGUI levelText; // Reference to the TextMeshPro component
+    [Tooltip("Seconds to show the Next Level UI when transitioning floors.")]
+    public float levelUIDisplaySeconds = 3f;
+
+    // cached controller (optional). If present, we'll call ShowTemporary on it instead of manually toggling GameObject.
+    private NextLevelUIController nextLevelUIController;
+    // helper to lazily resolve references in the just-loaded scene
+    private void EnsureUIReferences()
+    {
+        if (nextLevelUIController != null && levelText != null) return;
+
+        if (nextLevelUI != null && nextLevelUIController == null)
+            nextLevelUIController = nextLevelUI.GetComponent<NextLevelUIController>();
+
+        if (nextLevelUIController == null)
+            nextLevelUIController = FindFirstObjectByType<NextLevelUIController>();
+
+        if (nextLevelUIController != null && nextLevelUI == null)
+            nextLevelUI = nextLevelUIController.gameObject;
+
+        if (levelText == null)
+        {
+            if (nextLevelUI != null)
+                levelText = nextLevelUI.GetComponentInChildren<TextMeshProUGUI>(true);
+
+            if (levelText == null)
+            {
+                // fallback: try to find a TMP with "level" in its name
+                var all = UnityEngine.Object.FindObjectsByType<TextMeshProUGUI>(FindObjectsSortMode.None);
+                foreach (var t in all)
+                {
+                    if (t == null) continue;
+                    if (t.name.IndexOf("level", StringComparison.OrdinalIgnoreCase) >= 0)
+                    {
+                        levelText = t;
+                        break;
+                    }
+                }
+            }
+        }
+    }
 
     private void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
         DontDestroyOnLoad(gameObject);
+        // try to find controller on assigned GameObject
+        if (nextLevelUI != null)
+            nextLevelUIController = nextLevelUI.GetComponent<NextLevelUIController>();
+
+        // show at startup briefly if desired (uses same path as transitions)
         StartCoroutine(DisplayLevelUI(currentFloor));
     }
 
@@ -68,9 +113,6 @@ public class LevelManager : MonoBehaviour
         // Increment floor
         currentFloor++;
         Debug.Log($"LevelManager: Generating floor {currentFloor}...");
-
-        // Display the level UI
-        StartCoroutine(DisplayLevelUI(currentFloor));
 
         // Small frame
         yield return null;
@@ -191,27 +233,45 @@ public class LevelManager : MonoBehaviour
 
         OnAfterFloorLoad?.Invoke(currentFloor);
         Debug.Log($"LevelManager: floor {currentFloor} ready.");
+
+        // show the UI after the new floor has been created and after OnAfterFloorLoad listeners ran
+        StartCoroutine(DisplayLevelUI(currentFloor));
     }
 
     private IEnumerator DisplayLevelUI(int level)
     {
-        if (nextLevelUI != null && levelText != null)
+        // UI objects often live in the newly-loaded scene. Try to resolve references here.
+        EnsureUIReferences();
+
+        if (levelText == null)
         {
-            // Update the level text
-            levelText.text = $"{level:D2}";
+            Debug.LogWarning("LevelManager: LevelText is not assigned and could not be found in scene.");
+            yield break;
+        }
 
-            // Show the UI
+        levelText.text = $"{level:D2}";
+
+        // If we have a NextLevelUIController, use it (preferred)
+        EnsureUIReferences();
+        if (nextLevelUIController != null)
+        {
+            nextLevelUIController.ShowTemporary(levelUIDisplaySeconds);
+            yield break;
+        }
+
+        // Fallback: use raw GameObject activation (resolve nextLevelUI if possible)
+        if (nextLevelUI == null)
+            nextLevelUI = GameObject.Find("NextLevelUI");
+
+        if (nextLevelUI != null)
+        {
             nextLevelUI.SetActive(true);
-
-            // Wait for 5 seconds
-            yield return new WaitForSeconds(5f);
-
-            // Hide the UI
+            yield return new WaitForSeconds(levelUIDisplaySeconds);
             nextLevelUI.SetActive(false);
         }
         else
         {
-            Debug.LogWarning("LevelManager: NextLevelUI or LevelText is not assigned.");
+            Debug.LogWarning("LevelManager: NextLevelUI GameObject is not assigned or present in scene.");
         }
     }
 
