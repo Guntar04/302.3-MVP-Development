@@ -13,10 +13,13 @@ public class UIManager : MonoBehaviour
     [Header("Player UI")]
     public Slider healthSlider;
     public GameObject shieldContainer;
+    public ShieldUI shieldUI;
 
     private void Awake()
     {
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
     // Call after a new player is spawned so UI rebinds to the new player instance
@@ -30,6 +33,19 @@ public class UIManager : MonoBehaviour
         {
             healthSlider.maxValue = Mathf.Clamp(pc.maxHealth, 1, 20);
             healthSlider.value = Mathf.Clamp(pc.health, 0, pc.maxHealth);
+        }
+
+        if (player == null || shieldUI == null) return;
+
+        var shield = player.GetComponent<Shield>();
+        if (shield != null)
+        {
+            shieldUI.BindShield(shield);
+            Debug.Log("UIManager: Shield UI re-bound to new player.");
+        }
+        else
+        {
+            Debug.LogWarning("UIManager: New player does not have a Shield component.");
         }
 
         // Try to find the ShieldUI in the HUD (prefer explicit container)

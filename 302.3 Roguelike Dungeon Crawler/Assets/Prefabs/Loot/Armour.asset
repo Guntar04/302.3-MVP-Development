@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lootSprite: {fileID: -854946110, guid: e845119137fd1774c9acc8362012e745, type: 3}
   lootName: Armour
-  dropChance: 33
+  dropChance: 50
   category: 1
   equipmentType: 1
   minAttack: 0

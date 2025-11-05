@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Events;
 
 [RequireComponent(typeof(SpriteRenderer))]
 public class Chest : MonoBehaviour
@@ -13,9 +12,12 @@ public class Chest : MonoBehaviour
     [Header("Interaction")]
     public KeyCode openKey = KeyCode.E;
     public string playerTag = "Player";
+
     [Header("Loot Event")]
-    public GameObject droppedItemPrefab;
+    public GameObject droppedItemPrefab; // Loot prefab
+    public GameObject healthPotPrefab;  // HealthPot prefab
     public List<Loot> lootList = new List<Loot>();
+
     private SpriteRenderer sr;
     private bool playerInRange = false;
     private bool isOpen = false;
@@ -42,6 +44,7 @@ public class Chest : MonoBehaviour
 
     public void InstantiateLoot(Vector3 spawnPosition)
     {
+        // Drop loot prefab
         Loot droppedItem = GetDroppedItem();
         if (droppedItem != null)
         {
@@ -50,7 +53,7 @@ public class Chest : MonoBehaviour
             var sr = lootGameObject.GetComponent<SpriteRenderer>();
             if (sr != null) sr.sprite = droppedItem.lootSprite;
 
-            // generate equipment stats if this loot is equipment
+            // Generate equipment stats if this loot is equipment
             EquipmentStats stats = null;
             if (droppedItem.category == Loot.LootCategory.Equipment)
             {
@@ -68,7 +71,7 @@ public class Chest : MonoBehaviour
                 }
             }
 
-            // ensure LootPickup component exists and initialize it
+            // Ensure LootPickup component exists and initialize it
             var pickup = lootGameObject.GetComponent<LootPickup>();
             if (pickup == null) pickup = lootGameObject.AddComponent<LootPickup>();
             pickup.Init(droppedItem, stats);
@@ -81,10 +84,10 @@ public class Chest : MonoBehaviour
             rb.gravityScale = 0;
             rb.AddForce(dropDirection.normalized * dropForce, ForceMode2D.Impulse);
 
-            // stop motion after 1 second so the item doesn't keep sliding
+            // Stop motion after 1 second so the item doesn't keep sliding
             StartCoroutine(StopLootMotion(rb, 1f));
 
-            // ensure collider exists and is trigger for pickup
+            // Ensure collider exists and is trigger for pickup
             var col = lootGameObject.GetComponent<Collider2D>();
             if (col == null)
             {
@@ -96,13 +99,19 @@ public class Chest : MonoBehaviour
                 col.isTrigger = true;
             }
         }
+
+        // Drop health potion prefab
+        if (healthPotPrefab != null)
+        {
+            Vector3 healthPotPosition = spawnPosition + new Vector3(0.5f, 0.5f, 0); // Offset position
+            Instantiate(healthPotPrefab, healthPotPosition, Quaternion.identity);
+        }
     }
 
     private IEnumerator StopLootMotion(Rigidbody2D rb, float delay)
     {
         yield return new WaitForSeconds(delay);
         if (rb == null) yield break;
-        // use linearVelocity (non-obsolete) to stop motion and sleep the body
         rb.linearVelocity = Vector2.zero;
         rb.angularVelocity = 0f;
         rb.Sleep();
@@ -114,7 +123,6 @@ public class Chest : MonoBehaviour
         if (sr == null) sr = gameObject.AddComponent<SpriteRenderer>();
         if (closedSprite != null) sr.sprite = closedSprite;
 
-        // ensure there is at least one non-trigger collider (blocking) and one trigger collider (interaction)
         var cols = GetComponents<Collider2D>();
         bool hasBlocking = false;
         bool hasTrigger = false;
@@ -134,7 +142,6 @@ public class Chest : MonoBehaviour
         {
             var trig = gameObject.AddComponent<CircleCollider2D>();
             trig.isTrigger = true;
-            // adjust radius/offset in the inspector if needed
         }
     }
 
@@ -152,7 +159,6 @@ public class Chest : MonoBehaviour
         isOpen = true;
         if (openSprite != null) sr.sprite = openSprite;
 
-        // disable only trigger colliders (interaction) so the chest remains solid
         var colliders = GetComponents<Collider2D>();
         foreach (var c in colliders)
         {

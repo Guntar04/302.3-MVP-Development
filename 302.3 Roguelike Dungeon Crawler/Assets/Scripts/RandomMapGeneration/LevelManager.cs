@@ -190,6 +190,19 @@ public class LevelManager : MonoBehaviour
             yield return null;
         }
 
+        if (newPlayer != null)
+        {
+            // Rebind shield UI to the new player
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.BindPlayer(newPlayer);
+            }
+            else
+            {
+                Debug.LogWarning("LevelManager: UIManager.Instance is null - Shield UI was not rebound.");
+            }
+        }
+
         // last-chance explicit spawn attempt
         if (newPlayer == null)
         {

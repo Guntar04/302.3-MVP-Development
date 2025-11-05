@@ -80,9 +80,9 @@ MonoBehaviour:
   enemyLayer:
     serializedVersion: 2
     m_Bits: 8
-  criticalHitChance: 0.15
+  criticalHitChance: 0.2
   criticalHitUIPrefab: {fileID: 3283098216751668891, guid: 64d3580928f6b2041b9d2ac5315caa3b, type: 3}
-  criticalHitUIDuration: 0.2
+  criticalHitUIDuration: 1
   dashIconOverlay: {fileID: 0}
 --- !u!114 &-6988257082530981728
 MonoBehaviour:
