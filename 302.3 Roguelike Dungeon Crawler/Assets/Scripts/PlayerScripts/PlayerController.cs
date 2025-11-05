@@ -1,14 +1,17 @@
 using UnityEngine;
 using System.Collections;
 using UnityEngine.UI; // Required for UI components like Image
+using UnityEngine.SceneManagement; // <-- added for scene loading
 
 public class PlayerController : MonoBehaviour
 {
+    private const int MAX_HEALTH_CAP = 20; // global hard cap
+
     [Header("Stats")]
     [SerializeField] private Animator animator;
     public int health = 10;
     public Slider healthSlider;
-    public int maxHealth = 10;
+    public int maxHealth = 10; // will be clamped to MAX_HEALTH_CAP in Start()
     public int attackDamage = 2;
     public int defense = 1;
 
@@ -40,10 +43,25 @@ public class PlayerController : MonoBehaviour
     private bool isDashing = false;
     private bool isAttacking = false;
     private bool isInvincible = false; // Tracks if the player is invincible
+    private bool isDead = false; // prevent input after death
     private Coroutine flashCoroutine;
+    private Coroutine deathCoroutine;
+    private Color spriteOriginalColor = Color.white; // store original color so flash restores reliably
+
+    // Global flag enemies can check
+    public static bool PlayerDead { get; private set; } = false;
+
+    // allow external code (main menu / restart flow) to clear the flag
+    public static void SetPlayerDead(bool value)
+    {
+        PlayerDead = value;
+    }
 
     private void Start()
     {
+        // enforce cap on configured maxHealth
+        maxHealth = Mathf.Clamp(maxHealth, 1, MAX_HEALTH_CAP);
+
         // Dynamically assign the DashIconOverlay from the UIManager
         if (UIManager.Instance != null)
         {
@@ -54,6 +72,8 @@ public class PlayerController : MonoBehaviour
                 healthSlider = UIManager.Instance.healthSlider;
                 // initialize slider values
                 healthSlider.maxValue = maxHealth;
+                // make sure current health respects cap
+                health = Mathf.Clamp(health, 0, maxHealth);
                 healthSlider.value = health;
             }
         }
@@ -62,31 +82,45 @@ public class PlayerController : MonoBehaviour
             Debug.LogError("UIManager is not present in the scene.");
         }
 
+        // Apply saved progress (if any) so spawned player receives previous HP/shields
+        if (PlayerProgress.HasSaved)
+        {
+            PlayerProgress.ApplyTo(this);
+            // ensure slider and UI reflect applied values
+            UpdatePlayerHealth();
+        }
+
         // Initialize the dash icon overlay to show the ability is not ready
         if (dashIconOverlay != null)
         {
             dashIconOverlay.fillAmount = 0f; // Fully filled (ability not ready)
         }
+
+        // cache original sprite color so flashes always restore to the correct value
+        var sr = GetComponent<SpriteRenderer>();
+        if (sr != null) spriteOriginalColor = sr.color;
     }
 
     private void Update()
     {
-        if (!isDashing)
-        {
-            HandleMovementInput();
+        if (isDead) return;
+         if (!isDashing)
+         {
+             HandleMovementInput();
 
-            if (Input.GetKeyDown(KeyCode.Space))
-                StartCoroutine(Dash());
+             if (Input.GetKeyDown(KeyCode.Space))
+                 StartCoroutine(Dash());
 
-            if (Input.GetMouseButtonDown(0) && !isAttacking)
-                StartCoroutine(PlayerAttack());
-        }
+             if (Input.GetMouseButtonDown(0) && !isAttacking)
+                 StartCoroutine(PlayerAttack());
+         }
     }
 
     private void FixedUpdate()
     {
-        if (!isDashing)
-            Move();
+        if (isDead) return;
+         if (!isDashing)
+             Move();
     }
 
     private void HandleMovementInput()
@@ -293,28 +327,45 @@ public class PlayerController : MonoBehaviour
         health -= damage;
 
         Debug.Log($"Player Health: {health}");
-        if (health <= 0)
+        if (health <= 0 && !isDead)
         {
             health = 0;
+            isDead = true;
+            PlayerDead = true;                 // notify others
             Debug.Log("Player has died.");
-            SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
-            if (spriteRenderer != null)
-            {
-                spriteRenderer.color = Color.white; // Reset color to default
-            }
-            if (animator != null)
-            {
-                animator.Play("Death");
-            }
-            else
-            {
-                Debug.LogError("Animator is not assigned to PlayerController.");
-            }
-            // Add death logic here (e.g., trigger game over screen)
-            if (flashCoroutine != null)
-            {
-                StopCoroutine(flashCoroutine); // Stop flashing if the player dies
-            }
+            isInvincible = true;               // prevent further damage
+
+            // disable collisions/physics so enemies stop detecting and hitting the player
+            var col2d = GetComponent<Collider2D>();
+            if (col2d != null) col2d.enabled = false;
+            var rb2d = GetComponent<Rigidbody2D>();
+            if (rb2d != null) rb2d.simulated = false;
+
+            // remove the "Player" tag so tag-based targeting won't find it
+            try { gameObject.tag = "Untagged"; } catch { }
+            // stop any hit flash and restore original color
+if (flashCoroutine != null)
+{
+    StopCoroutine(flashCoroutine);
+    flashCoroutine = null;
+    var sr = GetComponent<SpriteRenderer>();
+    if (sr != null) sr.color = spriteOriginalColor;
+}
+// optionally disable other player components that drive targeting/input here
+// e.g. GetComponent<PlayerController>().enabled = false; (don't disable this script if it controls death coroutine)
+// play death and start coroutine that waits for animation end then loads LoseMenu
+if (animator != null)
+{
+    // start the death coroutine (keeps waiting for animation to finish)
+    if (deathCoroutine != null) StopCoroutine(deathCoroutine);
+    deathCoroutine = StartCoroutine(HandleDeathAndLoad());
+}
+else
+{
+    Debug.LogError("Animator is not assigned to PlayerController. Loading LoseMenu immediately.");
+    SceneManager.LoadScene("LoseMenu");
+}
+return;
         }
         else
         {
@@ -322,9 +373,50 @@ public class PlayerController : MonoBehaviour
             if (flashCoroutine != null)
             {
                 StopCoroutine(flashCoroutine);
+                flashCoroutine = null;
+                var sr = GetComponent<SpriteRenderer>();
+                if (sr != null) sr.color = spriteOriginalColor;
             }
             flashCoroutine = StartCoroutine(FlashRedOnHit());
         }
+        UpdatePlayerHealth();
+    }
+    
+    private IEnumerator HandleDeathAndLoad()
+    {
+        // play the death animation
+        animator.Play("Death");
+
+        // wait until the animator is actually in the Death state
+        while (!animator.GetCurrentAnimatorStateInfo(0).IsName("Death"))
+            yield return null;
+
+        // wait for the death animation to finish (normalizedTime >= 1)
+        while (animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1f)
+            yield return null;
+
+        // Animation finished — immediately hide the player so the animation won't replay
+        // Disable SpriteRenderer and the Animator to prevent further state changes
+        var sr = GetComponent<SpriteRenderer>();
+        if (sr != null) sr.enabled = false;
+
+        if (animator != null) animator.enabled = false;
+
+        // small buffer then load lose menu
+        yield return new WaitForSeconds(0.15f);
+
+        // reset static flag (scene change will unload but keep defensive)
+        PlayerDead = false;
+
+        SceneManager.LoadScene("LoseMenu");
+    }
+
+    // Public heal method that other scripts (potions) should call.
+    // This guarantees health never exceeds maxHealth and the global cap.
+    public void Heal(int amount)
+    {
+        if (amount <= 0) return;
+        health = Mathf.Clamp(health + amount, 0, maxHealth);
         UpdatePlayerHealth();
     }
 
@@ -333,10 +425,11 @@ public class PlayerController : MonoBehaviour
         SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
         if (spriteRenderer != null)
         {
-            Color originalColor = spriteRenderer.color;
-            spriteRenderer.color = Color.red; // Change to red to indicate damage
-            yield return new WaitForSeconds(0.1f); // Flash duration
-            spriteRenderer.color = originalColor; // Revert to original color
+            // set to red, wait, then restore cached original color
+            spriteRenderer.color = Color.red;
+            yield return new WaitForSeconds(0.1f);
+            spriteRenderer.color = spriteOriginalColor;
+            flashCoroutine = null;
         }
         else
         {
@@ -346,13 +439,15 @@ public class PlayerController : MonoBehaviour
 
     public void UpdatePlayerHealth()
     {
-        // Update the assigned UI slider (if present). This method is called
-        // whenever health changes (e.g. TakeDamage) so the UI reflects current HP.
+        // Enforce global caps before updating UI
+        // clamp health to valid range (ensures external direct writes get corrected)
+        health = Mathf.Clamp(health, 0, Mathf.Min(maxHealth, MAX_HEALTH_CAP));
+
         if (healthSlider != null)
         {
             // ensure slider ranges are correct
             healthSlider.maxValue = maxHealth;
-            healthSlider.value = Mathf.Clamp(health, 0, maxHealth);
+            healthSlider.value = health;
         }
         else
         {
@@ -365,7 +460,7 @@ public class PlayerController : MonoBehaviour
                 {
                     healthSlider = s;
                     healthSlider.maxValue = maxHealth;
-                    healthSlider.value = Mathf.Clamp(health, 0, maxHealth);
+                    healthSlider.value = health;
                 }
             }
         }

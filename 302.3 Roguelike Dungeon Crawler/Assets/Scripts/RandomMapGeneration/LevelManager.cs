@@ -89,7 +89,15 @@ public class LevelManager : MonoBehaviour
             yield break;
         }
 
-        // Save player state early
+        // before unloading/spawning next floor, save player state via PlayerProgress (robust)
+        var pc = player.GetComponent<PlayerController>();
+        if (pc != null)
+        {
+            PlayerProgress.SaveFrom(pc);
+            Debug.Log($"LevelManager: PlayerProgress saved (health={PlayerProgress.health}, max={PlayerProgress.maxHealth}, shields={PlayerProgress.shieldCount})");
+        }
+
+        // before unloading/spawning next floor, also save player state into a local int as before (fallback)
         int savedHealth = TryGetPlayerHealth(player);
         Debug.Log($"LevelManager: saving player health = {savedHealth}");
 
@@ -172,8 +180,8 @@ public class LevelManager : MonoBehaviour
             newPlayer = GameObject.FindWithTag("Player");
             if (newPlayer == null)
             {
-                var pc = FindFirstObjectByType<PlayerController>();
-                if (pc != null) newPlayer = pc.gameObject;
+                var foundPc = FindFirstObjectByType<PlayerController>();
+                if (foundPc != null) newPlayer = foundPc.gameObject;
             }
 
             if (newPlayer != null) break;
@@ -203,8 +211,8 @@ public class LevelManager : MonoBehaviour
                     newPlayer = GameObject.FindWithTag("Player");
                     if (newPlayer == null)
                     {
-                        var pc = FindFirstObjectByType<PlayerController>();
-                        if (pc != null) newPlayer = pc.gameObject;
+                        var foundPc = FindFirstObjectByType<PlayerController>();
+                        if (foundPc != null) newPlayer = foundPc.gameObject;
                     }
                     if (newPlayer != null) break;
                     extraWait += Time.deltaTime;
@@ -219,8 +227,36 @@ public class LevelManager : MonoBehaviour
         }
         else
         {
-            bool restored = TrySetPlayerHealth(newPlayer, savedHealth);
-            if (restored) Debug.Log($"LevelManager: restored player health = {savedHealth}");
+            // first, try to restore via PlayerProgress (preferred)
+            var newPcTyped = newPlayer.GetComponent<PlayerController>();
+            if (newPcTyped != null && PlayerProgress.HasSaved)
+            {
+                PlayerProgress.ApplyTo(newPcTyped);
+                Debug.Log($"LevelManager: applied PlayerProgress to new player (health={newPcTyped.health}, max={newPcTyped.maxHealth})");
+            }
+            else
+            {
+                // fallback: try set health from savedHealth
+                bool restored = TrySetPlayerHealth(newPlayer, savedHealth);
+                if (restored) Debug.Log($"LevelManager: restored player health = {savedHealth}");
+            }
+
+            // restore progress (existing)
+            if (PlayerProgress.HasSaved)
+            {
+                PlayerProgress.ApplyTo(newPlayer.GetComponent<PlayerController>());
+            }
+
+            // Rebind UI to the newly spawned player so shield UI updates and survives player respawn
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.BindPlayer(newPlayer);
+                Debug.Log("LevelManager: UIManager.BindPlayer called for new player.");
+            }
+            else
+            {
+                Debug.LogWarning("LevelManager: UIManager.Instance is null - HUD was not rebound to new player.");
+            }
         }
 
         // clear key safety

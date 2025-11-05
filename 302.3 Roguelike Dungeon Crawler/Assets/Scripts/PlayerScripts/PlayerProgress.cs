@@ -1,73 +1,238 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
+using System.Linq;
+using System.Reflection;
 using UnityEngine;
 
-/// <summary>
-/// Small example that saves/restores basic player state across floors using LevelManager events.
-/// Adapt the inventory/xp lines to integrate with your real systems.
-/// </summary>
 public class PlayerProgress : MonoBehaviour
 {
-    // saved state
-    [HideInInspector] public int savedHealth;
-    [HideInInspector] public int savedXP;
-    [HideInInspector] public List<string> savedItems = new List<string>();
+    public static PlayerProgress Instance { get; private set; }
 
-    // references (set or auto-find)
-    PlayerController pc;
-    // replace 'Inventory' below with your actual inventory type if you have one
-    // Inventory inventory;
+    public static bool HasSaved { get; private set; } = false;
+    public static int health = 10;
+    public static int maxHealth = 10;
+    public static int shieldCount = 0;
 
     void Awake()
     {
-        pc = GetComponent<PlayerController>();
-        // inventory = GetComponent<Inventory>();
-        StartCoroutine(RegisterWhenReady());
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
-    IEnumerator RegisterWhenReady()
+    public void SaveFromInstance(PlayerController pc)
     {
-        // ensure LevelManager is initialized (it is DontDestroyOnLoad)
-        while (LevelManager.Instance == null)
-            yield return null;
-
-        LevelManager.Instance.OnBeforeFloorUnload.AddListener(OnBeforeFloorUnload);
-        LevelManager.Instance.OnAfterFloorLoad.AddListener(OnAfterFloorLoad);
+        if (pc == null) return;
+        health = pc.health;
+        maxHealth = pc.maxHealth;
+        shieldCount = TryGetShieldCount(pc.gameObject);
+        HasSaved = true;
     }
 
-    // This method matches UnityEvent<int> signature (floor number)
-    public void OnBeforeFloorUnload(int leavingFloor)
+    public void ApplyToInstance(PlayerController pc)
     {
-        // save health (direct field). If your PlayerController stores health differently, adapt.
-        if (pc != null)
-            savedHealth = pc.health;
-
-        // save xp - adapt to your XP implementation
-        // savedXP = GetComponent<PlayerXP>()?.currentXP ?? 0;
-
-        // save inventory (example: convert items to string IDs)
-        savedItems.Clear();
-        // if (inventory != null) foreach (var it in inventory.GetItems()) savedItems.Add(it.id);
-
-        Debug.Log($"PlayerProgress: saved health={savedHealth} xp={savedXP} items={savedItems.Count}");
+        if (pc == null || !HasSaved) return;
+        pc.maxHealth = Mathf.Clamp(maxHealth, 1, 20);
+        pc.health = Mathf.Clamp(health, 0, pc.maxHealth);
+        pc.UpdatePlayerHealth();
+        TryApplyShieldCount(pc.gameObject, shieldCount);
     }
 
-    public void OnAfterFloorLoad(int newFloor)
+    public static void SaveFrom(PlayerController pc)
     {
-        // restore health
-        if (pc != null)
+        if (Instance != null) Instance.SaveFromInstance(pc);
+        else
         {
-            pc.health = savedHealth;
-            // make sure any UI / healthbar sync method is called if needed
+            if (pc == null) return;
+            health = pc.health;
+            maxHealth = pc.maxHealth;
+            shieldCount = TryGetShieldCountStatic(pc.gameObject);
+            HasSaved = true;
+        }
+    }
+
+    public static void ApplyTo(PlayerController pc)
+    {
+        if (pc == null || !HasSaved) return;
+        if (Instance != null) { Instance.ApplyToInstance(pc); return; }
+        pc.maxHealth = Mathf.Clamp(maxHealth, 1, 20);
+        pc.health = Mathf.Clamp(health, 0, pc.maxHealth);
+        pc.UpdatePlayerHealth();
+        TryApplyShieldCountStatic(pc.gameObject, shieldCount);
+    }
+
+    // Prefer field/property names that reference "shield"/"armor"/"charge"/"count"
+    private int TryGetShieldCount(GameObject go) => TryGetShieldCountStatic(go);
+    private static int TryGetShieldCountStatic(GameObject go)
+    {
+        if (go == null) return 0;
+        var candidate = go.GetComponent("Shield") ?? go.GetComponent("ShieldController") ?? go.GetComponent("Armor");
+        if (candidate == null)
+        {
+            // fallback: search components for likely int field/property
+            foreach (var comp in go.GetComponents<Component>())
+            {
+                if (comp == null) continue;
+                var t = comp.GetType();
+                // prefer named fields/properties
+                var f = t.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                         .FirstOrDefault(x => x.FieldType == typeof(int) && (x.Name.IndexOf("shield", StringComparison.OrdinalIgnoreCase) >= 0 || x.Name.IndexOf("armor", StringComparison.OrdinalIgnoreCase) >= 0 || x.Name.IndexOf("charge", StringComparison.OrdinalIgnoreCase) >= 0 || x.Name.IndexOf("count", StringComparison.OrdinalIgnoreCase) >= 0));
+                if (f != null) return (int)f.GetValue(comp);
+                var p = t.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                         .FirstOrDefault(x => x.PropertyType == typeof(int) && (x.Name.IndexOf("shield", StringComparison.OrdinalIgnoreCase) >= 0 || x.Name.IndexOf("armor", StringComparison.OrdinalIgnoreCase) >= 0 || x.Name.IndexOf("charge", StringComparison.OrdinalIgnoreCase) >= 0 || x.Name.IndexOf("count", StringComparison.OrdinalIgnoreCase) >= 0));
+                if (p != null) return (int)p.GetValue(comp);
+            }
+
+            // final fallback: any int field/property on any component
+            foreach (var comp in go.GetComponents<Component>())
+            {
+                if (comp == null) continue;
+                var t = comp.GetType();
+                var fAny = t.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                            .FirstOrDefault(x => x.FieldType == typeof(int));
+                if (fAny != null) return (int)fAny.GetValue(comp);
+                var pAny = t.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                            .FirstOrDefault(x => x.PropertyType == typeof(int));
+                if (pAny != null) return (int)pAny.GetValue(comp);
+            }
+
+            return 0;
         }
 
-        // restore xp
-        // var xpComp = GetComponent<PlayerXP>();
-        // if (xpComp != null) xpComp.currentXP = savedXP;
+        var tt = candidate.GetType();
+        // prefer named fields/properties
+        var field = tt.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                      .FirstOrDefault(x => x.FieldType == typeof(int) && (x.Name.IndexOf("shield", StringComparison.OrdinalIgnoreCase) >= 0 || x.Name.IndexOf("armor", StringComparison.OrdinalIgnoreCase) >= 0 || x.Name.IndexOf("charge", StringComparison.OrdinalIgnoreCase) >= 0 || x.Name.IndexOf("count", StringComparison.OrdinalIgnoreCase) >= 0));
+        if (field != null) return (int)field.GetValue(candidate);
+        var prop = tt.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                     .FirstOrDefault(x => x.PropertyType == typeof(int) && (x.Name.IndexOf("shield", StringComparison.OrdinalIgnoreCase) >= 0 || x.Name.IndexOf("armor", StringComparison.OrdinalIgnoreCase) >= 0 || x.Name.IndexOf("charge", StringComparison.OrdinalIgnoreCase) >= 0 || x.Name.IndexOf("count", StringComparison.OrdinalIgnoreCase) >= 0));
+        if (prop != null) return (int)prop.GetValue(candidate);
 
-        // restore inventory
-        // if (inventory != null) { inventory.Clear(); foreach (var id in savedItems) inventory.AddById(id); }
+        // fallback to any int
+        var anyField = tt.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                         .FirstOrDefault(x => x.FieldType == typeof(int));
+        if (anyField != null) return (int)anyField.GetValue(candidate);
+        var anyProp = tt.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                        .FirstOrDefault(x => x.PropertyType == typeof(int));
+        if (anyProp != null) return (int)anyProp.GetValue(candidate);
 
-        Debug.Log($"PlayerProgress: restored health={savedHealth} xp={savedXP} items={savedItems.Count} for floor {newFloor}");
+        return 0;
+    }
+
+    private void TryApplyShieldCount(GameObject go, int value) => TryApplyShieldCountStatic(go, value);
+    private static void TryApplyShieldCountStatic(GameObject go, int value)
+    {
+        if (go == null) return;
+
+        // try direct known component names first
+        var candidate = go.GetComponent("Shield") ?? go.GetComponent("ShieldController") ?? go.GetComponent("Armor");
+        if (candidate == null)
+        {
+            // search all components for a likely field/property
+            foreach (var comp in go.GetComponents<Component>())
+            {
+                if (comp == null) continue;
+                var t = comp.GetType();
+                // try named fields/properties first
+                var f = t.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                         .FirstOrDefault(x => x.FieldType == typeof(int) && (x.Name.IndexOf("shield", StringComparison.OrdinalIgnoreCase) >= 0 || x.Name.IndexOf("armor", StringComparison.OrdinalIgnoreCase) >= 0 || x.Name.IndexOf("charge", StringComparison.OrdinalIgnoreCase) >= 0 || x.Name.IndexOf("count", StringComparison.OrdinalIgnoreCase) >= 0));
+                if (f != null) { f.SetValue(comp, value); TryInvokeShieldUpdate(comp); return; }
+                var p = t.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                         .FirstOrDefault(x => x.PropertyType == typeof(int) && x.CanWrite && (x.Name.IndexOf("shield", StringComparison.OrdinalIgnoreCase) >= 0 || x.Name.IndexOf("armor", StringComparison.OrdinalIgnoreCase) >= 0 || x.Name.IndexOf("charge", StringComparison.OrdinalIgnoreCase) >= 0 || x.Name.IndexOf("count", StringComparison.OrdinalIgnoreCase) >= 0));
+                if (p != null) { p.SetValue(comp, value); TryInvokeShieldUpdate(comp); return; }
+            }
+
+            // final fallback: any int field/property
+            foreach (var comp in go.GetComponents<Component>())
+            {
+                if (comp == null) continue;
+                var t = comp.GetType();
+                var fAny = t.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                            .FirstOrDefault(x => x.FieldType == typeof(int));
+                if (fAny != null) { fAny.SetValue(comp, value); TryInvokeShieldUpdate(comp); return; }
+                var pAny = t.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                            .FirstOrDefault(x => x.PropertyType == typeof(int) && x.CanWrite);
+                if (pAny != null) { pAny.SetValue(comp, value); TryInvokeShieldUpdate(comp); return; }
+            }
+
+            return;
+        }
+
+        var tt = candidate.GetType();
+        // named field/property
+        var field = tt.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                      .FirstOrDefault(x => x.FieldType == typeof(int) && (x.Name.IndexOf("shield", StringComparison.OrdinalIgnoreCase) >= 0 || x.Name.IndexOf("armor", StringComparison.OrdinalIgnoreCase) >= 0 || x.Name.IndexOf("charge", StringComparison.OrdinalIgnoreCase) >= 0 || x.Name.IndexOf("count", StringComparison.OrdinalIgnoreCase) >= 0));
+        if (field != null) { field.SetValue(candidate, value); TryInvokeShieldUpdate(candidate); return; }
+        var prop = tt.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                     .FirstOrDefault(x => x.PropertyType == typeof(int) && x.CanWrite && (x.Name.IndexOf("shield", StringComparison.OrdinalIgnoreCase) >= 0 || x.Name.IndexOf("armor", StringComparison.OrdinalIgnoreCase) >= 0 || x.Name.IndexOf("charge", StringComparison.OrdinalIgnoreCase) >= 0 || x.Name.IndexOf("count", StringComparison.OrdinalIgnoreCase) >= 0));
+        if (prop != null) { prop.SetValue(candidate, value); TryInvokeShieldUpdate(candidate); return; }
+
+        // fallback any int
+        var anyField = tt.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                         .FirstOrDefault(x => x.FieldType == typeof(int));
+        if (anyField != null) { anyField.SetValue(candidate, value); TryInvokeShieldUpdate(candidate); return; }
+        var anyProp = tt.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                        .FirstOrDefault(x => x.PropertyType == typeof(int) && x.CanWrite);
+        if (anyProp != null) { anyProp.SetValue(candidate, value); TryInvokeShieldUpdate(candidate); return; }
+
+        // last resort: try SetShields(int)
+        var setMethod = tt.GetMethod("SetShields", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+        if (setMethod != null) { setMethod.Invoke(candidate, new object[] { value }); TryInvokeShieldUpdate(candidate); return; }
+    }
+
+    // try to call common update/refresh methods on the shield component so UI refreshes
+    private static void TryInvokeShieldUpdate(object comp)
+    {
+        if (comp == null) return;
+        var t = comp.GetType();
+        string[] methodNames = new[]
+        {
+            "RefreshUI", "Refresh", "UpdateUI", "UpdateShieldDisplay", "UpdateShield", "OnShieldChanged",
+            "OnShieldsChanged", "RebuildUI", "SetShieldsVisual", "SyncUI"
+        };
+
+        foreach (var name in methodNames)
+        {
+            var m = t.GetMethod(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            if (m != null)
+            {
+                try { m.Invoke(comp, null); } catch { }
+                return;
+            }
+        }
+
+        // try parameterized "UpdateShields(int)" style
+        foreach (var m in t.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+        {
+            if (m.Name.IndexOf("shield", StringComparison.OrdinalIgnoreCase) >= 0 && m.GetParameters().Length == 1 && m.GetParameters()[0].ParameterType == typeof(int))
+            {
+                try { m.Invoke(comp, new object[] { shieldCount }); } catch { }
+                return;
+            }
+        }
+
+        // if nothing found, also attempt to send a Unity message (if component inherits MonoBehaviour)
+        var mb = comp as MonoBehaviour;
+        if (mb != null)
+        {
+            try { mb.SendMessage("OnShieldChanged", SendMessageOptions.DontRequireReceiver); } catch { }
+            try { mb.SendMessage("RefreshUI", SendMessageOptions.DontRequireReceiver); } catch { }
+        }
+    }
+
+    // Clear saved progress so a new game starts fresh
+    public static void ResetProgress()
+    {
+        HasSaved = false;
+        health = 10;
+        maxHealth = 10;
+        shieldCount = 0;
+        // clear any runtime singleton instance fields too
+        if (Instance != null)
+        {
+            Instance = null; // allow recreation if needed
+        }
+
+        // clear player-dead flag if set
+        PlayerController.SetPlayerDead(false);
     }
 }

@@ -9,8 +9,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5430999713117251855}
-  - component: {fileID: 1912324763309228557}
   - component: {fileID: -2121642802339785371}
+  - component: {fileID: 1912324763309228557}
   - component: {fileID: -6988257082530981728}
   - component: {fileID: 1956371238402588028}
   - component: {fileID: 7212810802488538731}
@@ -38,6 +38,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &-2121642802339785371
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 79726570976665747}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 84cbeadf56cba6846b102c3d7a1fc74e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxShields: 3
+  regenDelay: 5
+  regenInterval: 3
 --- !u!114 &1912324763309228557
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -69,21 +84,6 @@ MonoBehaviour:
   criticalHitUIPrefab: {fileID: 3283098216751668891, guid: 64d3580928f6b2041b9d2ac5315caa3b, type: 3}
   criticalHitUIDuration: 0.2
   dashIconOverlay: {fileID: 0}
---- !u!114 &-2121642802339785371
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 79726570976665747}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 84cbeadf56cba6846b102c3d7a1fc74e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxShields: 3
-  regenDelay: 5
-  regenInterval: 3
 --- !u!114 &-6988257082530981728
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -96,9 +96,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ff121cc8f4bdc54998b091ed7a428f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  savedHealth: 0
-  savedXP: 0
-  savedItems: []
 --- !u!61 &1956371238402588028
 BoxCollider2D:
   m_ObjectHideFlags: 0

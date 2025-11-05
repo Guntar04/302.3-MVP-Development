@@ -5,7 +5,11 @@ public class StartMenu : MonoBehaviour
 {
    public void StartGame()
    {
-    SceneManager.LoadSceneAsync(1);
+      // Clear saved run progress so a new game starts fresh
+      PlayerProgress.ResetProgress();
+
+      // Load gameplay scene (index 1)
+      SceneManager.LoadSceneAsync(1);
    }
 
    public void QuitGame()
