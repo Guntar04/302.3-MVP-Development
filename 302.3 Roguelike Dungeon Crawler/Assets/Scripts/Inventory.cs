@@ -20,13 +20,24 @@ public class InventorySlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
 
     private void Awake()
     {
+        // Try to find the itemIcon
         if (itemIcon == null)
-            itemIcon = transform.GetChild(0).GetComponent<Image>();
+        {
+            Transform childTransform = transform.childCount > 0 ? transform.GetChild(0) : null;
+            if (childTransform != null)
+            {
+                itemIcon = childTransform.GetComponent<Image>();
+            }
+            else
+            {
+                Debug.LogError($"InventorySlot: No child with Image component found on {gameObject.name}. Please ensure the slot has a child with an Image.");
+            }
+        }
 
-        normalScale = itemIcon.rectTransform.localScale;
+        normalScale = itemIcon != null ? itemIcon.rectTransform.localScale : Vector3.one;
         hoverScale = normalScale * 1.15f;
 
-        inventoryManager = FindObjectOfType<InventoryManager>();
+        inventoryManager = FindFirstObjectByType<InventoryManager>();
         parentCanvas = GetComponentInParent<Canvas>();
 
         UpdateVisibility();
