@@ -73,7 +73,15 @@ public class LootPickup : MonoBehaviour
         return;
     }
 
-    // --- 1. Convert Loot → ItemData ---
+    // --- 1. Generate EquipmentStats from Loot ---
+    EquipmentStats statsForItem = new EquipmentStats
+    {
+        attackPower = lootData.minAttack + Random.Range(0, lootData.maxAttack - lootData.minAttack + 1),
+        defense = lootData.minDefense + Random.Range(0, lootData.maxDefense - lootData.minDefense + 1),
+        attackSpeed = lootData.minSpeed + Random.Range(0f, lootData.maxSpeed - lootData.minSpeed)
+    };
+
+    // --- 2. Convert Loot → ItemData ---
     ItemData newItem = ScriptableObject.CreateInstance<ItemData>();
     newItem.itemName = lootData.lootName;
     newItem.icon = lootData.lootSprite;
@@ -88,15 +96,8 @@ public class LootPickup : MonoBehaviour
         newItem.itemType = ItemType.Consumable;
     }
 
-    // --- 2. Generate EquipmentStats from Loot ---
-    EquipmentStats generatedStats = new EquipmentStats
-    {
-        attackPower = Random.Range(lootData.minAttack, lootData.maxAttack + 1),
-        attackSpeed = Random.Range(lootData.minSpeed, lootData.maxSpeed),
-        defense = Random.Range(lootData.minDefense, lootData.maxDefense + 1)
-    };
-
-    newItem.equipmentStats = generatedStats; // assign stats to the item
+    // Assign the generated stats to the item
+    newItem.equipmentStats = statsForItem;
 
     // --- 3. Add to inventory ---
     InventoryManager inventory = FindFirstObjectByType<InventoryManager>();
@@ -107,16 +108,17 @@ public class LootPickup : MonoBehaviour
 
     // --- 4. Auto-equip if possible ---
     PlayerController pc = playerObj.GetComponent<PlayerController>();
-    if (pc != null && newItem.equipmentStats != null)
+    if (pc != null)
     {
-        // Find appropriate slot
         EquipSlot[] slots = playerObj.GetComponentsInChildren<EquipSlot>();
         foreach (var slot in slots)
         {
-            if ((slot.acceptedType == ItemType.Weapon && lootData.equipmentType == Loot.EquipmentType.Sword) ||
-                (slot.acceptedType == ItemType.Chestplate && lootData.equipmentType == Loot.EquipmentType.Armour))
+            Loot.EquipmentType lootType = lootData.equipmentType;
+
+            if ((slot.acceptedType == ItemType.Weapon && lootType == Loot.EquipmentType.Sword) ||
+                (slot.acceptedType == ItemType.Chestplate && lootType == Loot.EquipmentType.Armour))
             {
-                if (slot.AcceptItem(newItem, newItem.equipmentStats, lootData.equipmentType))
+                if (slot.AcceptItem(newItem, statsForItem, lootType))
                 {
                     Debug.Log($"Auto-equipped {newItem.itemName} in {slot.acceptedType} slot.");
                 }
@@ -129,10 +131,12 @@ public class LootPickup : MonoBehaviour
         }
     }
 
+    // --- 5. Invoke pickup event and destroy loot object ---
     OnPickedUp?.Invoke();
     Destroy(gameObject);
     Debug.Log($"Picked up {lootData.lootName}");
 }
+
 
 }
 

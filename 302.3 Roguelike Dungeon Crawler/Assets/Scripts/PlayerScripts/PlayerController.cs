@@ -266,24 +266,26 @@ public class PlayerController : MonoBehaviour
     }
 
     // ---- EQUIP/UNEQUIP ----
-    public void EquipItemStats(EquipmentStats stats, Loot.EquipmentType type)
+public void EquipItemStats(EquipmentStats stats, Loot.EquipmentType type)
+{
+    if (stats == null) return;
+
+    switch (type)
     {
-        if (stats == null) return;
-
-        switch (type)
-        {
-            case Loot.EquipmentType.Sword:
-                equippedWeaponStats = stats;
-                attackDamage = baseAttack + stats.attackPower;
-moveSpeed = baseMoveSpeed + stats.attackSpeed;
-
-                break;
-            case Loot.EquipmentType.Armour:
-                equippedArmorStats = stats;
-              defense = baseDefense + stats.defense;
-                break;
-        }
+        case Loot.EquipmentType.Sword:
+            equippedWeaponStats = stats;
+            attackDamage = baseAttack + stats.attackPower;
+            moveSpeed = baseMoveSpeed + stats.attackSpeed;
+            Debug.Log($"Equipped Weapon: attackDamage={attackDamage}, moveSpeed={moveSpeed}");
+            break;
+        case Loot.EquipmentType.Armour:
+            equippedArmorStats = stats;
+            defense = baseDefense + stats.defense;
+            Debug.Log($"Equipped Armour: defense={defense}");
+            break;
     }
+}
+
 
     public void UnequipItemStats(Loot.EquipmentType type)
     {

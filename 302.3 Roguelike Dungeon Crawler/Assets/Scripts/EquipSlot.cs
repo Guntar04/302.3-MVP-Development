@@ -68,6 +68,19 @@ public bool AcceptItem(ItemData newItem, EquipmentStats stats, Loot.EquipmentTyp
         playerController.EquipItemStats(currentItemStats, lootType);
 
     Debug.Log($"Equipped {newItem.itemName} in {acceptedType} slot!");
+    
+    // Apply equipped stats to the player
+PlayerController pc = FindAnyObjectByType<PlayerController>();
+if (pc != null && stats != null)
+{
+    Debug.Log($"Calling PlayerController.EquipItemStats() for {newItem.itemName}");
+    pc.EquipItemStats(stats, lootType);
+}
+else
+{
+    Debug.LogWarning($"PlayerController not found or stats missing for {newItem.itemName}");
+}
+
     return true;
 }
 
