@@ -10,7 +10,16 @@ public class Loot : ScriptableObject
 
     // --- NEW: type & equipment stat ranges ---
     public enum LootCategory { Consumable, Equipment }
-    public enum EquipmentType { Sword, Armour }
+    public enum EquipmentType
+{
+    Sword,
+    Chestplate,
+    Helmet,
+    Pants,
+    Boots,
+    Shield
+}
+
 
     [Header("Type")]
     public LootCategory category = LootCategory.Equipment;

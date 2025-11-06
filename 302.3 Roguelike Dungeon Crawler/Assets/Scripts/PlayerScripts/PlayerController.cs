@@ -52,8 +52,13 @@ public class PlayerController : MonoBehaviour
     private Color spriteOriginalColor = Color.white;
 
     // Equipped stats
-    private EquipmentStats equippedWeaponStats;
-    private EquipmentStats equippedArmorStats;
+private EquipmentStats equippedWeaponStats;
+private EquipmentStats equippedChestplateStats;
+private EquipmentStats equippedHelmetStats;
+private EquipmentStats equippedPantsStats;
+private EquipmentStats equippedBootsStats;
+private EquipmentStats equippedShieldStats;
+
 
     public static bool PlayerDead { get; private set; } = false;
 
@@ -276,30 +281,52 @@ public void EquipItemStats(EquipmentStats stats, Loot.EquipmentType type)
             equippedWeaponStats = stats;
             attackDamage = baseAttack + stats.attackPower;
             moveSpeed = baseMoveSpeed + stats.attackSpeed;
-            Debug.Log($"Equipped Weapon: attackDamage={attackDamage}, moveSpeed={moveSpeed}");
             break;
-        case Loot.EquipmentType.Armour:
-            equippedArmorStats = stats;
+        case Loot.EquipmentType.Chestplate:
+            equippedChestplateStats = stats;
             defense = baseDefense + stats.defense;
-            Debug.Log($"Equipped Armour: defense={defense}");
+            break;
+        case Loot.EquipmentType.Helmet:
+            equippedHelmetStats = stats;
+            // apply any helmet-specific bonuses if you have them
+            break;
+        case Loot.EquipmentType.Pants:
+            equippedPantsStats = stats;
+            // apply bonuses
+            break;
+        case Loot.EquipmentType.Boots:
+            equippedBootsStats = stats;
+            // apply bonuses
+            break;
+        case Loot.EquipmentType.Shield:
+            equippedShieldStats = stats;
+            // apply bonuses
             break;
     }
 }
 
 
-    public void UnequipItemStats(Loot.EquipmentType type)
+public void UnequipItemStats(Loot.EquipmentType type)
+{
+    switch (type)
     {
-        switch (type)
-        {
-            case Loot.EquipmentType.Sword:
-                equippedWeaponStats = null;
-                attackDamage = baseAttack;
-                moveSpeed = baseMoveSpeed;
-                break;
-            case Loot.EquipmentType.Armour:
-                equippedArmorStats = null;
-                defense = baseDefense;
-                break;
-        }
+        case Loot.EquipmentType.Sword:
+            equippedWeaponStats = null;
+            attackDamage = baseAttack;
+            moveSpeed = baseMoveSpeed;
+            Debug.Log("Unequipped Weapon — reset attack and speed.");
+            break;
+
+        case Loot.EquipmentType.Chestplate:
+        case Loot.EquipmentType.Helmet:
+        case Loot.EquipmentType.Pants:
+        case Loot.EquipmentType.Boots:
+        case Loot.EquipmentType.Shield:
+            equippedArmorStats = null;
+            defense = baseDefense;
+            Debug.Log($"Unequipped {type} — reset defense.");
+            break;
     }
+}
+
 }

@@ -116,7 +116,12 @@ public class LootPickup : MonoBehaviour
             Loot.EquipmentType lootType = lootData.equipmentType;
 
             if ((slot.acceptedType == ItemType.Weapon && lootType == Loot.EquipmentType.Sword) ||
-                (slot.acceptedType == ItemType.Chestplate && lootType == Loot.EquipmentType.Armour))
+    (slot.acceptedType == ItemType.Chestplate && lootType == Loot.EquipmentType.Chestplate) ||
+    (slot.acceptedType == ItemType.Helmet && lootType == Loot.EquipmentType.Helmet) ||
+    (slot.acceptedType == ItemType.Pants && lootType == Loot.EquipmentType.Pants) ||
+    (slot.acceptedType == ItemType.Boots && lootType == Loot.EquipmentType.Boots) ||
+    (slot.acceptedType == ItemType.Shield && lootType == Loot.EquipmentType.Shield))
+
             {
                 if (slot.AcceptItem(newItem, statsForItem, lootType))
                 {

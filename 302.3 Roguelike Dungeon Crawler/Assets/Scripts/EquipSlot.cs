@@ -12,21 +12,6 @@ public class EquipSlot : MonoBehaviour
     private ItemData currentItem;
     private EquipmentStats currentItemStats; // newss
 
-    public static Loot.EquipmentType ConvertToLootType(ItemType itemType)
-    {
-        switch (itemType)
-        {
-            case ItemType.Weapon:
-                return Loot.EquipmentType.Sword;
-            case ItemType.Chestplate:
-                return Loot.EquipmentType.Armour;
-            default:
-                return Loot.EquipmentType.Sword; // fallback default
-        }
-    }
-
-
-
     private void Awake()
     {
         ClearSlot();
@@ -34,8 +19,8 @@ public class EquipSlot : MonoBehaviour
 
 public bool AcceptItem(ItemData newItem, EquipmentStats stats, Loot.EquipmentType lootType)
 {
+    Debug.Log($"Trying to equip {newItem.itemName} in {acceptedType} slot (itemType={newItem.itemType})");
 
-      Debug.Log($"Trying to equip {newItem.itemName} in {acceptedType} slot (itemType={newItem.itemType})");
     if (newItem == null)
     {
         Debug.LogWarning("AcceptItem failed: newItem is null");
@@ -48,8 +33,8 @@ public bool AcceptItem(ItemData newItem, EquipmentStats stats, Loot.EquipmentTyp
         return false;
     }
 
-    // convert Loot.EquipmentType to ItemType for slot checking
-    ItemType convertedType = lootType == Loot.EquipmentType.Sword ? ItemType.Weapon : ItemType.Chestplate;
+
+    ItemType convertedType = ConvertToItemType(lootType);
 
     if (convertedType != acceptedType)
     {
@@ -57,7 +42,7 @@ public bool AcceptItem(ItemData newItem, EquipmentStats stats, Loot.EquipmentTyp
         return false;
     }
 
-    // unequip and equip logic...
+    // Unequip old item if any
     if (currentItem != null) Unequip();
 
     currentItem = newItem;
@@ -65,44 +50,60 @@ public bool AcceptItem(ItemData newItem, EquipmentStats stats, Loot.EquipmentTyp
     UpdateIcon();
 
     if (playerController != null)
+    {
         playerController.EquipItemStats(currentItemStats, lootType);
-
-    Debug.Log($"Equipped {newItem.itemName} in {acceptedType} slot!");
-    
-    // Apply equipped stats to the player
-PlayerController pc = FindAnyObjectByType<PlayerController>();
-if (pc != null && stats != null)
-{
-    Debug.Log($"Calling PlayerController.EquipItemStats() for {newItem.itemName}");
-    pc.EquipItemStats(stats, lootType);
-}
-else
-{
-    Debug.LogWarning($"PlayerController not found or stats missing for {newItem.itemName}");
-}
+        Debug.Log($"Equipped {newItem.itemName} in {acceptedType} slot!");
+    }
 
     return true;
 }
 
+public void Unequip()
+{
+    if (currentItem == null) return;
 
-    public void Unequip()
+    if (inventoryManager != null)
+        inventoryManager.AddItem(currentItem);
+
+    if (playerController != null && currentItemStats != null)
     {
-        if (currentItem == null) return;
-
-        // Return to inventory
-        if (inventoryManager != null)
-            inventoryManager.AddItem(currentItem);
-
-        // Remove stats from player
-        if (playerController != null && currentItemStats != null)
-            playerController.UnequipItemStats(
-                currentItem.itemType == ItemType.Weapon ? Loot.EquipmentType.Sword : Loot.EquipmentType.Armour
-            );
-
-        currentItem = null;
-        currentItemStats = null;
-        UpdateIcon();
+        Loot.EquipmentType lootType = ConvertToLootType(currentItem.itemType);
+        playerController.UnequipItemStats(lootType);
     }
+
+    currentItem = null;
+    currentItemStats = null;
+    UpdateIcon();
+}
+
+
+public ItemType ConvertToItemType(Loot.EquipmentType lootType)
+{
+    switch (lootType)
+    {
+        case Loot.EquipmentType.Sword: return ItemType.Weapon;
+        case Loot.EquipmentType.Chestplate: return ItemType.Chestplate;
+        case Loot.EquipmentType.Helmet: return ItemType.Helmet;
+        case Loot.EquipmentType.Pants: return ItemType.Pants;
+        case Loot.EquipmentType.Boots: return ItemType.Boots;
+        case Loot.EquipmentType.Shield: return ItemType.Shield;
+        default: return ItemType.Consumable;
+    }
+}
+
+public Loot.EquipmentType ConvertToLootType(ItemType itemType)
+{
+    switch (itemType)
+    {
+        case ItemType.Weapon: return Loot.EquipmentType.Sword;
+        case ItemType.Chestplate: return Loot.EquipmentType.Chestplate;
+        case ItemType.Helmet: return Loot.EquipmentType.Helmet;
+        case ItemType.Pants: return Loot.EquipmentType.Pants;
+        case ItemType.Boots: return Loot.EquipmentType.Boots;
+        case ItemType.Shield: return Loot.EquipmentType.Shield;
+        default: return Loot.EquipmentType.Sword; // fallback
+    }
+}
 
     private void ClearSlot()
     {
