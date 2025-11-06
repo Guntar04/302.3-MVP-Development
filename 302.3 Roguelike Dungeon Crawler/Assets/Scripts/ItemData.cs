@@ -11,3 +11,4 @@ public class ItemData : ScriptableObject
     public int shieldBonus;  // e.g. +20 shield from armor
     public int healthBonus;  // optional, for items that boost HP
 }
+

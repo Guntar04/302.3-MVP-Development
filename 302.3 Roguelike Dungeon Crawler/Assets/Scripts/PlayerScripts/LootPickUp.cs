@@ -4,15 +4,15 @@ using UnityEngine.Events;
 [RequireComponent(typeof(SpriteRenderer))]
 public class LootPickup : MonoBehaviour
 {
-    public Loot lootData;
-    public EquipmentStats stats;
+    public Loot lootData;                  // The loot prefab data
+    public EquipmentStats stats;           // Generated stats for this loot
     public string playerTag = "Player";
 
     [Header("Pickup")]
     public KeyCode pickupKey = KeyCode.E;
     public UnityEvent OnPickedUp;
-    public UnityEvent OnPlayerEnterRange; // optional: hook UI show
-    public UnityEvent OnPlayerExitRange;  // optional: hook UI hide
+    public UnityEvent OnPlayerEnterRange; // optional: show UI
+    public UnityEvent OnPlayerExitRange;  // optional: hide UI
 
     private Collider2D col;
     private GameObject playerInRangeObj;
@@ -30,7 +30,8 @@ public class LootPickup : MonoBehaviour
         stats = generatedStats;
 
         var sr = GetComponent<SpriteRenderer>();
-        if (sr != null && data != null && data.lootSprite != null) sr.sprite = data.lootSprite;
+        if (sr != null && data != null && data.lootSprite != null)
+            sr.sprite = data.lootSprite;
 
         gameObject.name = data != null ? $"Loot_{data.lootName}" : "Loot";
     }
@@ -66,10 +67,49 @@ public class LootPickup : MonoBehaviour
 
     private void TryPickup(GameObject playerObj)
     {
-        var pc = playerObj.GetComponent<PlayerController>();
-        if (pc != null)
+        // --- 1. Add to InventoryManager ---
+        InventoryManager inventory = FindObjectOfType<InventoryManager>();
+        if (inventory != null && lootData != null)
         {
-            Debug.Log($"LootPickup: Player picked up {lootData?.lootName} with stats: {stats}");
+            // Convert Loot → ItemData for inventory
+            ItemData newItem = ScriptableObject.CreateInstance<ItemData>();
+            newItem.itemName = lootData.lootName;
+            newItem.icon = lootData.lootSprite;
+
+            // Assign type based on loot category & equipment type
+            if (lootData.category == Loot.LootCategory.Equipment)
+            {
+                switch (lootData.equipmentType)
+                {
+                    case Loot.EquipmentType.Sword: newItem.itemType = ItemType.Weapon; break;
+                    case Loot.EquipmentType.Armour: newItem.itemType = ItemType.Chestplate; break;
+                    default: newItem.itemType = ItemType.Misc; break;
+                }
+            }
+            else
+            {
+                newItem.itemType = ItemType.Consumable;
+            }
+
+            // Add stats from EquipmentStats if available
+            if (stats != null)
+            {
+                newItem.healthBonus = 0;
+                newItem.shieldBonus = stats.defense; // or assign appropriately
+            }
+
+            inventory.AddItem(newItem);
+            Debug.Log($"Picked up {lootData.lootName} and added to inventory!");
+        }
+        else
+        {
+            Debug.LogWarning("No InventoryManager found or LootData missing!");
+        }
+
+        // --- 2. Keep exhausting loot logic ---
+        var pc = playerObj.GetComponent<PlayerController>();
+        if (pc != null && lootData != null)
+        {
             var method = pc.GetType().GetMethod("OnPickupLoot");
             if (method != null)
                 method.Invoke(pc, new object[] { lootData, stats });
