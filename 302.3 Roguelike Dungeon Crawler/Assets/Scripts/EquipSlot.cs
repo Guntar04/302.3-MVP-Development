@@ -4,78 +4,94 @@ using UnityEngine.UI;
 public class EquipSlot : MonoBehaviour
 {
     [Header("Slot Info")]
-    public ItemType acceptedType;               // e.g. Helmet, Chestplate, Shield
-    public Image itemIcon;                      // icon for the equipped item
-    public PlayerStats playerStats;             // reference to PlayerStats
-    public InventoryManager inventoryManager;   // reference to return items to inventory
-    public PlayerHUD playerHUD;                 // reference to update shield/health bars
+    public ItemType acceptedType;        // Helmet, Chestplate, Weapon, Shield, etc.
+    public Image itemIcon;               // Icon for equipped item
+    public PlayerController playerController;      // Reference to PlayerController
+    public InventoryManager inventoryManager;   // Reference to inventory to return items
 
-    private ItemData currentItem;               // currently equipped item
+    private ItemData currentItem;
+    private EquipmentStats currentItemStats; // newss
+
+    public static Loot.EquipmentType ConvertToLootType(ItemType itemType)
+    {
+        switch (itemType)
+        {
+            case ItemType.Weapon:
+                return Loot.EquipmentType.Sword;
+            case ItemType.Chestplate:
+                return Loot.EquipmentType.Armour;
+            default:
+                return Loot.EquipmentType.Sword; // fallback default
+        }
+    }
+
+
 
     private void Awake()
     {
-        ClearSlot(); // start empty
+        ClearSlot();
     }
 
-    /// <summary>
-    /// Try to equip a new item
-    /// </summary>
-    public bool AcceptItem(ItemData newItem)
-    {
-        if (newItem == null) return false;
-
-        if (newItem.itemType != acceptedType)
-        {
-            Debug.Log($"{newItem.itemName} cannot be equipped in {acceptedType} slot!");
-            return false; // wrong type
-        }
-
-        // Unequip current item first
-        if (currentItem != null)
-            Unequip();
-
-        // Equip the new item
-        currentItem = newItem;
-        UpdateIcon();
-
-        // Update player stats
-        if (playerStats != null)
-            playerStats.EquipItem(newItem);
-
-        // Update HUD if needed
-        if (playerHUD != null)
-            playerHUD.UpdateHUD();
-
-        Debug.Log($"Equipped {newItem.itemName} in {acceptedType} slot!");
-        return true;
-    }
-
-    /// <summary>
-    /// Unequip current item and return to inventory
-    /// </summary>
-    public void Unequip()
+public bool AcceptItem(ItemData newItem, EquipmentStats stats, Loot.EquipmentType lootType)
 {
-    if (currentItem == null) return;
 
-    // Return to inventory
-    if (inventoryManager != null)
-        inventoryManager.AddItem(currentItem);
-
-    // Update player stats
-    if (playerStats != null)
+      Debug.Log($"Trying to equip {newItem.itemName} in {acceptedType} slot (itemType={newItem.itemType})");
+    if (newItem == null)
     {
-        playerStats.UnequipItem(currentItem); // important for shield/health recalculation
-        // playerStats.NotifyStatsChanged(); // not needed if UnequipItem already calls it
+        Debug.LogWarning("AcceptItem failed: newItem is null");
+        return false;
     }
 
-    ClearSlot();
+    if (stats == null)
+    {
+        Debug.LogWarning($"AcceptItem failed: stats is null for {newItem.itemName}");
+        return false;
+    }
+
+    // convert Loot.EquipmentType to ItemType for slot checking
+    ItemType convertedType = lootType == Loot.EquipmentType.Sword ? ItemType.Weapon : ItemType.Chestplate;
+
+    if (convertedType != acceptedType)
+    {
+        Debug.LogWarning($"{newItem.itemName} type ({convertedType}) does not match slot type ({acceptedType})");
+        return false;
+    }
+
+    // unequip and equip logic...
+    if (currentItem != null) Unequip();
+
+    currentItem = newItem;
+    currentItemStats = stats;
+    UpdateIcon();
+
+    if (playerController != null)
+        playerController.EquipItemStats(currentItemStats, lootType);
+
+    Debug.Log($"Equipped {newItem.itemName} in {acceptedType} slot!");
+    return true;
 }
 
 
-    /// <summary>
-    /// Clear slot visually and logically
-    /// </summary>
-    public void ClearSlot()
+    public void Unequip()
+    {
+        if (currentItem == null) return;
+
+        // Return to inventory
+        if (inventoryManager != null)
+            inventoryManager.AddItem(currentItem);
+
+        // Remove stats from player
+        if (playerController != null && currentItemStats != null)
+            playerController.UnequipItemStats(
+                currentItem.itemType == ItemType.Weapon ? Loot.EquipmentType.Sword : Loot.EquipmentType.Armour
+            );
+
+        currentItem = null;
+        currentItemStats = null;
+        UpdateIcon();
+    }
+
+    private void ClearSlot()
     {
         currentItem = null;
         if (itemIcon != null)
@@ -85,38 +101,20 @@ public class EquipSlot : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Get the currently equipped item
-    /// </summary>
-    public ItemData GetEquippedItem() => currentItem;
-
-    /// <summary>
-    /// Update icon based on current item
-    /// </summary>
     private void UpdateIcon()
     {
-        if (itemIcon == null) return;
-
-        if (currentItem != null)
+        if (itemIcon != null)
         {
-            itemIcon.sprite = currentItem.icon;
-            itemIcon.enabled = true;
-        }
-        else
-        {
-            itemIcon.sprite = null;
-            itemIcon.enabled = false;
+            itemIcon.sprite = currentItem != null ? currentItem.icon : null;
+            itemIcon.enabled = currentItem != null;
         }
     }
 
-    /// <summary>
-    /// Call this when the slot is clicked
-    /// </summary>
+    public ItemData GetEquippedItem() => currentItem;
+
     public void OnClickSlot()
     {
         if (currentItem != null)
-        {
             Unequip();
-        }
     }
 }

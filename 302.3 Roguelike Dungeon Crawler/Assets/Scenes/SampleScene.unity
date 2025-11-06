@@ -9981,9 +9981,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   acceptedType: 3
   itemIcon: {fileID: 284516910}
-  playerStats: {fileID: 0}
+  playerController: {fileID: 0}
   inventoryManager: {fileID: 1960039537}
-  playerHUD: {fileID: 0}
 --- !u!114 &447643501
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10927,9 +10926,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   acceptedType: 4
   itemIcon: {fileID: 1376609553}
-  playerStats: {fileID: 0}
+  playerController: {fileID: 0}
   inventoryManager: {fileID: 1960039537}
-  playerHUD: {fileID: 0}
 --- !u!114 &604617006
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11066,9 +11064,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   acceptedType: 1
   itemIcon: {fileID: 1341527286}
-  playerStats: {fileID: 0}
+  playerController: {fileID: 0}
   inventoryManager: {fileID: 1960039537}
-  playerHUD: {fileID: 0}
 --- !u!114 &643775683
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11300,7 +11297,7 @@ GameObject:
   - component: {fileID: 748968399}
   - component: {fileID: 748968398}
   - component: {fileID: 748968397}
-  - component: {fileID: 748968396}
+  - component: {fileID: 748968400}
   m_Layer: 5
   m_Name: EquipmentSlot1
   m_TagString: Untagged
@@ -11328,23 +11325,6 @@ RectTransform:
   m_AnchoredPosition: {x: -241.4, y: 75.79208}
   m_SizeDelta: {x: 41.902, y: 41.5188}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &748968396
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 748968394}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8702a9d88cf627740a00e2c6f93dc81a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  acceptedType: 5
-  itemIcon: {fileID: 200854006}
-  playerStats: {fileID: 0}
-  inventoryManager: {fileID: 1960039537}
-  playerHUD: {fileID: 0}
 --- !u!114 &748968397
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11396,13 +11376,13 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 748968394}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -11427,6 +11407,22 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 748968394}
   m_CullTransparentMesh: 1
+--- !u!114 &748968400
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 748968394}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8702a9d88cf627740a00e2c6f93dc81a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  acceptedType: 5
+  itemIcon: {fileID: 200854006}
+  playerController: {fileID: 0}
+  inventoryManager: {fileID: 1960039537}
 --- !u!1 &767165780
 GameObject:
   m_ObjectHideFlags: 0
@@ -16498,9 +16494,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   acceptedType: 6
   itemIcon: {fileID: 58286660}
-  playerStats: {fileID: 0}
+  playerController: {fileID: 0}
   inventoryManager: {fileID: 1960039537}
-  playerHUD: {fileID: 0}
 --- !u!114 &1930476628
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16867,9 +16862,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   acceptedType: 2
   itemIcon: {fileID: 525753222}
-  playerStats: {fileID: 0}
+  playerController: {fileID: 0}
   inventoryManager: {fileID: 1960039537}
-  playerHUD: {fileID: 0}
 --- !u!114 &1986671150
 MonoBehaviour:
   m_ObjectHideFlags: 0

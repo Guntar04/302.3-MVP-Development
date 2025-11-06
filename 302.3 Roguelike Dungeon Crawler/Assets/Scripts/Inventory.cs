@@ -130,9 +130,14 @@ public class InventorySlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
                     // Try to equip item
                     EquipSlot equipSlot = pointerObject.GetComponentInParent<EquipSlot>();
 
-                    if (equipSlot != null)
+                   if (equipSlot != null)
                     {
-                        if (equipSlot.AcceptItem(itemData))
+                        // Convert ItemType to Loot.EquipmentType
+                        Loot.EquipmentType lootType = EquipSlot.ConvertToLootType(itemData.itemType);
+                        Debug.Log($"Pointer over {pointerObject.name}, trying to equip {itemData.itemName}");
+
+
+                        if (equipSlot.AcceptItem(itemData, itemData.equipmentStats, lootType))
                         {
                             ClearItem();
                         }
@@ -141,6 +146,7 @@ public class InventorySlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
                             Debug.Log($"{itemData.itemName} cannot be equipped in {equipSlot.acceptedType} slot!");
                         }
                     }
+
                 }
             }
 

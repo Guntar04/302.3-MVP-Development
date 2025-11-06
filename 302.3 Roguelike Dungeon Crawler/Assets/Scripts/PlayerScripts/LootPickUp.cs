@@ -65,57 +65,74 @@ public class LootPickup : MonoBehaviour
         }
     }
 
-    private void TryPickup(GameObject playerObj)
+      private void TryPickup(GameObject playerObj)
+{
+    if (lootData == null)
     {
-        // --- 1. Add to InventoryManager ---
-        InventoryManager inventory = FindObjectOfType<InventoryManager>();
-        if (inventory != null && lootData != null)
-        {
-            // Convert Loot → ItemData for inventory
-            ItemData newItem = ScriptableObject.CreateInstance<ItemData>();
-            newItem.itemName = lootData.lootName;
-            newItem.icon = lootData.lootSprite;
-
-            // Assign type based on loot category & equipment type
-            if (lootData.category == Loot.LootCategory.Equipment)
-            {
-                switch (lootData.equipmentType)
-                {
-                    case Loot.EquipmentType.Sword: newItem.itemType = ItemType.Weapon; break;
-                    case Loot.EquipmentType.Armour: newItem.itemType = ItemType.Chestplate; break;
-                    default: newItem.itemType = ItemType.Misc; break;
-                }
-            }
-            else
-            {
-                newItem.itemType = ItemType.Consumable;
-            }
-
-            // Add stats from EquipmentStats if available
-            if (stats != null)
-            {
-                newItem.healthBonus = 0;
-                newItem.shieldBonus = stats.defense; // or assign appropriately
-            }
-
-            inventory.AddItem(newItem);
-            Debug.Log($"Picked up {lootData.lootName} and added to inventory!");
-        }
-        else
-        {
-            Debug.LogWarning("No InventoryManager found or LootData missing!");
-        }
-
-        // --- 2. Keep exhausting loot logic ---
-        var pc = playerObj.GetComponent<PlayerController>();
-        if (pc != null && lootData != null)
-        {
-            var method = pc.GetType().GetMethod("OnPickupLoot");
-            if (method != null)
-                method.Invoke(pc, new object[] { lootData, stats });
-        }
-
-        OnPickedUp?.Invoke();
-        Destroy(gameObject);
+        Debug.LogWarning("LootPickup: LootData missing!");
+        return;
     }
+
+    // --- 1. Convert Loot → ItemData ---
+    ItemData newItem = ScriptableObject.CreateInstance<ItemData>();
+    newItem.itemName = lootData.lootName;
+    newItem.icon = lootData.lootSprite;
+
+    // Map LootCategory / EquipmentType → ItemType
+    if (lootData.category == Loot.LootCategory.Equipment)
+    {
+        newItem.itemType = lootData.equipmentType == Loot.EquipmentType.Sword ? ItemType.Weapon : ItemType.Chestplate;
+    }
+    else
+    {
+        newItem.itemType = ItemType.Consumable;
+    }
+
+    // --- 2. Generate EquipmentStats from Loot ---
+    EquipmentStats generatedStats = new EquipmentStats
+    {
+        attackPower = Random.Range(lootData.minAttack, lootData.maxAttack + 1),
+        attackSpeed = Random.Range(lootData.minSpeed, lootData.maxSpeed),
+        defense = Random.Range(lootData.minDefense, lootData.maxDefense + 1)
+    };
+
+    newItem.equipmentStats = generatedStats; // assign stats to the item
+
+    // --- 3. Add to inventory ---
+    InventoryManager inventory = FindFirstObjectByType<InventoryManager>();
+    if (inventory != null)
+    {
+        inventory.AddItem(newItem);
+    }
+
+    // --- 4. Auto-equip if possible ---
+    PlayerController pc = playerObj.GetComponent<PlayerController>();
+    if (pc != null && newItem.equipmentStats != null)
+    {
+        // Find appropriate slot
+        EquipSlot[] slots = playerObj.GetComponentsInChildren<EquipSlot>();
+        foreach (var slot in slots)
+        {
+            if ((slot.acceptedType == ItemType.Weapon && lootData.equipmentType == Loot.EquipmentType.Sword) ||
+                (slot.acceptedType == ItemType.Chestplate && lootData.equipmentType == Loot.EquipmentType.Armour))
+            {
+                if (slot.AcceptItem(newItem, newItem.equipmentStats, lootData.equipmentType))
+                {
+                    Debug.Log($"Auto-equipped {newItem.itemName} in {slot.acceptedType} slot.");
+                }
+                else
+                {
+                    Debug.LogWarning($"Failed to auto-equip {newItem.itemName} in {slot.acceptedType} slot.");
+                }
+                break; // equip only once
+            }
+        }
+    }
+
+    OnPickedUp?.Invoke();
+    Destroy(gameObject);
+    Debug.Log($"Picked up {lootData.lootName}");
 }
+
+}
+
