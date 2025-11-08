@@ -2,9 +2,6 @@ using System;
 using System.Collections;
 using UnityEngine;
 
-/// <summary>
-/// Attach to the Player. Manages shield count, blocking and timed regeneration.
-/// </summary>
 public class Shield : MonoBehaviour
 {
     [Header("Shield Settings")]
@@ -14,7 +11,6 @@ public class Shield : MonoBehaviour
 
     public int CurrentShields { get; private set; }
 
-    // event(int newCount)
     public event Action<int> OnShieldChanged;
 
     private Coroutine regenCoroutine;
@@ -22,17 +18,33 @@ public class Shield : MonoBehaviour
     private void Awake()
     {
         CurrentShields = maxShields;
+        // immediate notify (if anyone already subscribed)
         OnShieldChanged?.Invoke(CurrentShields);
+
+        // also notify one frame later to catch listeners that subscribe during the same frame
+        StartCoroutine(NotifyOnNextFrame(CurrentShields));
+
+        Debug.Log($"Shield.Awake -> instanceID {GetInstanceID()} CurrentShields={CurrentShields}");
     }
 
-    /// <summary>
-    /// Try to consume a shield. Returns true if a shield was consumed (damage blocked).
-    /// </summary>
+    private void Start()
+    {
+        // Failsafe: tell UIManager about this player instance if it's available.
+        // This ensures the ShieldUI binds to the runtime instance even if the
+        // usual BindPlayer call was missed.
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.BindPlayer(this.gameObject);
+            Debug.Log($"Shield.Start -> requested UIManager.BindPlayer instanceID {GetInstanceID()}");
+        }
+    }
+
     public bool TryConsumeShield()
     {
         if (CurrentShields <= 0) return false;
 
         CurrentShields = Mathf.Max(0, CurrentShields - 1);
+        Debug.Log($"Shield.TryConsumeShield -> instanceID {GetInstanceID()} CurrentShields now {CurrentShields}");
         OnShieldChanged?.Invoke(CurrentShields);
 
         // restart regen timer
@@ -42,13 +54,11 @@ public class Shield : MonoBehaviour
         return true;
     }
 
-    /// <summary>
-    /// Immediately add shields (clamped to max).
-    /// </summary>
     public void AddShields(int amount)
     {
         if (amount <= 0) return;
         CurrentShields = Mathf.Clamp(CurrentShields + amount, 0, maxShields);
+        Debug.Log($"Shield.AddShields -> instanceID {GetInstanceID()} CurrentShields now {CurrentShields}");
         OnShieldChanged?.Invoke(CurrentShields);
     }
 
@@ -66,6 +76,12 @@ public class Shield : MonoBehaviour
         regenCoroutine = null;
     }
 
+    private IEnumerator NotifyOnNextFrame(int value)
+    {
+        yield return null;
+        OnShieldChanged?.Invoke(value);
+    }
+
     /// <summary>
     /// Force reset (useful when entering a new floor / respawn).
     /// </summary>
@@ -73,6 +89,7 @@ public class Shield : MonoBehaviour
     {
         CurrentShields = maxShields;
         if (regenCoroutine != null) { StopCoroutine(regenCoroutine); regenCoroutine = null; }
+        Debug.Log($"Shield.ResetShields -> instanceID {GetInstanceID()} CurrentShields now {CurrentShields}");
         OnShieldChanged?.Invoke(CurrentShields);
     }
 }
