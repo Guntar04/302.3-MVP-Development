@@ -14,6 +14,7 @@ public class EquipSlot : MonoBehaviour
 
     private void Awake()
     {
+
         ClearSlot();
     }
 
@@ -37,10 +38,12 @@ public bool AcceptItem(ItemData newItem, EquipmentStats stats, Loot.EquipmentTyp
     ItemType convertedType = ConvertToItemType(lootType);
 
     if (convertedType != acceptedType)
-    {
-        Debug.LogWarning($"{newItem.itemName} type ({convertedType}) does not match slot type ({acceptedType})");
-        return false;
-    }
+{
+    Debug.LogWarning(
+        $"[ACCEPT ITEM] {newItem.itemName} type ({convertedType}) does NOT match slot type ({acceptedType})"
+    );
+    return false;
+}
 
     // Unequip old item if any
     if (currentItem != null) Unequip();
@@ -49,11 +52,21 @@ public bool AcceptItem(ItemData newItem, EquipmentStats stats, Loot.EquipmentTyp
     currentItemStats = stats;
     UpdateIcon();
 
-    if (playerController != null)
-    {
-        playerController.EquipItemStats(currentItemStats, lootType);
-        Debug.Log($"Equipped {newItem.itemName} in {acceptedType} slot!");
-    }
+    if (playerController == null)
+{
+    playerController = FindObjectOfType<PlayerController>();
+}
+
+if (playerController != null)
+{
+    playerController.EquipItemStats(currentItemStats, lootType);
+    Debug.Log($"Equipped {newItem.itemName} in {acceptedType} slot!");
+}
+else
+{
+    Debug.LogWarning("No PlayerController found! Could not equip stats.");
+}
+
 
     return true;
 }
@@ -91,7 +104,7 @@ public ItemType ConvertToItemType(Loot.EquipmentType lootType)
     }
 }
 
-public Loot.EquipmentType ConvertToLootType(ItemType itemType)
+public static Loot.EquipmentType ConvertToLootType(ItemType itemType)
 {
     switch (itemType)
     {

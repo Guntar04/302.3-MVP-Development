@@ -32,6 +32,8 @@ public class Loot : ScriptableObject
     public float maxSpeed = 1.5f;
     public int minDefense = 1;
     public int maxDefense = 5;
+    public float minAttackSpeed = 0f;
+    public float maxAttackSpeed = 3f;
     // --- end new fields ---
 
     public Loot(string lootName, int dropChance)

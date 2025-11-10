@@ -38,6 +38,15 @@ public class PlayerController : MonoBehaviour
     public GameObject criticalHitUIPrefab;
     public float criticalHitUIDuration = 1f;
 
+    [Header("Equipment stat ranges")]
+public float minSpeed = 0f;
+public float maxSpeed = 3f; // inspector sets this
+
+    [Header("Combat Speed")]
+public float baseAttackCooldown = 1f; // default attack delay
+private float attackSpeedMultiplier = 1f; // affected by equipment
+
+
     private Vector2 moveDirection;
     private Vector2 lastMoveDirection = Vector2.down;
     public Image dashIconOverlay;
@@ -58,7 +67,6 @@ private EquipmentStats equippedHelmetStats;
 private EquipmentStats equippedPantsStats;
 private EquipmentStats equippedBootsStats;
 private EquipmentStats equippedShieldStats;
-
 
     public static bool PlayerDead { get; private set; } = false;
 
@@ -134,10 +142,12 @@ private EquipmentStats equippedShieldStats;
         }
     }
 
-    private IEnumerator PlayerAttack()
+  public IEnumerator PlayerAttack()
     {
+        if (isAttacking) yield break;
         isAttacking = true;
 
+        // Attack animation and hit detection code
         Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         Vector2 directionToMouse = (mouseWorldPos - transform.position).normalized;
 
@@ -178,17 +188,24 @@ private EquipmentStats equippedShieldStats;
                     var canvas = FindFirstObjectByType<Canvas>();
                     if (canvas != null)
                     {
-                        var criticalHitUIInstance = Instantiate(criticalHitUIPrefab, canvas.transform);
-                        criticalHitUIInstance.transform.position = Camera.main.WorldToScreenPoint(transform.position + Vector3.up);
-                        Destroy(criticalHitUIInstance, criticalHitUIDuration);
+                        var critUI = Instantiate(criticalHitUIPrefab, canvas.transform);
+                        critUI.transform.position = Camera.main.WorldToScreenPoint(transform.position + Vector3.up);
+                        Destroy(critUI, criticalHitUIDuration);
                     }
                 }
             }
         }
 
-        yield return new WaitForSeconds(0.3f);
+float animationTime = 0.3f; // or however long your attack animation lasts
+
+// Make cooldown = max(animationTime, adjusted speed)
+float cooldown = Mathf.Max(animationTime, baseAttackCooldown / attackSpeedMultiplier);
+yield return new WaitForSeconds(cooldown);
+
         isAttacking = false;
     }
+
+
 
     private void Move() => transform.Translate(moveDirection * moveSpeed * Time.fixedDeltaTime);
 
@@ -277,56 +294,87 @@ public void EquipItemStats(EquipmentStats stats, Loot.EquipmentType type)
 
     switch (type)
     {
-        case Loot.EquipmentType.Sword:
-            equippedWeaponStats = stats;
-            attackDamage = baseAttack + stats.attackPower;
-            moveSpeed = baseMoveSpeed + stats.attackSpeed;
-            break;
+case Loot.EquipmentType.Sword:
+    equippedWeaponStats = stats;
+    attackDamage = baseAttack + stats.attackPower;
+    attackSpeedMultiplier = stats.attackSpeed; // assume attackSpeed is % increase
+    Debug.Log($"Equipped Sword → added attack={stats.attackPower}");
+    Debug.Log($"Equipped Sword → attackDamage={attackDamage}, attackSpeedMultiplier={attackSpeedMultiplier}");
+    break;
+
         case Loot.EquipmentType.Chestplate:
             equippedChestplateStats = stats;
             defense = baseDefense + stats.defense;
+            Debug.Log($"Equipped Chestplate → defense={defense}");
             break;
+
         case Loot.EquipmentType.Helmet:
             equippedHelmetStats = stats;
-            // apply any helmet-specific bonuses if you have them
+            defense = baseDefense + stats.defense;
+            Debug.Log($"Equipped Helmet → defense={defense}");
             break;
+
         case Loot.EquipmentType.Pants:
             equippedPantsStats = stats;
-            // apply bonuses
+            defense = baseDefense + stats.defense;
+            Debug.Log($"Equipped Pants → defense={defense}");
             break;
+
         case Loot.EquipmentType.Boots:
             equippedBootsStats = stats;
-            // apply bonuses
+            defense = baseDefense + stats.defense;
+            moveSpeed = baseMoveSpeed + stats.moveSpeed;
+            Debug.Log($"Equipped Boots → defense={defense}, moveSpeed={moveSpeed}");
             break;
+
         case Loot.EquipmentType.Shield:
             equippedShieldStats = stats;
-            // apply bonuses
+            defense = baseDefense + stats.defense;
+            Debug.Log($"Equipped Shield → defense={defense}");
             break;
     }
 }
+
 
 
 public void UnequipItemStats(Loot.EquipmentType type)
 {
     switch (type)
     {
-        case Loot.EquipmentType.Sword:
-            equippedWeaponStats = null;
-            attackDamage = baseAttack;
-            moveSpeed = baseMoveSpeed;
-            Debug.Log("Unequipped Weapon — reset attack and speed.");
-            break;
+case Loot.EquipmentType.Sword:
+    equippedWeaponStats = null;
+    attackDamage = baseAttack;
+    attackSpeedMultiplier = 1f;
+    break;
+
 
         case Loot.EquipmentType.Chestplate:
-        case Loot.EquipmentType.Helmet:
-        case Loot.EquipmentType.Pants:
-        case Loot.EquipmentType.Boots:
-        case Loot.EquipmentType.Shield:
-            equippedArmorStats = null;
+            equippedChestplateStats = null;
             defense = baseDefense;
-            Debug.Log($"Unequipped {type} — reset defense.");
+            break;
+
+        case Loot.EquipmentType.Helmet:
+            equippedHelmetStats = null;
+            defense = baseDefense;
+            break;
+
+        case Loot.EquipmentType.Pants:
+            equippedPantsStats = null;
+            defense = baseDefense;
+            break;
+
+        case Loot.EquipmentType.Boots:
+            equippedBootsStats = null;
+            defense = baseDefense;
+            moveSpeed = baseMoveSpeed;
+            break;
+
+        case Loot.EquipmentType.Shield:
+            equippedShieldStats = null;
+            defense = baseDefense;
             break;
     }
 }
+
 
 }
