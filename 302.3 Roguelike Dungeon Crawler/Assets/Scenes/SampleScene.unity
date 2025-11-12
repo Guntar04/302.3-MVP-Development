@@ -12680,7 +12680,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c6ff41f6e63f1b43aa23b9a52b59817, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerStats: {fileID: 0}
 --- !u!1 &1090778721
 GameObject:
   m_ObjectHideFlags: 0
@@ -14100,7 +14099,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -496, y: -201}
+  m_AnchoredPosition: {x: -457, y: -243}
   m_SizeDelta: {x: 71.9575, y: 71.9575}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1392649180
@@ -14314,20 +14313,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8057edc1e91a987498927ce815864915, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  floorTilemap: {fileID: 420158968}
-  wallTileMap: {fileID: 242449982}
-  floorTile: {fileID: 11400000, guid: 8558f180e5a354a4596642a24263d844, type: 2}
-  wallTop: {fileID: 11400000, guid: 28f273877b45e7945bd2fd172c3abec0, type: 2}
-  wallSideRight: {fileID: 11400000, guid: 9ab86855e86fe0a449f40443bc249535, type: 2}
-  wallSideLeft: {fileID: 11400000, guid: dffbd4f1744796d48ad439b13788782e, type: 2}
-  wallBottom: {fileID: 11400000, guid: 9d7540d24147ee34bb7fd63b3d8ff9ce, type: 2}
-  wallFull: {fileID: 11400000, guid: 3924c697c1941794f906663dbef53c20, type: 2}
-  wallInnerCornerDownLeft: {fileID: 11400000, guid: a17db378715ac214abef3b97e98cd588, type: 2}
-  wallInnerCornerDownRight: {fileID: 11400000, guid: 19028fb92c63db04293526c05fc8359c, type: 2}
-  wallDiagonalCornerDownLeft: {fileID: 11400000, guid: 0d70621878dd4fe498ee99a86cae55f4, type: 2}
-  wallDiagonalCornerDownRight: {fileID: 11400000, guid: d239b1563b1550f4aa09f51437af0e64, type: 2}
-  wallDiagonalCornerUpRight: {fileID: 11400000, guid: b05d3e225a89cba4a8d78cffabf59ba8, type: 2}
-  wallDiagonalCornerUpLeft: {fileID: 11400000, guid: c1932f7ddc270984dbaa8a20f3cc073f, type: 2}
 --- !u!4 &1396166726
 Transform:
   m_ObjectHideFlags: 0
