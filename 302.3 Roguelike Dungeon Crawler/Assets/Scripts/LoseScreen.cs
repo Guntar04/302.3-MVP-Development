@@ -47,17 +47,18 @@ public class LoseScreenUI : MonoBehaviour
     }
 
         for (int i = 0; i < lootIcons.Length; i++)
+    {
+        if (i < GameData.CollectedLoot.Count && GameData.CollectedLoot[i] != null)
         {
-            if (i < testLootSprites.Length && testLootSprites[i] != null)
-            {
-                lootIcons[i].sprite = testLootSprites[i];
-            }
-            else
-            {
-                lootIcons[i].enabled = false; // hide empty ones
-            }
+            lootIcons[i].sprite = GameData.CollectedLoot[i];
+            lootIcons[i].enabled = true;
         }
-
-        tipText.text = "Tip: Blocking reduces more damage than dodging";
+        else
+        {
+            lootIcons[i].enabled = false; // hide empty slots
+        }
     }
+
+    tipText.text = "Tip: Blocking reduces more damage than dodging";
+}
 }

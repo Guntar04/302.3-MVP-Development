@@ -52,6 +52,15 @@ public class LootPickup : MonoBehaviour
         playerInRangeObj = other.gameObject;
         isPlayerInRange = true;
         OnPlayerEnterRange?.Invoke();
+
+        var sr = GetComponent<SpriteRenderer>();
+    if (sr != null)
+    {
+        // Add this loot sprite to GameData
+        if (!GameData.CollectedLoot.Contains(sr.sprite)) // optional: prevent duplicates
+            GameData.CollectedLoot.Add(sr.sprite);
+    }
+
     }
 
     private void OnTriggerExit2D(Collider2D other)
