@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
@@ -23,118 +24,47 @@ public class UIManager : MonoBehaviour
     }
 
     // Call after a new player is spawned so UI rebinds to the new player instance
+    // Public entrypoint — run binding a frame later to avoid initialization order races
     public void BindPlayer(GameObject player)
     {
         if (player == null) return;
+        // start coroutine on this UI manager so binding occurs after a frame (lets player Awake/Start run first)
+        StartCoroutine(BindPlayerRoutine(player));
+    }
 
-        // update health UI
-        var pc = player.GetComponent<PlayerController>();
-        if (pc != null && healthSlider != null)
+    private IEnumerator BindPlayerRoutine(GameObject player)
+    {
+        // wait two frames to reduce ordering races
+        yield return null;
+        yield return null;
+
+        if (player == null) yield break;
+
+        // Try to find Shield component on the actual player instance (prefer GetComponentInChildren on the player)
+        var playerShield = player.GetComponentInChildren<Shield>(true);
+        if (playerShield != null)
         {
-            healthSlider.maxValue = Mathf.Clamp(pc.maxHealth, 1, 20);
-            healthSlider.value = Mathf.Clamp(pc.health, 0, pc.maxHealth);
-        }
-
-        if (player == null || shieldUI == null) return;
-
-        var shield = player.GetComponent<Shield>();
-        if (shield != null)
-        {
-            shieldUI.BindShield(shield);
-            Debug.Log("UIManager: Shield UI re-bound to new player.");
-        }
-        else
-        {
-            Debug.LogWarning("UIManager: New player does not have a Shield component.");
-        }
-
-        // Try to find the ShieldUI in the HUD (prefer explicit container)
-        Component shieldUIScript = null;
-        if (shieldContainer != null)
-            shieldUIScript = shieldContainer.GetComponentInChildren(typeof(Component), true)
-                           .GetComponentsInChildren<Component>(true)
-                           .FirstOrDefault(c => c.GetType().Name.IndexOf("ShieldUI", System.StringComparison.OrdinalIgnoreCase) >= 0);
-
-        if (shieldUIScript == null)
-        {
-            // fallback: search scene for a component with "ShieldUI" in its type name
-            // Use FindObjectsByType to avoid deprecated API and avoid unnecessary sorting for better performance.
-            var allComps = UnityEngine.Object.FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None);
-            shieldUIScript = allComps.FirstOrDefault(c => c != null && c.GetType().Name.IndexOf("ShieldUI", System.StringComparison.OrdinalIgnoreCase) >= 0);
-        }
-
-        // Find player's shield component (try common names first)
-        Component playerShieldComp = player.GetComponent("Shield") as Component
-                                      ?? player.GetComponent("ShieldController") as Component
-                                      ?? player.GetComponent("Armor") as Component;
-
-        if (playerShieldComp == null)
-        {
-            // try to pick any component whose type name contains "shield" or "armor"
-            playerShieldComp = player.GetComponents<Component>()
-                                     .FirstOrDefault(c => c != null && (c.GetType().Name.IndexOf("shield", System.StringComparison.OrdinalIgnoreCase) >= 0
-                                                                      || c.GetType().Name.IndexOf("armor", System.StringComparison.OrdinalIgnoreCase) >= 0));
-        }
-
-        if (shieldUIScript != null && playerShieldComp != null)
-        {
-            // set the PlayerShield field/property on ShieldUI via reflection (covers private/public variations)
-            var uiType = shieldUIScript.GetType();
-            var fld = uiType.GetField("PlayerShield", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            if (fld != null && fld.FieldType.IsAssignableFrom(playerShieldComp.GetType()))
+            Debug.Log($"UIManager: binding Shield from player '{player.name}' instanceID {playerShield.GetInstanceID()} CurrentShields={playerShield.CurrentShields}");
+            if (shieldUI != null)
             {
-                fld.SetValue(shieldUIScript, playerShieldComp);
+                shieldUI.BindShield(playerShield);
             }
             else
             {
-                var prop = uiType.GetProperty("PlayerShield", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                if (prop != null && prop.PropertyType.IsAssignableFrom(playerShieldComp.GetType()) && prop.CanWrite)
-                    prop.SetValue(shieldUIScript, playerShieldComp);
+                Debug.LogWarning("UIManager: shieldUI reference is null; cannot bind shield UI.");
             }
-
-            // try to call common refresh/update methods on the ShieldUI so visuals update immediately
-            string[] tryMethods = { "Refresh", "RefreshUI", "UpdateUI", "UpdateShieldDisplay", "OnShieldChanged", "RebuildUI" };
-            foreach (var name in tryMethods)
-            {
-                var m = uiType.GetMethod(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                if (m != null)
-                {
-                    try { m.Invoke(shieldUIScript, null); } catch { }
-                    break;
-                }
-            }
-
-            // last resort: SendMessage to the ShieldUI component
-            var mb = shieldUIScript as MonoBehaviour;
-            if (mb != null)
-            {
-                mb.SendMessage("OnShieldChanged", SendMessageOptions.DontRequireReceiver);
-                mb.SendMessage("RefreshUI", SendMessageOptions.DontRequireReceiver);
-            }
-
-            return; // done — ShieldUI now bound and updated
+            yield break;
         }
 
-        // Fallback: update simple shield icons under shieldContainer (enable first N children)
-        int shieldCount = 0;
-        if (playerShieldComp != null)
+        // fallback: try to find any Shield in the scene (include inactive objects)
+        var anyShield = FindFirstObjectByType<Shield>(UnityEngine.FindObjectsInactive.Include);
+        if (anyShield != null)
         {
-            // try to find an int field/property on the player's shield component
-            var t = playerShieldComp.GetType();
-            var f = t.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).FirstOrDefault(x => x.FieldType == typeof(int));
-            if (f != null) shieldCount = (int)f.GetValue(playerShieldComp);
-            else
-            {
-                var p = t.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).FirstOrDefault(x => x.PropertyType == typeof(int));
-                if (p != null) shieldCount = (int)p.GetValue(playerShieldComp);
-            }
+            Debug.LogWarning($"UIManager: player had no Shield component; falling back to first found Shield instanceID {anyShield.GetInstanceID()}");
+            shieldUI?.BindShield(anyShield);
+            yield break;
         }
 
-        if (shieldContainer != null)
-        {
-            var children = shieldContainer.transform.Cast<Transform>().ToArray();
-            for (int i = 0; i < children.Length; i++)
-                children[i].gameObject.SetActive(i < shieldCount);
-        }
+        Debug.LogWarning("UIManager: no Shield component found to bind for player.");
     }
 }

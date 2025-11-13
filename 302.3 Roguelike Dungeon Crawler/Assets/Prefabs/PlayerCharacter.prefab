@@ -52,7 +52,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxShields: 3
   regenDelay: 5
-  regenInterval: 3
+  regenInterval: 2
 --- !u!114 &1912324763309228557
 MonoBehaviour:
   m_ObjectHideFlags: 0
