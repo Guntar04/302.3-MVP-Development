@@ -72,6 +72,13 @@ private EquipmentStats equippedShieldStats;
 
     public static void SetPlayerDead(bool value) => PlayerDead = value;
 
+    public static class PlayerDeathInfo
+{
+    public static string EnemyName;
+    public static Sprite EnemySprite;
+}
+
+
     private void Start()
     {
         maxHealth = Mathf.Clamp(maxHealth, 1, MAX_HEALTH_CAP);
@@ -244,32 +251,63 @@ yield return new WaitForSeconds(cooldown);
         dashIconOverlay.fillAmount = 0f;
     }
 
-    public void TakeDamage(int damage)
-    {
-        if (isInvincible) return;
+    public GameObject lastAttacker; 
 
-        health -= damage;
-        if (health <= 0 && !isDead)
-        {
-            health = 0;
-            isDead = true;
-            PlayerDead = true;
-            StartCoroutine(HandleDeathAndLoad());
-        }
-        UpdatePlayerHealth();
+  public void TakeDamage(int damage, GameObject attacker = null)
+{
+    if (isInvincible) return;
+    lastAttacker = attacker;
+
+    health -= damage;
+
+    if (health <= 0 && !isDead)
+    {
+        health = 0;
+        isDead = true;
+        PlayerDead = true;
+        StartCoroutine(HandleDeathAndLoad());
     }
 
-    private IEnumerator HandleDeathAndLoad()
+    UpdatePlayerHealth();
+}
+
+private IEnumerator HandleDeathAndLoad()
+{
+    // Save enemy info to GameData
+    if (lastAttacker != null)
+{
+    var ai = lastAttacker.GetComponent<AIController>();
+    if (ai != null)
     {
-        animator?.Play("Death");
-        while (!animator.GetCurrentAnimatorStateInfo(0).IsName("Death")) yield return null;
-        while (animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1f) yield return null;
-        var sr = GetComponent<SpriteRenderer>();
-        if (sr != null) sr.enabled = false;
-        if (animator != null) animator.enabled = false;
-        PlayerDead = false;
-        SceneManager.LoadScene("LoseMenu");
+         GameData.EnemyName = ai.displayName; 
     }
+
+    var sr = lastAttacker.GetComponent<SpriteRenderer>();
+    if (sr != null) GameData.EnemySprite = sr.sprite;
+}
+else
+    {
+        GameData.EnemyName = "Unknown";
+        GameData.EnemySprite = null;
+    }
+
+
+    
+    // Play death animation
+    animator?.Play("Death");
+    while (!animator.GetCurrentAnimatorStateInfo(0).IsName("Death")) yield return null;
+    while (animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1f) yield return null;
+
+    var srPlayer = GetComponent<SpriteRenderer>();
+    if (srPlayer != null) srPlayer.enabled = false;
+    if (animator != null) animator.enabled = false;
+
+    PlayerDead = false;
+
+    // Load lose screen
+    SceneManager.LoadScene("LoseMenu");
+}
+
 
     public void Heal(int amount)
     {

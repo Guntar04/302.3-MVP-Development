@@ -79,6 +79,8 @@ public class AIController : MonoBehaviour
     public Vector2 attackRangeOffset = Vector2.zero;
     public Vector2 detectionRangeOffset = Vector2.zero;
 
+    public string displayName = "Skullman";
+
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -236,7 +238,8 @@ public class AIController : MonoBehaviour
                 var playerController = hit.GetComponent<PlayerController>();
                 if (playerController != null)
                 {
-                    playerController.TakeDamage(attackPower); // Directly call TakeDamage
+                    playerController.TakeDamage(attackPower, this.gameObject);
+ // Directly call TakeDamage
                 }
                 break;
             }
@@ -365,6 +368,11 @@ public class AIController : MonoBehaviour
         if (isDead) return;
 
         isDead = true;
+
+         if (LevelManager.Instance != null)
+    {
+        LevelManager.Instance.RegisterEnemyKill();
+    }
 
         StopAllCoroutines();
         if (rb != null) { rb.linearVelocity = Vector2.zero; rb.simulated = false; }

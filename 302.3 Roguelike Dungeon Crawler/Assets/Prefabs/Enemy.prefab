@@ -210,6 +210,7 @@ MonoBehaviour:
     m_Bits: 64
   attackRangeOffset: {x: 0, y: 0}
   detectionRangeOffset: {x: 0, y: 0}
+  displayName: Skullman
 --- !u!95 &4738075739300005283
 Animator:
   serializedVersion: 7

@@ -24,26 +24,27 @@ public class LoseScreenUI : MonoBehaviour
 
     void Start()
     {
-
           int floor = 1;
+          int kills = 0;
 
           if (LevelManager.Instance != null)
         {
             floor = LevelManager.Instance.currentFloor;
+              kills = LevelManager.Instance.enemiesKilled;
         }
 
         floorText.text = "Floor Reached: " + floor;
-        
-        // PLACEHOLDER
-        enemiesText.text = "Enemies Killed: 8";
-        killedByText.text = "Killed By: Goblin King";
-
+        enemiesText.text = "Enemies Killed: " + kills;
    
-        if (killedByImage != null && testEnemySprite != null)
-            {
-                killedByImage.sprite = testEnemySprite;
-                killedByImage.color = Color.white;
-            }
+        if (killedByText != null)
+        killedByText.text = "Killed By: " + (GameData.EnemyName ?? "Unknown");
+        
+
+    if (killedByImage != null && GameData.EnemySprite != null)
+    {
+        killedByImage.sprite = GameData.EnemySprite;
+        killedByImage.color = Color.white;
+    }
 
         for (int i = 0; i < lootIcons.Length; i++)
         {
@@ -58,19 +59,5 @@ public class LoseScreenUI : MonoBehaviour
         }
 
         tipText.text = "Tip: Blocking reduces more damage than dodging";
-    }
-
-
-    public void UpdateLoseScreen(int floor, int kills, string enemyName, Sprite enemySprite)
-    {
-        floorText.text = "Floor Reached: " + floor;
-        enemiesText.text = "Enemies Killed: " + kills;
-        killedByText.text = "Killed By: " + enemyName;
-
-        if (killedByImage != null && enemySprite != null)
-        {
-            killedByImage.sprite = enemySprite;
-            killedByImage.color = Color.white;
-        }
     }
 }

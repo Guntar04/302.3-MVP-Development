@@ -3439,6 +3439,7 @@ GameObject:
   - component: {fileID: 1956667571}
   - component: {fileID: 1956667573}
   - component: {fileID: 1956667572}
+  - component: {fileID: 1956667574}
   m_Layer: 5
   m_Name: Panel
   m_TagString: Untagged
@@ -3505,6 +3506,26 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1956667570}
   m_CullTransparentMesh: 1
+--- !u!114 &1956667574
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1956667570}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 12046e1caee34fc4d91a13817d320081, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  floorText: {fileID: 1382778330}
+  enemiesText: {fileID: 152368933}
+  killedByText: {fileID: 357587464}
+  killedByImage: {fileID: 1860192637}
+  lootIcons: []
+  testLootSprites: []
+  tipText: {fileID: 0}
+  testEnemySprite: {fileID: 0}
 --- !u!1 &1967611502
 GameObject:
   m_ObjectHideFlags: 0
