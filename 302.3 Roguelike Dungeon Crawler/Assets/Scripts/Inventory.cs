@@ -7,6 +7,7 @@ public class InventorySlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     [Header("Slot Info")]
     public Image itemIcon;
     public ItemData itemData; // current item
+    public ItemTooltip tooltip;
 
     [Header("Drag Settings")]
     public GameObject dragIconPrefab; // assign in Inspector
@@ -17,6 +18,7 @@ public class InventorySlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     private Canvas parentCanvas;
 
     private InventoryManager inventoryManager;
+
 
     private void Awake()
     {
@@ -65,16 +67,23 @@ public class InventorySlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     public bool HasItem() => itemData != null;
 
     #region Pointer Events
-    public void OnPointerEnter(PointerEventData eventData)
-    {
-        if (itemIcon.enabled)
-            itemIcon.rectTransform.localScale = hoverScale;
-    }
+public void OnPointerEnter(PointerEventData eventData)
+{
+    if (itemIcon.enabled)
+        itemIcon.rectTransform.localScale = hoverScale;
 
-    public void OnPointerExit(PointerEventData eventData)
-    {
-        itemIcon.rectTransform.localScale = normalScale;
-    }
+    if (itemData != null && tooltip != null)
+        tooltip.Show(itemData);
+}
+
+public void OnPointerExit(PointerEventData eventData)
+{
+    itemIcon.rectTransform.localScale = normalScale;
+
+    // Only hide tooltip if pointer is not over the tooltip itself
+    if (tooltip != null && !tooltip.IsPointerOver())
+        tooltip.Hide();
+}
 
     public void OnPointerClick(PointerEventData eventData)
     {
