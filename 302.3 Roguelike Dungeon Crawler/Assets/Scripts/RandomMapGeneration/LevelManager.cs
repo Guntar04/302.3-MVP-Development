@@ -122,6 +122,12 @@ public class LevelManager : MonoBehaviour
         currentFloor++;
         Debug.Log($"LevelManager: Generating floor {currentFloor}...");
 
+        if (PlayerStats.Instance != null)
+        {
+            PlayerStats.Instance.floorsCompleted = currentFloor;
+            Debug.Log($"PlayerStats: floorsCompleted updated to {PlayerStats.Instance.floorsCompleted}");
+        }
+
         // Small frame
         yield return null;
 

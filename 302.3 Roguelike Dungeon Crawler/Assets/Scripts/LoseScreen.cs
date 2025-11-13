@@ -24,8 +24,17 @@ public class LoseScreenUI : MonoBehaviour
 
     void Start()
     {
+
+          int floor = 1;
+
+          if (LevelManager.Instance != null)
+        {
+            floor = LevelManager.Instance.currentFloor;
+        }
+
+        floorText.text = "Floor Reached: " + floor;
+        
         // PLACEHOLDER
-        floorText.text = "Floor Reached: 2";
         enemiesText.text = "Enemies Killed: 8";
         killedByText.text = "Killed By: Goblin King";
 
