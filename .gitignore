@@ -40,8 +40,8 @@ ExportedObj/
 *.pidb.meta
 *.pdb.meta
 *.mdb.meta
-*.png.meta
-*.jpg.meta
+#*.png.meta
+#*.jpg.meta
 
 # Unity3D crash report
 sysinfo.txt
