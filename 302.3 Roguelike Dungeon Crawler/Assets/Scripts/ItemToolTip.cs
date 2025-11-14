@@ -1,63 +1,63 @@
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 
 public class ItemTooltip : MonoBehaviour
 {
-    public TextMeshProUGUI itemNameText;
-    public TextMeshProUGUI itemStatsText;
+    public TextMeshProUGUI nameText;
+    public TextMeshProUGUI statsText;
 
-    public bool IsPointerOver()
+    // Offset from mouse cursor
+    public Vector2 offset = new Vector2(15f, -15f);
+
+    private RectTransform rectTransform;
+
+    private void Awake()
     {
-        return RectTransformUtility.RectangleContainsScreenPoint(
-            GetComponent<RectTransform>(), Input.mousePosition);
+        rectTransform = GetComponent<RectTransform>();
+        gameObject.SetActive(false);
     }
 
-
- void Update()
+    private void Update()
     {
-        // Follow mouse position each frame
-        Vector2 mousePos = Input.mousePosition;
-transform.position = mousePos + new Vector2(15f, -15f);
+        if (!gameObject.activeSelf) return;
 
+    // Move tooltip so top-left corner touches the mouse
+    rectTransform.pivot = new Vector2(0, 1); // top-left
+    rectTransform.position = Input.mousePosition + new Vector3(offset.x, offset.y, 0);
     }
 
     public void Show(ItemData item)
     {
-
-
         if (item == null) return;
 
-        itemNameText.text = item.itemName;
+        rectTransform.pivot = new Vector2(0f, 1f); // top-left corner is pivot
 
-        // Build stats text based on equipmentStats
-        string stats = "";
+        // NAME
+        nameText.text = $"<b>{item.itemName}</b>";
+
+        // STATS (colored)
+        statsText.text = "";
         if (item.equipmentStats != null)
         {
-            stats += $"Attack: {item.equipmentStats.attackPower}\n";
-            stats += $"Defense: {item.equipmentStats.defense}\n";
-            stats += $"Attack Speed: {item.equipmentStats.attackSpeed}\n";
+            if (item.equipmentStats.attackPower != 0)
+                statsText.text += $"<color=#FF4A4A>ATK: {item.equipmentStats.attackPower}</color>\n";
+
+            if (item.equipmentStats.attackSpeed != 0)
+                statsText.text += $"<color=#4AA3FF>SPEED: {item.equipmentStats.attackSpeed}</color>\n";
+
+            if (item.equipmentStats.defense != 0)
+                statsText.text += $"<color=#4AFF6C>HP: {item.equipmentStats.defense}</color>\n";
         }
 
-        itemStatsText.text = stats;
+        LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform);
+        LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform.parent as RectTransform);
+
         gameObject.SetActive(true);
     }
 
     public void Hide()
     {
         gameObject.SetActive(false);
-    }
-
-       private string FormatStats(ItemData item)
-    {
-        if (item.equipmentStats == null) return "";
-
-        var stats = item.equipmentStats;
-        string result = "";
-
-        if (stats.attackPower > 0) result += $"Attack: {stats.attackPower}\n";
-        if (stats.defense > 0) result += $"Defense: {stats.defense}\n";
-        if (stats.attackSpeed > 0) result += $"Attack Speed: {stats.attackSpeed}\n";
-
-        return result.TrimEnd('\n');
     }
 }

@@ -69,21 +69,16 @@ public class InventorySlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     #region Pointer Events
 public void OnPointerEnter(PointerEventData eventData)
 {
-    if (itemIcon.enabled)
-        itemIcon.rectTransform.localScale = hoverScale;
-
-    if (itemData != null && tooltip != null)
-        tooltip.Show(itemData);
+    itemIcon.rectTransform.localScale = hoverScale;
+    if (itemData != null) tooltip.Show(itemData);
 }
 
 public void OnPointerExit(PointerEventData eventData)
 {
     itemIcon.rectTransform.localScale = normalScale;
-
-    // Only hide tooltip if pointer is not over the tooltip itself
-    if (tooltip != null && !tooltip.IsPointerOver())
-        tooltip.Hide();
+    tooltip.Hide(); // FORCE HIDE ALWAYS
 }
+
 
     public void OnPointerClick(PointerEventData eventData)
     {
