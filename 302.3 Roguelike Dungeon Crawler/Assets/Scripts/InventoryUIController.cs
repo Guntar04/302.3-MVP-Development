@@ -7,6 +7,8 @@ public class InventoryUIController : MonoBehaviour
     public InventorySlot[] slots;
     public ItemData[] testItems;
 
+    
+
     private bool isOpen = false;
 
     void Awake()
