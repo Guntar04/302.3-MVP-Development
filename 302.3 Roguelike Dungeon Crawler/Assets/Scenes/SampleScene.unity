@@ -211,7 +211,7 @@ GameObject:
   - component: {fileID: 66892841}
   - component: {fileID: 66892840}
   m_Layer: 5
-  m_Name: InventorySlot
+  m_Name: Icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -284,11 +284,10 @@ GameObject:
   m_Component:
   - component: {fileID: 94502427}
   - component: {fileID: 94502426}
-  - component: {fileID: 94502425}
   - component: {fileID: 94502424}
   - component: {fileID: 94502423}
   m_Layer: 5
-  m_Name: Button
+  m_Name: InventorySlot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -308,8 +307,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemIcon: {fileID: 0}
   itemData: {fileID: 0}
-  tooltip: {fileID: 0}
+  tooltip: {fileID: 1635179366}
   dragIconPrefab: {fileID: 7003341338392989683, guid: 65fdf6cd305093e439cdd534b3835314, type: 3}
+  inventoryController: {fileID: 0}
+  slotIndex: 0
 --- !u!114 &94502424
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -350,40 +351,10 @@ MonoBehaviour:
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 94502425}
+  m_TargetGraphic: {fileID: 0}
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &94502425
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 94502422}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
 --- !u!222 &94502426
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -424,7 +395,7 @@ GameObject:
   - component: {fileID: 94765650}
   - component: {fileID: 94765649}
   m_Layer: 5
-  m_Name: InventorySlot
+  m_Name: Icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -499,7 +470,7 @@ GameObject:
   - component: {fileID: 152385818}
   - component: {fileID: 152385817}
   m_Layer: 5
-  m_Name: InventorySlot
+  m_Name: Icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -735,7 +706,7 @@ GameObject:
   - component: {fileID: 208414342}
   - component: {fileID: 208414341}
   m_Layer: 5
-  m_Name: InventorySlot
+  m_Name: Icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4117,7 +4088,7 @@ GameObject:
   - component: {fileID: 243874497}
   - component: {fileID: 243874496}
   m_Layer: 5
-  m_Name: InventorySlot
+  m_Name: Icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4369,7 +4340,7 @@ GameObject:
   - component: {fileID: 295773070}
   - component: {fileID: 295773069}
   m_Layer: 5
-  m_Name: InventorySlot
+  m_Name: Icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4518,7 +4489,7 @@ GameObject:
   - component: {fileID: 408330318}
   - component: {fileID: 408330317}
   m_Layer: 5
-  m_Name: Button 2
+  m_Name: InventorySlot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4560,6 +4531,8 @@ MonoBehaviour:
   itemData: {fileID: 0}
   tooltip: {fileID: 1635179366}
   dragIconPrefab: {fileID: 7003341338392989683, guid: 65fdf6cd305093e439cdd534b3835314, type: 3}
+  inventoryController: {fileID: 0}
+  slotIndex: 0
 --- !u!114 &408330318
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10134,7 +10107,7 @@ MonoBehaviour:
   acceptedType: 3
   itemIcon: {fileID: 284516910}
   playerController: {fileID: 0}
-  inventoryManager: {fileID: 1960039537}
+  inventoryController: {fileID: 0}
 --- !u!114 &447643501
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10230,7 +10203,7 @@ GameObject:
   - component: {fileID: 455848599}
   - component: {fileID: 455848598}
   m_Layer: 5
-  m_Name: InventoryCanvas (1)
+  m_Name: InventoryCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10441,7 +10414,7 @@ GameObject:
   - component: {fileID: 471231561}
   - component: {fileID: 471231560}
   m_Layer: 5
-  m_Name: Button (13)
+  m_Name: InventorySlot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10463,6 +10436,8 @@ MonoBehaviour:
   itemData: {fileID: 0}
   tooltip: {fileID: 1635179366}
   dragIconPrefab: {fileID: 7003341338392989683, guid: 65fdf6cd305093e439cdd534b3835314, type: 3}
+  inventoryController: {fileID: 0}
+  slotIndex: 0
 --- !u!114 &471231561
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11013,7 +10988,7 @@ GameObject:
   - component: {fileID: 584682141}
   - component: {fileID: 584682140}
   m_Layer: 5
-  m_Name: Button (16)
+  m_Name: InventorySlot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -11035,6 +11010,8 @@ MonoBehaviour:
   itemData: {fileID: 0}
   tooltip: {fileID: 1635179366}
   dragIconPrefab: {fileID: 7003341338392989683, guid: 65fdf6cd305093e439cdd534b3835314, type: 3}
+  inventoryController: {fileID: 0}
+  slotIndex: 0
 --- !u!114 &584682141
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11149,7 +11126,7 @@ GameObject:
   - component: {fileID: 587060341}
   - component: {fileID: 587060340}
   m_Layer: 5
-  m_Name: InventorySlot
+  m_Name: Icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -11278,7 +11255,7 @@ MonoBehaviour:
   acceptedType: 4
   itemIcon: {fileID: 1376609553}
   playerController: {fileID: 0}
-  inventoryManager: {fileID: 1960039537}
+  inventoryController: {fileID: 0}
 --- !u!114 &604617006
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11416,7 +11393,7 @@ MonoBehaviour:
   acceptedType: 1
   itemIcon: {fileID: 1341527286}
   playerController: {fileID: 0}
-  inventoryManager: {fileID: 1960039537}
+  inventoryController: {fileID: 0}
 --- !u!114 &643775683
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11691,7 +11668,7 @@ GameObject:
   - component: {fileID: 697765902}
   - component: {fileID: 697765901}
   m_Layer: 5
-  m_Name: Button (15)
+  m_Name: InventorySlot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -11713,6 +11690,8 @@ MonoBehaviour:
   itemData: {fileID: 0}
   tooltip: {fileID: 1635179366}
   dragIconPrefab: {fileID: 7003341338392989683, guid: 65fdf6cd305093e439cdd534b3835314, type: 3}
+  inventoryController: {fileID: 0}
+  slotIndex: 0
 --- !u!114 &697765902
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12029,7 +12008,7 @@ MonoBehaviour:
   acceptedType: 5
   itemIcon: {fileID: 200854006}
   playerController: {fileID: 0}
-  inventoryManager: {fileID: 1960039537}
+  inventoryController: {fileID: 0}
 --- !u!1 &767165780
 GameObject:
   m_ObjectHideFlags: 0
@@ -12041,9 +12020,8 @@ GameObject:
   - component: {fileID: 767165781}
   - component: {fileID: 767165784}
   - component: {fileID: 767165783}
-  - component: {fileID: 767165782}
   m_Layer: 5
-  m_Name: InventorySlot
+  m_Name: Icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -12068,22 +12046,6 @@ RectTransform:
   m_AnchoredPosition: {x: -0.000092983, y: 0.000076293945}
   m_SizeDelta: {x: 55.554, y: 57.51}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &767165782
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 767165780}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bfeef95856141f8489fb59d51ab23177, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  itemIcon: {fileID: 0}
-  itemData: {fileID: 0}
-  tooltip: {fileID: 0}
-  dragIconPrefab: {fileID: 0}
 --- !u!114 &767165783
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12141,7 +12103,7 @@ GameObject:
   - component: {fileID: 801979356}
   - component: {fileID: 801979355}
   m_Layer: 5
-  m_Name: Button (24)
+  m_Name: InventorySlot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -12163,6 +12125,8 @@ MonoBehaviour:
   itemData: {fileID: 0}
   tooltip: {fileID: 1635179366}
   dragIconPrefab: {fileID: 7003341338392989683, guid: 65fdf6cd305093e439cdd534b3835314, type: 3}
+  inventoryController: {fileID: 0}
+  slotIndex: 0
 --- !u!114 &801979356
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12279,7 +12243,7 @@ GameObject:
   - component: {fileID: 811839739}
   - component: {fileID: 811839738}
   m_Layer: 5
-  m_Name: Button (10)
+  m_Name: InventorySlot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -12301,6 +12265,8 @@ MonoBehaviour:
   itemData: {fileID: 0}
   tooltip: {fileID: 1635179366}
   dragIconPrefab: {fileID: 7003341338392989683, guid: 65fdf6cd305093e439cdd534b3835314, type: 3}
+  inventoryController: {fileID: 0}
+  slotIndex: 0
 --- !u!114 &811839739
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12417,7 +12383,7 @@ GameObject:
   - component: {fileID: 812981718}
   - component: {fileID: 812981717}
   m_Layer: 5
-  m_Name: Button (17)
+  m_Name: InventorySlot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -12439,6 +12405,8 @@ MonoBehaviour:
   itemData: {fileID: 0}
   tooltip: {fileID: 1635179366}
   dragIconPrefab: {fileID: 7003341338392989683, guid: 65fdf6cd305093e439cdd534b3835314, type: 3}
+  inventoryController: {fileID: 0}
+  slotIndex: 0
 --- !u!114 &812981718
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12555,7 +12523,7 @@ GameObject:
   - component: {fileID: 823406665}
   - component: {fileID: 823406664}
   m_Layer: 5
-  m_Name: Button (12)
+  m_Name: InventorySlot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -12577,6 +12545,8 @@ MonoBehaviour:
   itemData: {fileID: 0}
   tooltip: {fileID: 1635179366}
   dragIconPrefab: {fileID: 7003341338392989683, guid: 65fdf6cd305093e439cdd534b3835314, type: 3}
+  inventoryController: {fileID: 0}
+  slotIndex: 0
 --- !u!114 &823406665
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12693,7 +12663,7 @@ GameObject:
   - component: {fileID: 851720424}
   - component: {fileID: 851720423}
   m_Layer: 5
-  m_Name: Button (7)
+  m_Name: InventorySlot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -12715,6 +12685,8 @@ MonoBehaviour:
   itemData: {fileID: 0}
   tooltip: {fileID: 1635179366}
   dragIconPrefab: {fileID: 7003341338392989683, guid: 65fdf6cd305093e439cdd534b3835314, type: 3}
+  inventoryController: {fileID: 0}
+  slotIndex: 0
 --- !u!114 &851720424
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13081,7 +13053,7 @@ GameObject:
   - component: {fileID: 946429500}
   - component: {fileID: 946429499}
   m_Layer: 5
-  m_Name: InventorySlot
+  m_Name: Icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -13158,7 +13130,7 @@ GameObject:
   - component: {fileID: 960055690}
   - component: {fileID: 960055689}
   m_Layer: 5
-  m_Name: Button (5)
+  m_Name: InventorySlot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -13180,6 +13152,8 @@ MonoBehaviour:
   itemData: {fileID: 0}
   tooltip: {fileID: 1635179366}
   dragIconPrefab: {fileID: 7003341338392989683, guid: 65fdf6cd305093e439cdd534b3835314, type: 3}
+  inventoryController: {fileID: 0}
+  slotIndex: 0
 --- !u!114 &960055690
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13376,7 +13350,7 @@ GameObject:
   - component: {fileID: 978723457}
   - component: {fileID: 978723456}
   m_Layer: 5
-  m_Name: Button (18)
+  m_Name: InventorySlot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -13398,6 +13372,8 @@ MonoBehaviour:
   itemData: {fileID: 0}
   tooltip: {fileID: 1635179366}
   dragIconPrefab: {fileID: 7003341338392989683, guid: 65fdf6cd305093e439cdd534b3835314, type: 3}
+  inventoryController: {fileID: 0}
+  slotIndex: 0
 --- !u!114 &978723457
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13844,7 +13820,7 @@ GameObject:
   - component: {fileID: 1090778724}
   - component: {fileID: 1090778723}
   m_Layer: 5
-  m_Name: InventorySlot
+  m_Name: Icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -13919,7 +13895,7 @@ GameObject:
   - component: {fileID: 1092020630}
   - component: {fileID: 1092020629}
   m_Layer: 5
-  m_Name: InventorySlot
+  m_Name: Icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -14069,7 +14045,7 @@ GameObject:
   - component: {fileID: 1130758121}
   - component: {fileID: 1130758120}
   m_Layer: 5
-  m_Name: InventorySlot
+  m_Name: Icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -14146,7 +14122,7 @@ GameObject:
   - component: {fileID: 1131683403}
   - component: {fileID: 1131683402}
   m_Layer: 5
-  m_Name: Button (1)
+  m_Name: InventorySlot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -14168,6 +14144,8 @@ MonoBehaviour:
   itemData: {fileID: 0}
   tooltip: {fileID: 1635179366}
   dragIconPrefab: {fileID: 7003341338392989683, guid: 65fdf6cd305093e439cdd534b3835314, type: 3}
+  inventoryController: {fileID: 0}
+  slotIndex: 0
 --- !u!114 &1131683403
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14289,7 +14267,7 @@ GameObject:
   - component: {fileID: 1226226888}
   - component: {fileID: 1226226887}
   m_Layer: 5
-  m_Name: Button (23)
+  m_Name: InventorySlot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -14311,6 +14289,8 @@ MonoBehaviour:
   itemData: {fileID: 0}
   tooltip: {fileID: 1635179366}
   dragIconPrefab: {fileID: 7003341338392989683, guid: 65fdf6cd305093e439cdd534b3835314, type: 3}
+  inventoryController: {fileID: 0}
+  slotIndex: 0
 --- !u!114 &1226226888
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14494,7 +14474,7 @@ GameObject:
   - component: {fileID: 1236697294}
   - component: {fileID: 1236697293}
   m_Layer: 5
-  m_Name: InventorySlot
+  m_Name: Icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -14885,7 +14865,7 @@ GameObject:
   - component: {fileID: 1321749879}
   - component: {fileID: 1321749878}
   m_Layer: 5
-  m_Name: Button (6)
+  m_Name: InventorySlot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -14907,6 +14887,8 @@ MonoBehaviour:
   itemData: {fileID: 0}
   tooltip: {fileID: 1635179366}
   dragIconPrefab: {fileID: 7003341338392989683, guid: 65fdf6cd305093e439cdd534b3835314, type: 3}
+  inventoryController: {fileID: 0}
+  slotIndex: 0
 --- !u!114 &1321749879
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15032,7 +15014,7 @@ GameObject:
   - component: {fileID: 1327126533}
   - component: {fileID: 1327126532}
   m_Layer: 5
-  m_Name: InventorySlot
+  m_Name: Icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -15109,7 +15091,7 @@ GameObject:
   - component: {fileID: 1334188670}
   - component: {fileID: 1334188669}
   m_Layer: 5
-  m_Name: Button (22)
+  m_Name: InventorySlot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -15131,6 +15113,8 @@ MonoBehaviour:
   itemData: {fileID: 0}
   tooltip: {fileID: 1635179366}
   dragIconPrefab: {fileID: 7003341338392989683, guid: 65fdf6cd305093e439cdd534b3835314, type: 3}
+  inventoryController: {fileID: 0}
+  slotIndex: 0
 --- !u!114 &1334188670
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15245,7 +15229,7 @@ GameObject:
   - component: {fileID: 1341293173}
   - component: {fileID: 1341293172}
   m_Layer: 5
-  m_Name: InventorySlot
+  m_Name: Icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -15549,7 +15533,7 @@ GameObject:
   - component: {fileID: 1384637347}
   - component: {fileID: 1384637346}
   m_Layer: 5
-  m_Name: InventorySlot
+  m_Name: Icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -15624,7 +15608,7 @@ GameObject:
   - component: {fileID: 1387253797}
   - component: {fileID: 1387253796}
   m_Layer: 5
-  m_Name: InventorySlot
+  m_Name: Icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -15794,7 +15778,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9538269b5b26b844852b1f78c85e5e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inventoryCanvas: {fileID: 455848597}
+  InventoryCanvas: {fileID: 455848597}
+  slots: []
+  testItems: []
 --- !u!114 &1392649182
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15845,7 +15831,7 @@ GameObject:
   - component: {fileID: 1393207585}
   - component: {fileID: 1393207584}
   m_Layer: 5
-  m_Name: InventorySlot
+  m_Name: Icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -16310,7 +16296,7 @@ GameObject:
   - component: {fileID: 1525664332}
   - component: {fileID: 1525664331}
   m_Layer: 5
-  m_Name: Button (14)
+  m_Name: InventorySlot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -16332,6 +16318,8 @@ MonoBehaviour:
   itemData: {fileID: 0}
   tooltip: {fileID: 1635179366}
   dragIconPrefab: {fileID: 7003341338392989683, guid: 65fdf6cd305093e439cdd534b3835314, type: 3}
+  inventoryController: {fileID: 0}
+  slotIndex: 0
 --- !u!114 &1525664332
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16652,7 +16640,7 @@ GameObject:
   - component: {fileID: 1548440228}
   - component: {fileID: 1548440227}
   m_Layer: 5
-  m_Name: Button (3)
+  m_Name: InventorySlot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -16674,6 +16662,8 @@ MonoBehaviour:
   itemData: {fileID: 0}
   tooltip: {fileID: 1635179366}
   dragIconPrefab: {fileID: 7003341338392989683, guid: 65fdf6cd305093e439cdd534b3835314, type: 3}
+  inventoryController: {fileID: 0}
+  slotIndex: 0
 --- !u!114 &1548440228
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16788,7 +16778,7 @@ GameObject:
   - component: {fileID: 1572027276}
   - component: {fileID: 1572027275}
   m_Layer: 5
-  m_Name: InventorySlot
+  m_Name: Icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -16865,7 +16855,7 @@ GameObject:
   - component: {fileID: 1575988764}
   - component: {fileID: 1575988763}
   m_Layer: 5
-  m_Name: Button (25)
+  m_Name: InventorySlot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -16907,6 +16897,8 @@ MonoBehaviour:
   itemData: {fileID: 0}
   tooltip: {fileID: 1635179366}
   dragIconPrefab: {fileID: 7003341338392989683, guid: 65fdf6cd305093e439cdd534b3835314, type: 3}
+  inventoryController: {fileID: 0}
+  slotIndex: 0
 --- !u!114 &1575988764
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17003,7 +16995,7 @@ GameObject:
   - component: {fileID: 1577084146}
   - component: {fileID: 1577084145}
   m_Layer: 5
-  m_Name: Button (11)
+  m_Name: InventorySlot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -17025,6 +17017,8 @@ MonoBehaviour:
   itemData: {fileID: 0}
   tooltip: {fileID: 1635179366}
   dragIconPrefab: {fileID: 7003341338392989683, guid: 65fdf6cd305093e439cdd534b3835314, type: 3}
+  inventoryController: {fileID: 0}
+  slotIndex: 0
 --- !u!114 &1577084146
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17141,7 +17135,7 @@ GameObject:
   - component: {fileID: 1602260933}
   - component: {fileID: 1602260932}
   m_Layer: 5
-  m_Name: Button (19)
+  m_Name: InventorySlot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -17163,6 +17157,8 @@ MonoBehaviour:
   itemData: {fileID: 0}
   tooltip: {fileID: 1635179366}
   dragIconPrefab: {fileID: 7003341338392989683, guid: 65fdf6cd305093e439cdd534b3835314, type: 3}
+  inventoryController: {fileID: 0}
+  slotIndex: 0
 --- !u!114 &1602260933
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17386,7 +17382,7 @@ GameObject:
   - component: {fileID: 1668638425}
   - component: {fileID: 1668638424}
   m_Layer: 5
-  m_Name: InventorySlot
+  m_Name: Icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -17461,7 +17457,7 @@ GameObject:
   - component: {fileID: 1670950662}
   - component: {fileID: 1670950661}
   m_Layer: 5
-  m_Name: InventorySlot
+  m_Name: Icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -17538,7 +17534,7 @@ GameObject:
   - component: {fileID: 1683958119}
   - component: {fileID: 1683958118}
   m_Layer: 5
-  m_Name: Button (4)
+  m_Name: InventorySlot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -17560,6 +17556,8 @@ MonoBehaviour:
   itemData: {fileID: 0}
   tooltip: {fileID: 1635179366}
   dragIconPrefab: {fileID: 7003341338392989683, guid: 65fdf6cd305093e439cdd534b3835314, type: 3}
+  inventoryController: {fileID: 0}
+  slotIndex: 0
 --- !u!114 &1683958119
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17674,7 +17672,7 @@ GameObject:
   - component: {fileID: 1749926442}
   - component: {fileID: 1749926441}
   m_Layer: 5
-  m_Name: InventorySlot
+  m_Name: Icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -17749,7 +17747,7 @@ GameObject:
   - component: {fileID: 1756560909}
   - component: {fileID: 1756560908}
   m_Layer: 5
-  m_Name: InventorySlot
+  m_Name: Icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -17901,7 +17899,7 @@ GameObject:
   - component: {fileID: 1802250407}
   - component: {fileID: 1802250406}
   m_Layer: 5
-  m_Name: Button (21)
+  m_Name: InventorySlot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -17923,6 +17921,8 @@ MonoBehaviour:
   itemData: {fileID: 0}
   tooltip: {fileID: 1635179366}
   dragIconPrefab: {fileID: 7003341338392989683, guid: 65fdf6cd305093e439cdd534b3835314, type: 3}
+  inventoryController: {fileID: 0}
+  slotIndex: 0
 --- !u!114 &1802250407
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18039,7 +18039,7 @@ GameObject:
   - component: {fileID: 1808191395}
   - component: {fileID: 1808191394}
   m_Layer: 5
-  m_Name: Button (9)
+  m_Name: InventorySlot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -18061,6 +18061,8 @@ MonoBehaviour:
   itemData: {fileID: 0}
   tooltip: {fileID: 1635179366}
   dragIconPrefab: {fileID: 7003341338392989683, guid: 65fdf6cd305093e439cdd534b3835314, type: 3}
+  inventoryController: {fileID: 0}
+  slotIndex: 0
 --- !u!114 &1808191395
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18373,7 +18375,7 @@ GameObject:
   - component: {fileID: 1885521208}
   - component: {fileID: 1885521207}
   m_Layer: 5
-  m_Name: Button (8)
+  m_Name: InventorySlot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -18415,6 +18417,8 @@ MonoBehaviour:
   itemData: {fileID: 0}
   tooltip: {fileID: 1635179366}
   dragIconPrefab: {fileID: 7003341338392989683, guid: 65fdf6cd305093e439cdd534b3835314, type: 3}
+  inventoryController: {fileID: 0}
+  slotIndex: 0
 --- !u!114 &1885521208
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18552,7 +18556,7 @@ MonoBehaviour:
   acceptedType: 6
   itemIcon: {fileID: 58286660}
   playerController: {fileID: 0}
-  inventoryManager: {fileID: 1960039537}
+  inventoryController: {fileID: 0}
 --- !u!114 &1930476628
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18683,38 +18687,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caeea4af485dc6e46aa28ebf998dff31, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  slots:
-  - {fileID: 94502423}
-  - {fileID: 1131683402}
-  - {fileID: 408330317}
-  - {fileID: 1548440227}
-  - {fileID: 801979355}
-  - {fileID: 851720423}
-  - {fileID: 1321749878}
-  - {fileID: 960055689}
-  - {fileID: 1683958118}
-  - {fileID: 1226226887}
-  - {fileID: 1885521207}
-  - {fileID: 1808191394}
-  - {fileID: 811839738}
-  - {fileID: 1577084145}
-  - {fileID: 1334188669}
-  - {fileID: 1602260932}
-  - {fileID: 584682140}
-  - {fileID: 697765901}
-  - {fileID: 823406664}
-  - {fileID: 1575988763}
-  - {fileID: 978723456}
-  - {fileID: 812981717}
-  - {fileID: 1525664331}
-  - {fileID: 471231560}
-  - {fileID: 1802250406}
-  testItems:
-  - {fileID: 11400000, guid: 6d88c831c07e24a4ba2e532f61c81780, type: 2}
-  - {fileID: 11400000, guid: d43dc573ee7183e429210a1d14651c3c, type: 2}
-  - {fileID: 11400000, guid: 85a54cc8dd10d4740bb097709bea4212, type: 2}
-  - {fileID: 11400000, guid: c4980a11d7018444da0f76b04b2ec3fe, type: 2}
-  - {fileID: 11400000, guid: 058ec393b2268c743b32b2d10309dae6, type: 2}
 --- !u!1 &1960329254
 GameObject:
   m_ObjectHideFlags: 0
@@ -18727,7 +18699,7 @@ GameObject:
   - component: {fileID: 1960329257}
   - component: {fileID: 1960329256}
   m_Layer: 5
-  m_Name: InventorySlot
+  m_Name: Icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -18802,7 +18774,7 @@ GameObject:
   - component: {fileID: 1972002527}
   - component: {fileID: 1972002526}
   m_Layer: 5
-  m_Name: InventorySlot
+  m_Name: Icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -18920,7 +18892,7 @@ MonoBehaviour:
   acceptedType: 2
   itemIcon: {fileID: 525753222}
   playerController: {fileID: 0}
-  inventoryManager: {fileID: 1960039537}
+  inventoryController: {fileID: 0}
 --- !u!114 &1986671150
 MonoBehaviour:
   m_ObjectHideFlags: 0

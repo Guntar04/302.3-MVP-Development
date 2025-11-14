@@ -109,7 +109,7 @@ public class LootPickup : MonoBehaviour
     newItem.equipmentStats = statsForItem;
 
     // --- 3. Add to inventory ---
-    InventoryManager inventory = FindFirstObjectByType<InventoryManager>();
+InventoryUIController inventory = FindFirstObjectByType<InventoryUIController>();
     if (inventory != null)
     {
         inventory.AddItem(newItem);
