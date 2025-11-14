@@ -72,21 +72,23 @@ public class InventoryUIController : MonoBehaviour
 
     public void OnInventoryButtonPressed() => ToggleInventory();
 
-    public void AddItem(ItemData item)
+ public bool AddItem(ItemData item)
+{
+    if (item == null || slots == null) return false;
+
+    foreach (var slot in slots)
     {
-        if (item == null || slots == null) return;
-
-        foreach (var slot in slots)
+        if (!slot.HasItem())
         {
-            if (!slot.HasItem())
-            {
-                slot.SetItem(item);
-                return;
-            }
+            slot.SetItem(item);
+            return true;
         }
-
-        Debug.Log("Inventory full!");
     }
+
+    Debug.Log("Inventory full!");
+    return false;
+}
+
 
     public void RemoveItem(int index)
     {
