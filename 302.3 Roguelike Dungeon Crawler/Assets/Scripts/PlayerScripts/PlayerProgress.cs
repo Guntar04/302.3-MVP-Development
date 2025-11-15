@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
+using System.Collections.Generic;
 
 public class PlayerProgress : MonoBehaviour
 {
@@ -11,6 +12,16 @@ public class PlayerProgress : MonoBehaviour
     public static int health = 10;
     public static int maxHealth = 10;
     public static int shieldCount = 0;
+
+    public static EquipmentStats savedWeaponStats;
+    public static EquipmentStats savedChestplateStats;
+    public static EquipmentStats savedHelmetStats;
+    public static EquipmentStats savedPantsStats;
+    public static EquipmentStats savedBootsStats;
+    public static EquipmentStats savedShieldStats;
+
+
+
 
     void Awake()
     {
@@ -47,6 +58,13 @@ public class PlayerProgress : MonoBehaviour
             maxHealth = pc.maxHealth;
             shieldCount = TryGetShieldCountStatic(pc.gameObject);
             HasSaved = true;
+            savedWeaponStats = pc.equippedWeaponStats;
+savedChestplateStats = pc.equippedChestplateStats;
+savedHelmetStats = pc.equippedHelmetStats;
+savedPantsStats = pc.equippedPantsStats;
+savedBootsStats = pc.equippedBootsStats;
+savedShieldStats = pc.equippedShieldStats;
+
         }
     }
 
@@ -58,6 +76,24 @@ public class PlayerProgress : MonoBehaviour
         pc.health = Mathf.Clamp(health, 0, pc.maxHealth);
         pc.UpdatePlayerHealth();
         TryApplyShieldCountStatic(pc.gameObject, shieldCount);
+       if (savedWeaponStats != null)
+    pc.EquipItemStats(savedWeaponStats, Loot.EquipmentType.Sword);
+
+if (savedChestplateStats != null)
+    pc.EquipItemStats(savedChestplateStats, Loot.EquipmentType.Chestplate);
+
+if (savedHelmetStats != null)
+    pc.EquipItemStats(savedHelmetStats, Loot.EquipmentType.Helmet);
+
+if (savedPantsStats != null)
+    pc.EquipItemStats(savedPantsStats, Loot.EquipmentType.Pants);
+
+if (savedBootsStats != null)
+    pc.EquipItemStats(savedBootsStats, Loot.EquipmentType.Boots);
+
+if (savedShieldStats != null)
+    pc.EquipItemStats(savedShieldStats, Loot.EquipmentType.Shield);
+
     }
 
     // Prefer field/property names that reference "shield"/"armor"/"charge"/"count"

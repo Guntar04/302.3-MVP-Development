@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using System.Collections.Generic;
 
 public class PlayerController : MonoBehaviour
 {
@@ -61,12 +62,14 @@ private float attackSpeedMultiplier = 1f; // affected by equipment
     private Color spriteOriginalColor = Color.white;
 
     // Equipped stats
-private EquipmentStats equippedWeaponStats;
-private EquipmentStats equippedChestplateStats;
-private EquipmentStats equippedHelmetStats;
-private EquipmentStats equippedPantsStats;
-private EquipmentStats equippedBootsStats;
-private EquipmentStats equippedShieldStats;
+public EquipmentStats equippedWeaponStats;
+public EquipmentStats equippedChestplateStats;
+public EquipmentStats equippedHelmetStats;
+public EquipmentStats equippedPantsStats;
+public EquipmentStats equippedBootsStats;
+public EquipmentStats equippedShieldStats;
+
+
 
     public static bool PlayerDead { get; private set; } = false;
 
@@ -100,6 +103,23 @@ private EquipmentStats equippedShieldStats;
             PlayerProgress.ApplyTo(this);
             UpdatePlayerHealth();
         }
+         if (PlayerProgress.savedWeaponStats != null)
+        EquipItemStats(PlayerProgress.savedWeaponStats, Loot.EquipmentType.Sword);
+
+    if (PlayerProgress.savedChestplateStats != null)
+        EquipItemStats(PlayerProgress.savedChestplateStats, Loot.EquipmentType.Chestplate);
+
+    if (PlayerProgress.savedHelmetStats != null)
+        EquipItemStats(PlayerProgress.savedHelmetStats, Loot.EquipmentType.Helmet);
+
+    if (PlayerProgress.savedPantsStats != null)
+        EquipItemStats(PlayerProgress.savedPantsStats, Loot.EquipmentType.Pants);
+
+    if (PlayerProgress.savedBootsStats != null)
+        EquipItemStats(PlayerProgress.savedBootsStats, Loot.EquipmentType.Boots);
+
+    if (PlayerProgress.savedShieldStats != null)
+        EquipItemStats(PlayerProgress.savedShieldStats, Loot.EquipmentType.Shield);
 
         if (dashIconOverlay != null) dashIconOverlay.fillAmount = 0f;
 
@@ -334,6 +354,7 @@ public void EquipItemStats(EquipmentStats stats, Loot.EquipmentType type)
     {
 case Loot.EquipmentType.Sword:
     equippedWeaponStats = stats;
+    PlayerProgress.savedWeaponStats = stats;
     attackDamage = baseAttack + stats.attackPower;
     attackSpeedMultiplier = stats.attackSpeed; // assume attackSpeed is % increase
     Debug.Log($"Equipped Sword → added attack={stats.attackPower}");
@@ -342,24 +363,28 @@ case Loot.EquipmentType.Sword:
 
         case Loot.EquipmentType.Chestplate:
             equippedChestplateStats = stats;
+            PlayerProgress.savedChestplateStats = stats;
             defense = baseDefense + stats.defense;
             Debug.Log($"Equipped Chestplate → defense={defense}");
             break;
 
         case Loot.EquipmentType.Helmet:
             equippedHelmetStats = stats;
+            PlayerProgress.savedHelmetStats = stats;
             defense = baseDefense + stats.defense;
             Debug.Log($"Equipped Helmet → defense={defense}");
             break;
 
         case Loot.EquipmentType.Pants:
             equippedPantsStats = stats;
+            PlayerProgress.savedPantsStats = stats;
             defense = baseDefense + stats.defense;
             Debug.Log($"Equipped Pants → defense={defense}");
             break;
 
         case Loot.EquipmentType.Boots:
             equippedBootsStats = stats;
+            PlayerProgress.savedBootsStats = stats;
             defense = baseDefense + stats.defense;
             moveSpeed = baseMoveSpeed + stats.moveSpeed;
             Debug.Log($"Equipped Boots → defense={defense}, moveSpeed={moveSpeed}");
@@ -367,6 +392,7 @@ case Loot.EquipmentType.Sword:
 
         case Loot.EquipmentType.Shield:
             equippedShieldStats = stats;
+            PlayerProgress.savedShieldStats = stats;
             defense = baseDefense + stats.defense;
             Debug.Log($"Equipped Shield → defense={defense}");
             break;
@@ -413,6 +439,9 @@ case Loot.EquipmentType.Sword:
             break;
     }
 }
+
+
+
 
 
 }
