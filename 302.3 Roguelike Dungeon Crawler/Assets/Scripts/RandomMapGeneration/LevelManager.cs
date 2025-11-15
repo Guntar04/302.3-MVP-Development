@@ -25,6 +25,17 @@ public class LevelManager : MonoBehaviour
     [Tooltip("Seconds to show the Next Level UI when transitioning floors.")]
     public float levelUIDisplaySeconds = 3f;
 
+    [Header("Player Stats")]
+public int enemiesKilled = 0;
+
+// Call this whenever an enemy dies
+public void RegisterEnemyKill()
+{
+    enemiesKilled++;
+    Debug.Log($"Enemy killed! Total: {enemiesKilled}");
+}
+
+
     // cached controller (optional). If present, we'll call ShowTemporary on it instead of manually toggling GameObject.
     private NextLevelUIController nextLevelUIController;
     // helper to lazily resolve references in the just-loaded scene
@@ -121,6 +132,12 @@ public class LevelManager : MonoBehaviour
         // Increment floor
         currentFloor++;
         Debug.Log($"LevelManager: Generating floor {currentFloor}...");
+
+        if (PlayerStats.Instance != null)
+        {
+            PlayerStats.Instance.floorsCompleted = currentFloor;
+            Debug.Log($"PlayerStats: floorsCompleted updated to {PlayerStats.Instance.floorsCompleted}");
+        }
 
         // Small frame
         yield return null;

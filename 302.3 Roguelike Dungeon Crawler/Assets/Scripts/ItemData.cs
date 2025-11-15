@@ -1,13 +1,12 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "New Item", menuName = "Inventory/Item")]
+[CreateAssetMenu(fileName = "NewItem", menuName = "Inventory/Item")]
 public class ItemData : ScriptableObject
 {
-    public string itemName;      
-    public Sprite icon;          
-    public ItemType itemType;    
+    public string itemName;
+    public Sprite icon;
+    public ItemType itemType;
+    public EquipmentStats equipmentStats;   // link the stats object here
 
-    [Header("Stats")]
-    public int shieldBonus;  // e.g. +20 shield from armor
-    public int healthBonus;  // optional, for items that boost HP
+    [HideInInspector] public Loot originalLoot; // optional reference
 }

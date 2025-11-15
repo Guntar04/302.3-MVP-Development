@@ -1,83 +1,83 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
-public class EquipSlot : MonoBehaviour
+public class EquipSlot : MonoBehaviour, IPointerClickHandler
 {
     [Header("Slot Info")]
-    public ItemType acceptedType;               // e.g. Helmet, Chestplate, Shield
-    public Image itemIcon;                      // icon for the equipped item
-    public PlayerStats playerStats;             // reference to PlayerStats
-    public InventoryManager inventoryManager;   // reference to return items to inventory
-    public PlayerHUD playerHUD;                 // reference to update shield/health bars
+    public ItemType acceptedType;
+    public Image itemIcon;
+    public PlayerController playerController;
+    public InventoryUIController inventoryController;
 
-    private ItemData currentItem;               // currently equipped item
+    private ItemData currentItem;
+    private EquipmentStats currentItemStats;
 
     private void Awake()
     {
-        ClearSlot(); // start empty
+        if (inventoryController == null)
+            inventoryController = FindObjectOfType<InventoryUIController>();
+
+        ClearSlot();
     }
 
-    /// <summary>
-    /// Try to equip a new item
-    /// </summary>
-    public bool AcceptItem(ItemData newItem)
+    public bool AcceptItem(ItemData newItem, EquipmentStats stats, Loot.EquipmentType lootType)
     {
-        if (newItem == null) return false;
+        if (newItem == null || stats == null) return false;
 
-        if (newItem.itemType != acceptedType)
-        {
-            Debug.Log($"{newItem.itemName} cannot be equipped in {acceptedType} slot!");
-            return false; // wrong type
-        }
+        ItemType convertedType = ConvertToItemType(lootType);
+        if (convertedType != acceptedType) return false;
 
-        // Unequip current item first
-        if (currentItem != null)
-            Unequip();
+        if (currentItem != null) Unequip();
 
-        // Equip the new item
         currentItem = newItem;
+        currentItemStats = stats;
+
+        if (playerController == null)
+            playerController = FindObjectOfType<PlayerController>();
+
+        playerController?.EquipItemStats(currentItemStats, lootType);
+
         UpdateIcon();
-
-        // Update player stats
-        if (playerStats != null)
-            playerStats.EquipItem(newItem);
-
-        // Update HUD if needed
-        if (playerHUD != null)
-            playerHUD.UpdateHUD();
-
-        Debug.Log($"Equipped {newItem.itemName} in {acceptedType} slot!");
         return true;
     }
 
-    /// <summary>
-    /// Unequip current item and return to inventory
-    /// </summary>
-    public void Unequip()
+public void Unequip()
 {
     if (currentItem == null) return;
 
-    // Return to inventory
-    if (inventoryManager != null)
-        inventoryManager.AddItem(currentItem);
+    // Ensure inventoryController exists
+    if (inventoryController == null)
+        inventoryController = FindObjectOfType<InventoryUIController>();
 
-    // Update player stats
-    if (playerStats != null)
+    // Try to return item to inventory
+    bool added = inventoryController != null && inventoryController.AddItem(currentItem);
+    if (!added)
+        Debug.LogWarning($"Could not unequip {currentItem.itemName}: Inventory full!");
+
+    // Reset player stats
+    if (playerController != null && currentItemStats != null)
     {
-        playerStats.UnequipItem(currentItem); // important for shield/health recalculation
-        // playerStats.NotifyStatsChanged(); // not needed if UnequipItem already calls it
+        Loot.EquipmentType lootType = ConvertToLootType(currentItem.itemType);
+        playerController.UnequipItemStats(lootType);
     }
 
-    ClearSlot();
+    // Clear slot
+    currentItem = null;
+    currentItemStats = null;
+    UpdateIcon();
 }
 
 
-    /// <summary>
-    /// Clear slot visually and logically
-    /// </summary>
-    public void ClearSlot()
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        Unequip();
+    }
+
+    private void ClearSlot()
     {
         currentItem = null;
+        currentItemStats = null;
         if (itemIcon != null)
         {
             itemIcon.sprite = null;
@@ -85,38 +85,40 @@ public class EquipSlot : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Get the currently equipped item
-    /// </summary>
-    public ItemData GetEquippedItem() => currentItem;
-
-    /// <summary>
-    /// Update icon based on current item
-    /// </summary>
     private void UpdateIcon()
     {
-        if (itemIcon == null) return;
-
-        if (currentItem != null)
+        if (itemIcon != null)
         {
-            itemIcon.sprite = currentItem.icon;
-            itemIcon.enabled = true;
-        }
-        else
-        {
-            itemIcon.sprite = null;
-            itemIcon.enabled = false;
+            itemIcon.sprite = currentItem != null ? currentItem.icon : null;
+            itemIcon.enabled = currentItem != null;
         }
     }
 
-    /// <summary>
-    /// Call this when the slot is clicked
-    /// </summary>
-    public void OnClickSlot()
+    public ItemType ConvertToItemType(Loot.EquipmentType lootType)
     {
-        if (currentItem != null)
+        switch (lootType)
         {
-            Unequip();
+            case Loot.EquipmentType.Sword: return ItemType.Weapon;
+            case Loot.EquipmentType.Chestplate: return ItemType.Chestplate;
+            case Loot.EquipmentType.Helmet: return ItemType.Helmet;
+            case Loot.EquipmentType.Pants: return ItemType.Pants;
+            case Loot.EquipmentType.Boots: return ItemType.Boots;
+            case Loot.EquipmentType.Shield: return ItemType.Shield;
+            default: return ItemType.Consumable;
+        }
+    }
+
+    public static Loot.EquipmentType ConvertToLootType(ItemType itemType)
+    {
+        switch (itemType)
+        {
+            case ItemType.Weapon: return Loot.EquipmentType.Sword;
+            case ItemType.Chestplate: return Loot.EquipmentType.Chestplate;
+            case ItemType.Helmet: return Loot.EquipmentType.Helmet;
+            case ItemType.Pants: return Loot.EquipmentType.Pants;
+            case ItemType.Boots: return Loot.EquipmentType.Boots;
+            case ItemType.Shield: return Loot.EquipmentType.Shield;
+            default: return Loot.EquipmentType.Sword;
         }
     }
 }
