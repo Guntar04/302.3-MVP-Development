@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement; // <--- added
 
 public class UIManager : MonoBehaviour
 {
@@ -16,11 +17,47 @@ public class UIManager : MonoBehaviour
     public GameObject shieldContainer;
     public ShieldUI shieldUI;
 
+    [Header("Scene Persistence")]
+    [Tooltip("List of scene names where the HUD should persist. If the loaded scene is NOT in this list the UIManager will self-destruct.")]
+    public string[] keepOnScenes = new string[] { "SampleScene" }; // set your main gameplay scene name(s) here
+
     private void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
         DontDestroyOnLoad(gameObject);
+
+        // subscribe to scene loaded so we can destroy the persistent HUD when leaving gameplay scenes
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDestroy()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        // if keepOnScenes contains the loaded scene, keep the HUD, otherwise destroy it
+        if (keepOnScenes != null && keepOnScenes.Length > 0)
+        {
+            bool keep = false;
+            foreach (var s in keepOnScenes)
+            {
+                if (string.Equals(s, scene.name, System.StringComparison.OrdinalIgnoreCase))
+                {
+                    keep = true;
+                    break;
+                }
+            }
+            if (!keep)
+            {
+                Debug.Log($"UIManager: scene '{scene.name}' not in keepOnScenes -> destroying HUD");
+                SceneManager.sceneLoaded -= OnSceneLoaded;
+                Instance = null;
+                Destroy(gameObject);
+            }
+        }
     }
 
     // Call after a new player is spawned so UI rebinds to the new player instance

@@ -16056,6 +16056,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: NextLevelUI
       objectReference: {fileID: 0}
+    - target: {fileID: 6371758405576593428, guid: c899dcb990fc0c7459932c74e10c3e82, type: 3}
+      propertyPath: m_text
+      value: 'Level:'
+      objectReference: {fileID: 0}
     - target: {fileID: 9013235195054371163, guid: c899dcb990fc0c7459932c74e10c3e82, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -18295,6 +18299,8 @@ MonoBehaviour:
   healthSlider: {fileID: 1612491808}
   shieldContainer: {fileID: 39685687}
   shieldUI: {fileID: 318413450}
+  keepOnScenes:
+  - SampleScene
 --- !u!1001 &2834915079059536785
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -18382,14 +18388,6 @@ PrefabInstance:
     - target: {fileID: 1593193965536754009, guid: 1b544575fdf60f34594e58cc783c65e3, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5552854245002039019, guid: 1b544575fdf60f34594e58cc783c65e3, type: 3}
-      propertyPath: verboseLogging
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5552854245002039019, guid: 1b544575fdf60f34594e58cc783c65e3, type: 3}
-      propertyPath: overrideMemberName
-      value: Current Shields
       objectReference: {fileID: 0}
     - target: {fileID: 8873206027046099596, guid: 1b544575fdf60f34594e58cc783c65e3, type: 3}
       propertyPath: m_Name
