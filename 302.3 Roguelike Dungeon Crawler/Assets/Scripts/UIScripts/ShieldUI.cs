@@ -354,7 +354,7 @@ public class ShieldUI : MonoBehaviour
     // Update icons (call from event or poll)
     private void UpdateShieldUI(int currentShields)
     {
-        if (verboseLogging) Debug.Log($"ShieldUI: UpdateShieldUI -> {currentShields}");
+        //if (verboseLogging) Debug.Log($"ShieldUI: UpdateShieldUI -> {currentShields}");
 
         if (shieldIcons == null || shieldIcons.Length == 0) return;
 
@@ -382,16 +382,16 @@ public class ShieldUI : MonoBehaviour
     private void RefreshFromBound()
     {
         // ignore prefab/asset references (they live in no loaded scene)
-        if (playerShield != null)
-        {
-            if (!playerShield.gameObject.scene.IsValid())
-            {
-                if (verboseLogging) Debug.Log($"ShieldUI.RefreshFromBound: ignoring prefab asset playerShield (instanceID {playerShield.GetInstanceID()})");
-                return;
-            }
-            UpdateShieldUI(playerShield.CurrentShields);
-            return;
-        }
+        // if (playerShield != null)
+        // {
+        //     if (!playerShield.gameObject.scene.IsValid())
+        //     {
+        //         if (verboseLogging) Debug.Log($"ShieldUI.RefreshFromBound: ignoring prefab asset playerShield (instanceID {playerShield.GetInstanceID()})");
+        //         return;
+        //     }
+        //     UpdateShieldUI(playerShield.CurrentShields);
+        //     return;
+        // }
 
         if (boundShieldComponent != null)
         {
