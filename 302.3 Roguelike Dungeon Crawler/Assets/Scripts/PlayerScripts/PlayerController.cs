@@ -80,49 +80,48 @@ public EquipmentStats equippedShieldStats;
     public static string EnemyName;
     public static Sprite EnemySprite;
 }
-
+    
 
     private void Start()
     {
+        // enforce cap on configured maxHealth
         maxHealth = Mathf.Clamp(maxHealth, 1, MAX_HEALTH_CAP);
 
+        // Dynamically assign the DashIconOverlay from the UIManager
         if (UIManager.Instance != null)
         {
             dashIconOverlay = UIManager.Instance.dashIconOverlay;
+            // Try to get the health slider from the UIManager if available.
             if (healthSlider == null && UIManager.Instance.healthSlider != null)
             {
                 healthSlider = UIManager.Instance.healthSlider;
+                // initialize slider values
                 healthSlider.maxValue = maxHealth;
+                // make sure current health respects cap
                 health = Mathf.Clamp(health, 0, maxHealth);
                 healthSlider.value = health;
             }
         }
+        else
+        {
+            Debug.LogError("UIManager is not present in the scene.");
+        }
 
+        // Apply saved progress (if any) so spawned player receives previous HP/shields
         if (PlayerProgress.HasSaved)
         {
             PlayerProgress.ApplyTo(this);
+            // ensure slider and UI reflect applied values
             UpdatePlayerHealth();
         }
-         if (PlayerProgress.savedWeaponStats != null)
-        EquipItemStats(PlayerProgress.savedWeaponStats, Loot.EquipmentType.Sword);
 
-    if (PlayerProgress.savedChestplateStats != null)
-        EquipItemStats(PlayerProgress.savedChestplateStats, Loot.EquipmentType.Chestplate);
+        // Initialize the dash icon overlay to show the ability is not ready
+        if (dashIconOverlay != null)
+        {
+            dashIconOverlay.fillAmount = 0f; // Fully filled (ability not ready)
+        }
 
-    if (PlayerProgress.savedHelmetStats != null)
-        EquipItemStats(PlayerProgress.savedHelmetStats, Loot.EquipmentType.Helmet);
-
-    if (PlayerProgress.savedPantsStats != null)
-        EquipItemStats(PlayerProgress.savedPantsStats, Loot.EquipmentType.Pants);
-
-    if (PlayerProgress.savedBootsStats != null)
-        EquipItemStats(PlayerProgress.savedBootsStats, Loot.EquipmentType.Boots);
-
-    if (PlayerProgress.savedShieldStats != null)
-        EquipItemStats(PlayerProgress.savedShieldStats, Loot.EquipmentType.Shield);
-
-        if (dashIconOverlay != null) dashIconOverlay.fillAmount = 0f;
-
+        // cache original sprite color so flashes always restore to the correct value
         var sr = GetComponent<SpriteRenderer>();
         if (sr != null) spriteOriginalColor = sr.color;
     }
@@ -130,122 +129,181 @@ public EquipmentStats equippedShieldStats;
     private void Update()
     {
         if (isDead) return;
-        if (!isDashing)
-        {
-            HandleMovementInput();
+         if (!isDashing)
+         {
+             HandleMovementInput();
 
-            if (Input.GetKeyDown(KeyCode.Space))
-                StartCoroutine(Dash());
+             if (Input.GetKeyDown(KeyCode.Space))
+                 StartCoroutine(Dash());
 
-            if (Input.GetMouseButtonDown(0) && !isAttacking)
-                StartCoroutine(PlayerAttack());
-        }
+             if (Input.GetMouseButtonDown(0) && !isAttacking)
+                 StartCoroutine(PlayerAttack());
+         }
     }
 
     private void FixedUpdate()
     {
         if (isDead) return;
-        if (!isDashing) Move();
+         if (!isDashing)
+             Move();
     }
 
     private void HandleMovementInput()
     {
-        float moveX = 0f, moveY = 0f;
+        float moveX = 0f;
+        float moveY = 0f;
+
         if (Input.GetKey(KeyCode.W)) moveY = 1f;
         if (Input.GetKey(KeyCode.S)) moveY = -1f;
         if (Input.GetKey(KeyCode.A)) moveX = -1f;
         if (Input.GetKey(KeyCode.D)) moveX = 1f;
 
         moveDirection = new Vector2(moveX, moveY).normalized;
-        if (moveDirection != Vector2.zero) lastMoveDirection = moveDirection;
+
+        if (moveDirection != Vector2.zero)
+            lastMoveDirection = moveDirection;
 
         if (!isAttacking)
         {
-            if (moveDirection == Vector2.zero) animator.Play("Idle");
-            else if (moveY > 0) animator.Play("Run_Up");
-            else if (moveY < 0) animator.Play("Run_Down");
-            else if (moveX > 0) animator.Play("Run_Right");
-            else if (moveX < 0) animator.Play("Run_Left");
+            if (moveDirection == Vector2.zero)
+            {
+                animator.Play("Idle");
+            }
+            else
+            {
+                if (moveY > 0)
+                    animator.Play("Run_Up");
+                else if (moveY < 0)
+                    animator.Play("Run_Down");
+                else if (moveX > 0)
+                    animator.Play("Run_Right");
+                else if (moveX < 0)
+                    animator.Play("Run_Left");
+            }
         }
     }
 
-  public IEnumerator PlayerAttack()
+    private IEnumerator PlayerAttack()
     {
-        if (isAttacking) yield break;
         isAttacking = true;
 
-        // Attack animation and hit detection code
+        // Get mouse position in world space
         Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         Vector2 directionToMouse = (mouseWorldPos - transform.position).normalized;
 
+        // Determine attack animation and direction
         string attackAnim = "Attack_Down";
         Vector2 attackDir = Vector2.zero;
 
         if (Mathf.Abs(directionToMouse.x) > Mathf.Abs(directionToMouse.y))
         {
-            attackAnim = directionToMouse.x > 0 ? "Attack_Right" : "Attack_Left";
-            attackDir = directionToMouse.x > 0 ? Vector2.right : Vector2.left;
+            if (directionToMouse.x > 0)
+            {
+                attackAnim = "Attack_Right";
+                attackDir = Vector2.right;
+            }
+            else
+            {
+                attackAnim = "Attack_Left";
+                attackDir = Vector2.left;
+            }
         }
         else
         {
-            attackAnim = directionToMouse.y > 0 ? "Attack_Up" : "Attack_Down";
-            attackDir = directionToMouse.y > 0 ? Vector2.up : Vector2.down;
+            if (directionToMouse.y > 0)
+            {
+                attackAnim = "Attack_Up";
+                attackDir = Vector2.up;
+            }
+            else
+            {
+                attackAnim = "Attack_Down";
+                attackDir = Vector2.down;
+            }
         }
 
+        // Play animation
         animator.Play(attackAnim);
 
+        // Calculate attack hitbox
         Vector2 attackOrigin = (Vector2)transform.position + attackDir * attackRange * 0.5f;
         Vector2 attackSize = attackDir.x != 0
-            ? new Vector2(attackRange, attackRadius)
-            : new Vector2(attackRadius, attackRange);
+            ? new Vector2(attackRange, attackRadius)  // horizontal attack
+            : new Vector2(attackRadius, attackRange); // vertical attack
 
+        // Detect enemies in hitbox
         Collider2D[] hitEnemies = Physics2D.OverlapBoxAll(attackOrigin, attackSize, 0f, enemyLayer);
+        //Debug.Log($"Number of enemies detected: {hitEnemies.Length}");
 
         foreach (Collider2D enemy in hitEnemies)
         {
             AIController ai = enemy.GetComponent<AIController>();
             if (ai != null)
             {
+                // Determine if the attack is a critical hit
                 bool isCriticalHit = Random.value < criticalHitChance;
                 int damage = isCriticalHit ? attackDamage * 2 : attackDamage;
+
                 ai.TakeDamage(damage);
 
-                if (isCriticalHit && criticalHitUIPrefab != null)
+                if (isCriticalHit)
                 {
-                    var canvas = FindFirstObjectByType<Canvas>();
-                    if (canvas != null)
+                    Debug.Log("Critical Hit! Damage: " + damage);
+
+                    // Display critical hit UI
+                    if (criticalHitUIPrefab != null)
                     {
-                        var critUI = Instantiate(criticalHitUIPrefab, canvas.transform);
-                        critUI.transform.position = Camera.main.WorldToScreenPoint(transform.position + Vector3.up);
-                        Destroy(critUI, criticalHitUIDuration);
+                        var canvas = FindFirstObjectByType<Canvas>();
+                        if (canvas != null)
+                        {
+                            var criticalHitUIInstance = Instantiate(criticalHitUIPrefab, canvas.transform);
+                            var rectTransform = criticalHitUIInstance.GetComponent<RectTransform>();
+
+                            if (rectTransform != null)
+                            {
+                                Vector3 worldPosition = transform.position + new Vector3(0, 1, 0); // Offset by 1 unit vertically
+                                rectTransform.position = Camera.main.WorldToScreenPoint(worldPosition); // Convert world position to screen position
+                                Destroy(criticalHitUIInstance, criticalHitUIDuration); // Automatically destroy the UI after the duration
+                            }
+                            else
+                            {
+                                Debug.LogError("Critical Hit UI prefab does not have a RectTransform component.");
+                            }
+                        }
+                        else
+                        {
+                            Debug.LogError("No Canvas found in the scene.");
+                        }
+                    }
+                    else
+                    {
+                        Debug.LogError("CriticalHitUIPrefab is not assigned in the Inspector.");
                     }
                 }
             }
         }
 
-float animationTime = 0.3f; // or however long your attack animation lasts
-
-// Make cooldown = max(animationTime, adjusted speed)
-float cooldown = Mathf.Max(animationTime, baseAttackCooldown / attackSpeedMultiplier);
-yield return new WaitForSeconds(cooldown);
-
+        yield return new WaitForSeconds(0.3f); // adjust to match animation length
         isAttacking = false;
     }
 
-
-
-    private void Move() => transform.Translate(moveDirection * moveSpeed * Time.fixedDeltaTime);
+    private void Move()
+    {
+        transform.Translate(moveDirection * moveSpeed * Time.fixedDeltaTime);
+    }
 
     private IEnumerator Dash()
     {
         if (!canDash) yield break;
+
         canDash = false;
         isDashing = true;
-        isInvincible = true;
+        isInvincible = true; // Enable invincibility during dash
 
         Vector2 dashDirection = moveDirection == Vector2.zero ? lastMoveDirection : moveDirection;
         float dashEndTime = Time.time + dashDuration;
 
+        // Perform the dash
         while (Time.time < dashEndTime)
         {
             transform.Translate(dashDirection * dashSpeed * Time.deltaTime);
@@ -253,96 +311,200 @@ yield return new WaitForSeconds(cooldown);
         }
 
         isDashing = false;
-        isInvincible = false;
+        isInvincible = false; // Disable invincibility after dash
+
+        // Start cooldown visual
         StartCoroutine(DashCooldownVisual());
+
         yield return new WaitForSeconds(dashCooldown);
         canDash = true;
     }
 
+    // Cooldown visual logic
     private IEnumerator DashCooldownVisual()
     {
         float elapsedTime = 0f;
+
         while (elapsedTime < dashCooldown)
         {
             elapsedTime += Time.deltaTime;
-            dashIconOverlay.fillAmount = 1f - (elapsedTime / dashCooldown);
+            float fillAmount = 1f - (elapsedTime / dashCooldown); // Calculate fill amount
+            dashIconOverlay.fillAmount = fillAmount; // Update overlay fill amount
             yield return null;
         }
-        dashIconOverlay.fillAmount = 0f;
+
+        dashIconOverlay.fillAmount = 0f; // Reset overlay when cooldown is complete
     }
 
-    public GameObject lastAttacker; 
-
-  public void TakeDamage(int damage, GameObject attacker = null)
-{
-    if (isInvincible) return;
-    lastAttacker = attacker;
-
-    health -= damage;
-
-    if (health <= 0 && !isDead)
+    public void TakeDamage(int damage)
     {
-        health = 0;
-        isDead = true;
-        PlayerDead = true;
-        StartCoroutine(HandleDeathAndLoad());
-    }
+        // First check shield component (blocks one attack if available)
+        var shield = GetComponent<Shield>();
+        if (shield != null && shield.TryConsumeShield())
+        {
+            Debug.Log("PlayerShield: blocked incoming damage.");
+            // Optional: play shield block VFX/sound/animation here
+            return; // damage blocked, do not reduce HP
+        }
 
-    UpdatePlayerHealth();
+        if (isInvincible) return; // Prevent damage if the player is invincible
+
+        health -= damage;
+
+        Debug.Log($"Player Health: {health}");
+        if (health <= 0 && !isDead)
+        {
+            health = 0;
+            isDead = true;
+            PlayerDead = true;                 // notify others
+            Debug.Log("Player has died.");
+            isInvincible = true;               // prevent further damage
+
+            // disable collisions/physics so enemies stop detecting and hitting the player
+            var col2d = GetComponent<Collider2D>();
+            if (col2d != null) col2d.enabled = false;
+            var rb2d = GetComponent<Rigidbody2D>();
+            if (rb2d != null) rb2d.simulated = false;
+
+            // remove the "Player" tag so tag-based targeting won't find it
+            try { gameObject.tag = "Untagged"; } catch { }
+            // stop any hit flash and restore original color
+if (flashCoroutine != null)
+{
+    StopCoroutine(flashCoroutine);
+    flashCoroutine = null;
+    var sr = GetComponent<SpriteRenderer>();
+    if (sr != null) sr.color = spriteOriginalColor;
 }
-
-private IEnumerator HandleDeathAndLoad()
+// optionally disable other player components that drive targeting/input here
+// e.g. GetComponent<PlayerController>().enabled = false; (don't disable this script if it controls death coroutine)
+// play death and start coroutine that waits for animation end then loads LoseMenu
+if (animator != null)
 {
-    // Save enemy info to GameData
-    if (lastAttacker != null)
-{
-    var ai = lastAttacker.GetComponent<AIController>();
-    if (ai != null)
-    {
-         GameData.EnemyName = ai.displayName; 
-    }
-
-    var sr = lastAttacker.GetComponent<SpriteRenderer>();
-    if (sr != null) GameData.EnemySprite = sr.sprite;
+    // start the death coroutine (keeps waiting for animation to finish)
+    if (deathCoroutine != null) StopCoroutine(deathCoroutine);
+    deathCoroutine = StartCoroutine(HandleDeathAndLoad());
 }
 else
-    {
-        GameData.EnemyName = "Unknown";
-        GameData.EnemySprite = null;
-    }
-
-
-    
-    // Play death animation
-    animator?.Play("Death");
-    while (!animator.GetCurrentAnimatorStateInfo(0).IsName("Death")) yield return null;
-    while (animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1f) yield return null;
-
-    var srPlayer = GetComponent<SpriteRenderer>();
-    if (srPlayer != null) srPlayer.enabled = false;
-    if (animator != null) animator.enabled = false;
-
-    PlayerDead = false;
-
-    // Load lose screen
+{
+    Debug.LogError("Animator is not assigned to PlayerController. Loading LoseMenu immediately.");
     SceneManager.LoadScene("LoseMenu");
 }
+return;
+        }
+        else
+        {
+            Debug.Log($"Player took {damage} damage. Remaining health: {health}");
+            if (flashCoroutine != null)
+            {
+                StopCoroutine(flashCoroutine);
+                flashCoroutine = null;
+                var sr = GetComponent<SpriteRenderer>();
+                if (sr != null) sr.color = spriteOriginalColor;
+            }
+            flashCoroutine = StartCoroutine(FlashRedOnHit());
+        }
+        UpdatePlayerHealth();
+    }
+    
+    private IEnumerator HandleDeathAndLoad()
+    {
+        // play the death animation
+        animator.Play("Death");
 
+        // wait until the animator is actually in the Death state
+        while (!animator.GetCurrentAnimatorStateInfo(0).IsName("Death"))
+            yield return null;
 
+        // wait for the death animation to finish (normalizedTime >= 1)
+        while (animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1f)
+            yield return null;
+
+        // Animation finished — immediately hide the player so the animation won't replay
+        // Disable SpriteRenderer and the Animator to prevent further state changes
+        var sr = GetComponent<SpriteRenderer>();
+        if (sr != null) sr.enabled = false;
+
+        if (animator != null) animator.enabled = false;
+
+        // small buffer then load lose menu
+        yield return new WaitForSeconds(0.15f);
+
+        // reset static flag (scene change will unload but keep defensive)
+        PlayerDead = false;
+
+        SceneManager.LoadScene("LoseMenu");
+    }
+
+    // Public heal method that other scripts (potions) should call.
+    // This guarantees health never exceeds maxHealth and the global cap.
     public void Heal(int amount)
     {
+        if (amount <= 0) return;
         health = Mathf.Clamp(health + amount, 0, maxHealth);
         UpdatePlayerHealth();
     }
 
+    private IEnumerator FlashRedOnHit()
+    {
+        SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer != null)
+        {
+            // set to red, wait, then restore cached original color
+            spriteRenderer.color = Color.red;
+            yield return new WaitForSeconds(0.1f);
+            spriteRenderer.color = spriteOriginalColor;
+            flashCoroutine = null;
+        }
+        else
+        {
+            Debug.LogError("SpriteRenderer is not assigned to PlayerController.");
+        }
+    }
+
     public void UpdatePlayerHealth()
     {
+        // Enforce global caps before updating UI
+        // clamp health to valid range (ensures external direct writes get corrected)
         health = Mathf.Clamp(health, 0, Mathf.Min(maxHealth, MAX_HEALTH_CAP));
+
         if (healthSlider != null)
         {
+            // ensure slider ranges are correct
             healthSlider.maxValue = maxHealth;
             healthSlider.value = health;
         }
+        else
+        {
+            // fallback: try to find a Slider named "HealthUI" in the scene (non-Editor-safe)
+            var go = GameObject.Find("HealthUI");
+            if (go != null)
+            {
+                var s = go.GetComponent<UnityEngine.UI.Slider>();
+                if (s != null)
+                {
+                    healthSlider = s;
+                    healthSlider.maxValue = maxHealth;
+                    healthSlider.value = health;
+                }
+            }
+        }
+    }
+
+    // Draw attack hitbox in Scene view for debugging
+    private void OnDrawGizmosSelected()
+    {
+        if (!Application.isPlaying) return;
+
+        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector2 dir = (mouseWorldPos - transform.position).normalized;
+        Vector2 attackPoint = (Vector2)transform.position + dir * attackRange * 0.5f;
+
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireCube(attackPoint, new Vector3(
+            dir.x != 0 ? attackRange : attackRadius,
+            dir.y != 0 ? attackRange : attackRadius,
+            0f));
     }
 
     // ---- EQUIP/UNEQUIP ----
@@ -439,9 +601,5 @@ case Loot.EquipmentType.Sword:
             break;
     }
 }
-
-
-
-
-
 }
+

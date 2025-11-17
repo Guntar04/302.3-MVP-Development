@@ -59,11 +59,11 @@ public class PlayerProgress : MonoBehaviour
             shieldCount = TryGetShieldCountStatic(pc.gameObject);
             HasSaved = true;
             savedWeaponStats = pc.equippedWeaponStats;
-savedChestplateStats = pc.equippedChestplateStats;
-savedHelmetStats = pc.equippedHelmetStats;
-savedPantsStats = pc.equippedPantsStats;
-savedBootsStats = pc.equippedBootsStats;
-savedShieldStats = pc.equippedShieldStats;
+            savedChestplateStats = pc.equippedChestplateStats;
+            savedHelmetStats = pc.equippedHelmetStats;
+            savedPantsStats = pc.equippedPantsStats;
+            savedBootsStats = pc.equippedBootsStats;
+            savedShieldStats = pc.equippedShieldStats;
 
         }
     }

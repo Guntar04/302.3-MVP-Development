@@ -52,7 +52,7 @@ public class ButtonScaler : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     public void OnStartButtonClicked()
 {
     // Only proceed if a character has been selected
-    CharacterSelection selection = FindObjectOfType<CharacterSelection>();
+    CharacterSelection selection = FindFirstObjectByType<CharacterSelection>();
     if (selection != null && selection.CanPressStart()) // add a public getter
     {
         Debug.Log("Starting the game from ButtonScaler");

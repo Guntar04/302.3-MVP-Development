@@ -16,7 +16,7 @@ public class EquipSlot : MonoBehaviour, IPointerClickHandler
     private void Awake()
     {
         if (inventoryController == null)
-            inventoryController = FindObjectOfType<InventoryUIController>();
+            inventoryController = FindFirstObjectByType<InventoryUIController>();
 
         ClearSlot();
     }
@@ -34,7 +34,7 @@ public class EquipSlot : MonoBehaviour, IPointerClickHandler
         currentItemStats = stats;
 
         if (playerController == null)
-            playerController = FindObjectOfType<PlayerController>();
+            playerController = FindFirstObjectByType<PlayerController>();
 
         playerController?.EquipItemStats(currentItemStats, lootType);
 
@@ -48,7 +48,7 @@ public void Unequip()
 
     // Ensure inventoryController exists
     if (inventoryController == null)
-        inventoryController = FindObjectOfType<InventoryUIController>();
+        inventoryController = FindFirstObjectByType<InventoryUIController>();
 
     // Try to return item to inventory
     bool added = inventoryController != null && inventoryController.AddItem(currentItem);
