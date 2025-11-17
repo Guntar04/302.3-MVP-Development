@@ -84,8 +84,21 @@ public EquipmentStats equippedShieldStats;
 
     private void Start()
     {
+        Debug.Log("Base Defense: " + baseDefense);
+Debug.Log("Base Attack: " + baseAttack);
+
         // enforce cap on configured maxHealth
         maxHealth = Mathf.Clamp(maxHealth, 1, MAX_HEALTH_CAP);
+
+     equippedWeaponStats = PlayerProgress.savedWeaponStats;
+    equippedChestplateStats = PlayerProgress.savedChestplateStats;
+    equippedHelmetStats = PlayerProgress.savedHelmetStats;
+    equippedPantsStats = PlayerProgress.savedPantsStats;
+    equippedBootsStats = PlayerProgress.savedBootsStats;
+    equippedShieldStats = PlayerProgress.savedShieldStats;
+
+    // Recalculate stats
+    UpdatePlayerStats();
 
         // Dynamically assign the DashIconOverlay from the UIManager
         if (UIManager.Instance != null)
@@ -507,99 +520,124 @@ return;
             0f));
     }
 
-    // ---- EQUIP/UNEQUIP ----
+   // Apply equipped item stats locally (without touching PlayerProgress)
+private void ApplyStats(EquipmentStats stats, Loot.EquipmentType type)
+{
+    if (stats == null) return;
+
+    switch (type)
+    {
+        case Loot.EquipmentType.Sword:
+            attackDamage = baseAttack + stats.attackPower;
+            attackSpeedMultiplier = stats.attackSpeed;
+            break;
+        case Loot.EquipmentType.Chestplate:
+            defense = baseDefense + stats.defense;
+            break;
+        case Loot.EquipmentType.Helmet:
+            defense = baseDefense + stats.defense;
+            break;
+        case Loot.EquipmentType.Pants:
+            defense = baseDefense + stats.defense;
+            moveSpeed = baseMoveSpeed + stats.moveSpeed;
+            break;
+        case Loot.EquipmentType.Boots:
+            defense = baseDefense + stats.defense;
+            moveSpeed = baseMoveSpeed + stats.moveSpeed;
+            break;
+        case Loot.EquipmentType.Shield:
+            defense = baseDefense + stats.defense;
+            break;
+    }
+}
+
+// Equip an item actively (player pressed "equip") — updates PlayerProgress
 public void EquipItemStats(EquipmentStats stats, Loot.EquipmentType type)
 {
     if (stats == null) return;
 
     switch (type)
     {
-case Loot.EquipmentType.Sword:
-    equippedWeaponStats = stats;
-    PlayerProgress.savedWeaponStats = stats;
-    attackDamage = baseAttack + stats.attackPower;
-    attackSpeedMultiplier = stats.attackSpeed; // assume attackSpeed is % increase
-    Debug.Log($"Equipped Sword → added attack={stats.attackPower}");
-    Debug.Log($"Equipped Sword → attackDamage={attackDamage}, attackSpeedMultiplier={attackSpeedMultiplier}");
-    break;
-
+        case Loot.EquipmentType.Sword:
+            equippedWeaponStats = stats;
+            PlayerProgress.savedWeaponStats = stats;
+            break;
         case Loot.EquipmentType.Chestplate:
             equippedChestplateStats = stats;
             PlayerProgress.savedChestplateStats = stats;
-            defense = baseDefense + stats.defense;
-            Debug.Log($"Equipped Chestplate → defense={defense}");
             break;
-
         case Loot.EquipmentType.Helmet:
             equippedHelmetStats = stats;
             PlayerProgress.savedHelmetStats = stats;
-            defense = baseDefense + stats.defense;
-            Debug.Log($"Equipped Helmet → defense={defense}");
             break;
-
         case Loot.EquipmentType.Pants:
             equippedPantsStats = stats;
             PlayerProgress.savedPantsStats = stats;
-            defense = baseDefense + stats.defense;
-            Debug.Log($"Equipped Pants → defense={defense}");
             break;
-
         case Loot.EquipmentType.Boots:
             equippedBootsStats = stats;
             PlayerProgress.savedBootsStats = stats;
-            defense = baseDefense + stats.defense;
-            moveSpeed = baseMoveSpeed + stats.moveSpeed;
-            Debug.Log($"Equipped Boots → defense={defense}, moveSpeed={moveSpeed}");
             break;
-
         case Loot.EquipmentType.Shield:
             equippedShieldStats = stats;
             PlayerProgress.savedShieldStats = stats;
-            defense = baseDefense + stats.defense;
-            Debug.Log($"Equipped Shield → defense={defense}");
             break;
     }
+
+    ApplyStats(stats, type);
 }
 
-
-
+// Unequip an item
 public void UnequipItemStats(Loot.EquipmentType type)
 {
     switch (type)
     {
-case Loot.EquipmentType.Sword:
-    equippedWeaponStats = null;
-    attackDamage = baseAttack;
-    attackSpeedMultiplier = 1f;
-    break;
-
-
+        case Loot.EquipmentType.Sword:
+            equippedWeaponStats = null;
+            PlayerProgress.savedWeaponStats = null;
+            break;
         case Loot.EquipmentType.Chestplate:
             equippedChestplateStats = null;
-            defense = baseDefense;
+            PlayerProgress.savedChestplateStats = null;
             break;
-
         case Loot.EquipmentType.Helmet:
             equippedHelmetStats = null;
-            defense = baseDefense;
+            PlayerProgress.savedHelmetStats = null;
             break;
-
         case Loot.EquipmentType.Pants:
             equippedPantsStats = null;
-            defense = baseDefense;
+            PlayerProgress.savedPantsStats = null;
             break;
-
         case Loot.EquipmentType.Boots:
             equippedBootsStats = null;
-            defense = baseDefense;
-            moveSpeed = baseMoveSpeed;
+            PlayerProgress.savedBootsStats = null;
             break;
-
         case Loot.EquipmentType.Shield:
             equippedShieldStats = null;
-            defense = baseDefense;
+            PlayerProgress.savedShieldStats = null;
             break;
     }
-}
+
+    UpdatePlayerStats();
 }
 
+// Recalculate all stats based on currently equipped items
+public void UpdatePlayerStats()
+{
+    // Reset to base
+    attackDamage = baseAttack;
+    defense = baseDefense;
+    moveSpeed = baseMoveSpeed;
+    attackSpeedMultiplier = 1f;
+
+    // Apply whatever is equipped
+    if (equippedWeaponStats != null) ApplyStats(equippedWeaponStats, Loot.EquipmentType.Sword);
+    if (equippedChestplateStats != null) ApplyStats(equippedChestplateStats, Loot.EquipmentType.Chestplate);
+    if (equippedHelmetStats != null) ApplyStats(equippedHelmetStats, Loot.EquipmentType.Helmet);
+    if (equippedPantsStats != null) ApplyStats(equippedPantsStats, Loot.EquipmentType.Pants);
+    if (equippedBootsStats != null) ApplyStats(equippedBootsStats, Loot.EquipmentType.Boots);
+    if (equippedShieldStats != null) ApplyStats(equippedShieldStats, Loot.EquipmentType.Shield);
+}
+
+
+}
