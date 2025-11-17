@@ -6,7 +6,7 @@ public enum ItemType
     Pants,
     Boots,
     Weapon,
-    Block,
+    Shield,
     Consumable,
     Misc
 }

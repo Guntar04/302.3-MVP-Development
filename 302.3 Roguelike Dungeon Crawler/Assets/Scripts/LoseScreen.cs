@@ -24,44 +24,41 @@ public class LoseScreenUI : MonoBehaviour
 
     void Start()
     {
-        // PLACEHOLDER
-        floorText.text = "Floor Reached: 2";
-        enemiesText.text = "Enemies Killed: 8";
-        killedByText.text = "Killed By: Goblin King";
+          int floor = 1;
+          int kills = 0;
 
-   
-        if (killedByImage != null && testEnemySprite != null)
-            {
-                killedByImage.sprite = testEnemySprite;
-                killedByImage.color = Color.white;
-            }
-
-        for (int i = 0; i < lootIcons.Length; i++)
+          if (LevelManager.Instance != null)
         {
-            if (i < testLootSprites.Length && testLootSprites[i] != null)
-            {
-                lootIcons[i].sprite = testLootSprites[i];
-            }
-            else
-            {
-                lootIcons[i].enabled = false; // hide empty ones
-            }
+            floor = LevelManager.Instance.currentFloor;
+              kills = LevelManager.Instance.enemiesKilled;
         }
 
-        tipText.text = "Tip: Blocking reduces more damage than dodging";
-    }
-
-
-    public void UpdateLoseScreen(int floor, int kills, string enemyName, Sprite enemySprite)
-    {
         floorText.text = "Floor Reached: " + floor;
         enemiesText.text = "Enemies Killed: " + kills;
-        killedByText.text = "Killed By: " + enemyName;
+   
+        if (killedByText != null)
+        killedByText.text = "Killed By: " + (GameData.EnemyName ?? "Unknown");
+        
 
-        if (killedByImage != null && enemySprite != null)
+    if (killedByImage != null && GameData.EnemySprite != null)
+    {
+        killedByImage.sprite = GameData.EnemySprite;
+        killedByImage.color = Color.white;
+    }
+
+        for (int i = 0; i < lootIcons.Length; i++)
+    {
+        if (i < GameData.CollectedLoot.Count && GameData.CollectedLoot[i] != null)
         {
-            killedByImage.sprite = enemySprite;
-            killedByImage.color = Color.white;
+            lootIcons[i].sprite = GameData.CollectedLoot[i];
+            lootIcons[i].enabled = true;
+        }
+        else
+        {
+            lootIcons[i].enabled = false; // hide empty slots
         }
     }
+
+    tipText.text = "Tip: Blocking reduces more damage than dodging";
+}
 }

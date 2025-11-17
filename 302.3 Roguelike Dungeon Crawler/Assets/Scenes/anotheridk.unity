@@ -16056,10 +16056,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: NextLevelUI
       objectReference: {fileID: 0}
-    - target: {fileID: 6371758405576593428, guid: c899dcb990fc0c7459932c74e10c3e82, type: 3}
-      propertyPath: m_text
-      value: 'Level:'
-      objectReference: {fileID: 0}
     - target: {fileID: 9013235195054371163, guid: c899dcb990fc0c7459932c74e10c3e82, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -18299,8 +18295,6 @@ MonoBehaviour:
   healthSlider: {fileID: 1612491808}
   shieldContainer: {fileID: 39685687}
   shieldUI: {fileID: 318413450}
-  keepOnScenes:
-  - SampleScene
 --- !u!1001 &2834915079059536785
 PrefabInstance:
   m_ObjectHideFlags: 0

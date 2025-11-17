@@ -1,220 +1,25 @@
 using UnityEngine;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-
 
 public class PlayerStats : MonoBehaviour
 {
-    public static event Action OnStatsChanged;
-    public List<ItemData> equippedItems = new List<ItemData>();
+    public static PlayerStats Instance;
 
-    [Header("Base Stats")]
-    public int baseHealth = 100;
-    public int baseShield = 0;
+    public int floorsCompleted = 0;
 
-    [Header("Current Stats")]
-    public int currentHealth;
-    public int currentShield;
-
-    [Header("Equipped Items")]
-    public ItemData equippedHelmet;
-    public ItemData equippedChestplate;
-    public ItemData equippedPants;
-     public ItemData equippedBoots;
-    public ItemData equippedWeapon;
-    public ItemData equippedBlock;
-
-
-private void Start()
-{
-    // Recalculate base stats silently (don’t notify yet)
-    RecalculateStatsWithoutNotify();
-
-    currentHealth = GetMaxHealth();
-    currentShield = GetMaxShield();
-
-    // Now that everything is initialized, notify once
-    NotifyStatsChanged();
-}
-
-private void RecalculateStatsWithoutNotify()
-{
-    int totalShield = baseShield;
-
-    if (equippedHelmet != null) totalShield += equippedHelmet.shieldBonus;
-    if (equippedChestplate != null) totalShield += equippedChestplate.shieldBonus;
-    if (equippedPants != null) totalShield += equippedPants.shieldBonus;
-    if (equippedBoots != null) totalShield += equippedBoots.shieldBonus;
-    if (equippedBlock != null) totalShield += equippedBlock.shieldBonus;
-    if (equippedWeapon != null) totalShield += equippedWeapon.shieldBonus;
-
-    currentShield = totalShield;
-    Debug.Log("[RecalculateStatsWithoutNotify] Total shield: " + currentShield);
-}
-
-private IEnumerator NotifyAfterStart()
-{
-    yield return null; // wait one frame
-    NotifyStatsChanged();
-}
-
-    public void EquipItem(ItemData item)
-{
-    if (item == null) return;
-
-    switch (item.itemType)
+    void Awake()
     {
-        case ItemType.Helmet:
-            equippedHelmet = item;
-            break;
-        case ItemType.Chestplate:
-            equippedChestplate = item;
-            break;
-        case ItemType.Pants:
-            equippedPants = item;
-            break;
-        case ItemType.Boots:
-            equippedBoots = item;
-            break;
-        case ItemType.Block:
-            equippedBlock = item; // or create a separate equippedShield variable if you prefer
-            break;
-        case ItemType.Weapon:
-            equippedWeapon = item;
-            break;
-    }
-
-        equippedItems.RemoveAll(i => i.itemType == item.itemType);
-
-    // Add new one
-    equippedItems.Add(item);
-
-    RecalculateStats();
-
-    // Fill up to the new max
-    currentHealth = GetMaxHealth();
-    currentShield = GetMaxShield();
-
-  Debug.Log($"[EquipItem] Equipped {item.itemName} | New MaxShield: {GetMaxShield()} | CurrentShield: {currentShield}");
-
-    NotifyStatsChanged();
-}
-
-
-    public void UnequipItem(ItemData item)
-{
-    if (item == null) return;
-
-    switch (item.itemType)
-    {
-        case ItemType.Helmet: if (equippedHelmet == item) equippedHelmet = null; break;
-        case ItemType.Chestplate: if (equippedChestplate == item) equippedChestplate = null; break;
-        case ItemType.Pants: if (equippedPants == item) equippedPants = null; break;
-        case ItemType.Boots: if (equippedBoots == item) equippedBoots = null; break;
-        case ItemType.Block: if (equippedBlock == item) equippedBlock = null; break; // <-- fix here
-        case ItemType.Weapon: if (equippedWeapon == item) equippedWeapon = null; break;
-    }
-
-    RecalculateStats();    // recalculates currentShield based on equipped items
-    NotifyStatsChanged();   // triggers HUD update, so shield bars shrink/remove chunks
-}
-
-public void RecalculateStats()
-{
-    int totalShield = baseShield;
-
-    if (equippedHelmet != null) totalShield += equippedHelmet.shieldBonus;
-    if (equippedChestplate != null) totalShield += equippedChestplate.shieldBonus;
-    if (equippedPants != null) totalShield += equippedPants.shieldBonus;
-    if (equippedBoots != null) totalShield += equippedBoots.shieldBonus;
-    if (equippedBlock != null) totalShield += equippedBlock.shieldBonus;
-    if (equippedWeapon != null) totalShield += equippedWeapon.shieldBonus;
-
-    currentShield = totalShield;
-
-    Debug.Log("[RecalculateStats] Total shield: " + currentShield);
-
-    NotifyStatsChanged();
-}
-
-public void TakeDamage(int damage)
-{
-    int remainingDamage = damage;
-
-    // First, reduce shield
-    if (currentShield > 0)
-    {
-        if (currentShield >= remainingDamage)
+        if (Instance != null)
         {
-            currentShield -= remainingDamage;
-            remainingDamage = 0;
+            Destroy(gameObject);
+            return;
         }
-        else
-        {
-            remainingDamage -= currentShield;
-            currentShield = 0;
-        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
-    // Reduce health only if shield is gone
-    if (remainingDamage > 0)
+    public void ResetStats()
     {
-        currentHealth = Mathf.Max(currentHealth - remainingDamage, 0);
-    }
-
-    Debug.Log($"TakeDamage: Damage={damage}, Shield={currentShield}, Health={currentHealth}");
-    NotifyStatsChanged();
-}
-
-
-    public void Heal(int amount)
-    {
-        currentHealth = Mathf.Min(currentHealth + amount, GetMaxHealth());
-        NotifyStatsChanged();
-    }
-
-public int GetMaxHealth()
-{
-    int max = baseHealth;
-    if (equippedHelmet != null) max += equippedHelmet.healthBonus;
-    if (equippedChestplate != null) max += equippedChestplate.healthBonus;
-    if (equippedPants != null) max += equippedPants.healthBonus;
-    if (equippedBoots != null) max += equippedBoots.healthBonus;
-    if (equippedBlock != null) max += equippedBlock.healthBonus;
-    if (equippedWeapon != null) max += equippedWeapon.healthBonus;
-    return max;
-}
-
-public int GetMaxShield()
-{
-    int max = baseShield;
-    if (equippedHelmet != null) max += equippedHelmet.shieldBonus;
-    if (equippedChestplate != null) max += equippedChestplate.shieldBonus;
-    if (equippedPants != null) max += equippedPants.shieldBonus;
-    if (equippedBoots != null) max += equippedBoots.shieldBonus;
-    if (equippedBlock != null) max += equippedBlock.shieldBonus;
-    if (equippedWeapon != null) max += equippedWeapon.shieldBonus;
-     Debug.Log($"[GetMaxShield] Total shield: {max}");
-    return max;
-}
-
-
-    public void AddShield(int amount)
-    {
-        currentShield = Mathf.Min(currentShield + amount, GetMaxShield());
-        NotifyStatsChanged();
-    }
-
-    public void RemoveShield(int amount)
-    {
-        currentShield = Mathf.Max(currentShield - amount, 0);
-        NotifyStatsChanged();
-    }
-
-    public void NotifyStatsChanged()
-    {
-        OnStatsChanged?.Invoke();
+        floorsCompleted = 0;
     }
 }
-
