@@ -15,7 +15,7 @@ public class ButtonScaler : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 
     private Vector3 originalScale;
     private bool isSelected = false;
-    private static bool canPressStart = false; // shared flag across cards
+    //private static bool canPressStart = false; // shared flag across cards
 
     void Start()
     {
@@ -45,7 +45,7 @@ public class ButtonScaler : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         transform.localScale = originalScale * selectedScale;
 
         // Allow Start button functionality after any card is clicked
-        canPressStart = true;
+        //canPressStart = true;
     }
 
     // Hook this to the Start button OnClick in Inspector
