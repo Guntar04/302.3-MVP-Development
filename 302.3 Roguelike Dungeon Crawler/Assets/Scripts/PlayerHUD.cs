@@ -21,7 +21,7 @@ public class PlayerHUD : MonoBehaviour
 
     private List<GameObject> healthChunks = new List<GameObject>();
     private List<GameObject> shieldBars = new List<GameObject>();
-    private bool healthBuilt = false;
+    //private bool healthBuilt = false;
 
 
     private void Start()
@@ -86,7 +86,7 @@ private void BuildHealthBar()
     chunk.transform.localScale = Vector3.one;
     healthChunks.Add(chunk);
 
-    healthBuilt = true;
+    //healthBuilt = true;
 }
 
 private void UpdateHealth()
