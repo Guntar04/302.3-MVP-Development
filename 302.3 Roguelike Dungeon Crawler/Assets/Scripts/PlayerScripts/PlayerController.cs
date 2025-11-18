@@ -83,61 +83,43 @@ public EquipmentStats equippedShieldStats;
     
 
     private void Start()
+{
+    // enforce cap on configured maxHealth
+    maxHealth = Mathf.Clamp(maxHealth, 1, MAX_HEALTH_CAP);
+
+    // Apply saved progress (if any) so spawned player receives previous HP/shields
+    if (PlayerProgress.HasSaved)
     {
-        Debug.Log("Base Defense: " + baseDefense);
-Debug.Log("Base Attack: " + baseAttack);
-
-        // enforce cap on configured maxHealth
-        maxHealth = Mathf.Clamp(maxHealth, 1, MAX_HEALTH_CAP);
-
-     equippedWeaponStats = PlayerProgress.savedWeaponStats;
-    equippedChestplateStats = PlayerProgress.savedChestplateStats;
-    equippedHelmetStats = PlayerProgress.savedHelmetStats;
-    equippedPantsStats = PlayerProgress.savedPantsStats;
-    equippedBootsStats = PlayerProgress.savedBootsStats;
-    equippedShieldStats = PlayerProgress.savedShieldStats;
-
-    // Recalculate stats
-    UpdatePlayerStats();
-
-        // Dynamically assign the DashIconOverlay from the UIManager
-        if (UIManager.Instance != null)
-        {
-            dashIconOverlay = UIManager.Instance.dashIconOverlay;
-            // Try to get the health slider from the UIManager if available.
-            if (healthSlider == null && UIManager.Instance.healthSlider != null)
-            {
-                healthSlider = UIManager.Instance.healthSlider;
-                // initialize slider values
-                healthSlider.maxValue = maxHealth;
-                // make sure current health respects cap
-                health = Mathf.Clamp(health, 0, maxHealth);
-                healthSlider.value = health;
-            }
-        }
-        else
-        {
-            Debug.LogError("UIManager is not present in the scene.");
-        }
-
-        // Apply saved progress (if any) so spawned player receives previous HP/shields
-        if (PlayerProgress.HasSaved)
-        {
-            PlayerProgress.ApplyTo(this);
-            // ensure slider and UI reflect applied values
-            UpdatePlayerHealth();
-        }
-
-        // Initialize the dash icon overlay to show the ability is not ready
-        if (dashIconOverlay != null)
-        {
-            dashIconOverlay.fillAmount = 0f; // Fully filled (ability not ready)
-        }
-
-        // cache original sprite color so flashes always restore to the correct value
-        var sr = GetComponent<SpriteRenderer>();
-        if (sr != null) spriteOriginalColor = sr.color;
+        PlayerProgress.ApplyTo(this);
     }
+
+    // Dynamically assign the DashIconOverlay and HealthSlider from the UIManager
+    if (UIManager.Instance != null)
+    {
+        dashIconOverlay = UIManager.Instance.dashIconOverlay;
+
+        if (healthSlider == null && UIManager.Instance.healthSlider != null)
+        {
+            healthSlider = UIManager.Instance.healthSlider;
+            healthSlider.maxValue = maxHealth;
+            health = Mathf.Clamp(health, 0, maxHealth);
+            healthSlider.value = health;
+        }
+    }
+    else
+    {
+        Debug.LogError("UIManager is not present in the scene.");
+    }
+
+    // Initialize the dash icon overlay to show the ability is not ready
+    if (dashIconOverlay != null)
+        dashIconOverlay.fillAmount = 0f;
+
+    // cache original sprite color so flashes always restore to the correct value
+    var sr = GetComponent<SpriteRenderer>();
+    if (sr != null) spriteOriginalColor = sr.color;
+}
+
 
     private void Update()
     {
@@ -532,112 +514,121 @@ private void ApplyStats(EquipmentStats stats, Loot.EquipmentType type)
             attackSpeedMultiplier = stats.attackSpeed;
             break;
         case Loot.EquipmentType.Chestplate:
-            defense = baseDefense + stats.defense;
-            break;
         case Loot.EquipmentType.Helmet:
-            defense = baseDefense + stats.defense;
+        case Loot.EquipmentType.Shield:
+            defense += stats.defense; // accumulate defense instead of overwriting
             break;
         case Loot.EquipmentType.Pants:
-            defense = baseDefense + stats.defense;
-            moveSpeed = baseMoveSpeed + stats.moveSpeed;
-            break;
         case Loot.EquipmentType.Boots:
-            defense = baseDefense + stats.defense;
-            moveSpeed = baseMoveSpeed + stats.moveSpeed;
-            break;
-        case Loot.EquipmentType.Shield:
-            defense = baseDefense + stats.defense;
+            defense += stats.defense; // accumulate defense
+            moveSpeed = baseMoveSpeed + stats.moveSpeed; // can also accumulate if needed
             break;
     }
 }
 
-// Equip an item actively (player pressed "equip") — updates PlayerProgress
 public void EquipItemStats(EquipmentStats stats, Loot.EquipmentType type)
 {
-    if (stats == null) return;
-
     switch (type)
     {
         case Loot.EquipmentType.Sword:
             equippedWeaponStats = stats;
-            PlayerProgress.savedWeaponStats = stats;
             break;
         case Loot.EquipmentType.Chestplate:
             equippedChestplateStats = stats;
-            PlayerProgress.savedChestplateStats = stats;
             break;
         case Loot.EquipmentType.Helmet:
             equippedHelmetStats = stats;
-            PlayerProgress.savedHelmetStats = stats;
             break;
         case Loot.EquipmentType.Pants:
             equippedPantsStats = stats;
-            PlayerProgress.savedPantsStats = stats;
             break;
         case Loot.EquipmentType.Boots:
             equippedBootsStats = stats;
-            PlayerProgress.savedBootsStats = stats;
             break;
         case Loot.EquipmentType.Shield:
             equippedShieldStats = stats;
-            PlayerProgress.savedShieldStats = stats;
             break;
     }
 
-    ApplyStats(stats, type);
+    UpdatePlayerStats();  // ← the only correct way
 }
 
 // Unequip an item
 public void UnequipItemStats(Loot.EquipmentType type)
 {
+    Debug.Log($"UnequipItemStats CALLED → {type}");
+
     switch (type)
     {
         case Loot.EquipmentType.Sword:
-            equippedWeaponStats = null;
-            PlayerProgress.savedWeaponStats = null;
+            if(equippedWeaponStats != null)
+            {
+                attackDamage -= equippedWeaponStats.attackPower; // subtract the weapon's attack
+                equippedWeaponStats = null;
+            }
             break;
         case Loot.EquipmentType.Chestplate:
-            equippedChestplateStats = null;
-            PlayerProgress.savedChestplateStats = null;
+            if(equippedChestplateStats != null)
+            {
+                defense -= equippedChestplateStats.defense;
+                equippedChestplateStats = null;
+            }
             break;
         case Loot.EquipmentType.Helmet:
             equippedHelmetStats = null;
-            PlayerProgress.savedHelmetStats = null;
+            Debug.Log("Unequipped Helmet");
             break;
         case Loot.EquipmentType.Pants:
             equippedPantsStats = null;
-            PlayerProgress.savedPantsStats = null;
+            Debug.Log("Unequipped Pants");
             break;
         case Loot.EquipmentType.Boots:
             equippedBootsStats = null;
-            PlayerProgress.savedBootsStats = null;
+            Debug.Log("Unequipped Boots");
             break;
         case Loot.EquipmentType.Shield:
             equippedShieldStats = null;
-            PlayerProgress.savedShieldStats = null;
+            Debug.Log("Unequipped Shield");
             break;
     }
+
+    Debug.Log($"Unequipping {type}, currentAttack before: {attackDamage}");
+    Debug.Log($"currentAttack after: {attackDamage}");
+
+
 
     UpdatePlayerStats();
 }
 
-// Recalculate all stats based on currently equipped items
+
+// Recalculate all player stats based on currently equipped items
 public void UpdatePlayerStats()
 {
-    // Reset to base
+    Debug.Log("=== UPDATE PLAYER STATS START ===");
+
+    // Reset to base stats
+    Debug.Log($"Resetting to base stats: baseAttack={baseAttack}, baseDef={baseDefense}, baseMove={baseMoveSpeed}");
+    // Reset to base stats
     attackDamage = baseAttack;
     defense = baseDefense;
     moveSpeed = baseMoveSpeed;
     attackSpeedMultiplier = 1f;
 
-    // Apply whatever is equipped
+
+
+    // Apply all equipped items and accumulate bonuses correctly
     if (equippedWeaponStats != null) ApplyStats(equippedWeaponStats, Loot.EquipmentType.Sword);
     if (equippedChestplateStats != null) ApplyStats(equippedChestplateStats, Loot.EquipmentType.Chestplate);
     if (equippedHelmetStats != null) ApplyStats(equippedHelmetStats, Loot.EquipmentType.Helmet);
     if (equippedPantsStats != null) ApplyStats(equippedPantsStats, Loot.EquipmentType.Pants);
     if (equippedBootsStats != null) ApplyStats(equippedBootsStats, Loot.EquipmentType.Boots);
     if (equippedShieldStats != null) ApplyStats(equippedShieldStats, Loot.EquipmentType.Shield);
+
+ Debug.Log($"FINAL STATS → Attack={attackDamage}, Defense={defense}, MoveSpeed={moveSpeed}, AS Mult={attackSpeedMultiplier}");
+    Debug.Log("=== UPDATE PLAYER STATS END ===");
+    // Update health UI if necessary
+    UpdatePlayerHealth();
+}
 }
 
 
-}

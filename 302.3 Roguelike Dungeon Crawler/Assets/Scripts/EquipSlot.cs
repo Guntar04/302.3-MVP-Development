@@ -13,6 +13,9 @@ public class EquipSlot : MonoBehaviour, IPointerClickHandler
     private ItemData currentItem;
     private EquipmentStats currentItemStats;
 
+    // NEW: only allow real clicks after UI ready
+    private bool allowClick = true; // default true, set false during scene rebuild if needed
+
     private void Awake()
     {
         if (inventoryController == null)
@@ -39,38 +42,52 @@ public class EquipSlot : MonoBehaviour, IPointerClickHandler
         playerController?.EquipItemStats(currentItemStats, lootType);
 
         UpdateIcon();
+        Debug.Log($"[EquipSlot] Equipped {currentItem.itemName} in {acceptedType} slot.");
         return true;
     }
 
-public void Unequip()
-{
-    if (currentItem == null) return;
-
-    // Ensure inventoryController exists
-    if (inventoryController == null)
-        inventoryController = FindFirstObjectByType<InventoryUIController>();
-
-    // Try to return item to inventory
-    bool added = inventoryController != null && inventoryController.AddItem(currentItem);
-    if (!added)
-        Debug.LogWarning($"Could not unequip {currentItem.itemName}: Inventory full!");
-
-    // Reset player stats
-    if (playerController != null && currentItemStats != null)
+    public void Unequip()
     {
-        Loot.EquipmentType lootType = ConvertToLootType(currentItem.itemType);
-        playerController.UnequipItemStats(lootType);
+        playerController = FindObjectOfType<PlayerController>();
+
+
+        Debug.Log($"[EquipSlot] allowClick={allowClick}, currentItem={currentItem?.itemName}");
+
+        if (!allowClick)
+        {
+            Debug.Log("[EquipSlot] Unequip blocked — UI rebuild or auto-trigger.");
+            return;
+        }
+
+        if (currentItem == null) return;
+
+        // Ensure inventoryController exists
+        if (inventoryController == null)
+            inventoryController = FindFirstObjectByType<InventoryUIController>();
+
+        // Return item to inventory
+        bool added = inventoryController != null && inventoryController.AddItem(currentItem);
+        if (!added)
+            Debug.LogWarning($"[EquipSlot] Could not unequip {currentItem.itemName}: Inventory full!");
+
+        // Reset player stats
+        if (playerController != null && currentItemStats != null)
+        {
+            Loot.EquipmentType lootType = ConvertToLootType(currentItem.itemType);
+            playerController.UnequipItemStats(lootType);
+        }
+
+
+        Debug.Log($"[EquipSlot] Unequipped {currentItem.itemName} from {acceptedType} slot.");
+
+        currentItem = null;
+        currentItemStats = null;
+        UpdateIcon();
     }
-
-    // Clear slot
-    currentItem = null;
-    currentItemStats = null;
-    UpdateIcon();
-}
-
 
     public void OnPointerClick(PointerEventData eventData)
     {
+        Debug.Log("[EquipSlot] Slot clicked by player.");
         Unequip();
     }
 
@@ -120,5 +137,19 @@ public void Unequip()
             case ItemType.Shield: return Loot.EquipmentType.Shield;
             default: return Loot.EquipmentType.Sword;
         }
+    }
+
+    // Optional: call this after scene load or inventory rebuild
+    public void BlockClickTemporarily()
+    {
+        allowClick = false;
+        StartCoroutine(EnableClickNextFrame());
+    }
+
+    private System.Collections.IEnumerator EnableClickNextFrame()
+    {
+        yield return null; // wait 1 frame
+        allowClick = true;
+        Debug.Log("[EquipSlot] Clicks re-enabled.");
     }
 }

@@ -13,12 +13,23 @@ public class PlayerProgress : MonoBehaviour
     public static int maxHealth = 10;
     public static int shieldCount = 0;
 
-    public static EquipmentStats savedWeaponStats;
+ public static EquipmentStats savedWeaponStats;
+    public static bool weaponEquipped;
+    
     public static EquipmentStats savedChestplateStats;
+    public static bool chestplateEquipped;
+    
     public static EquipmentStats savedHelmetStats;
+    public static bool helmetEquipped;
+    
     public static EquipmentStats savedPantsStats;
+    public static bool pantsEquipped;
+    
     public static EquipmentStats savedBootsStats;
+    public static bool bootsEquipped;
+    
     public static EquipmentStats savedShieldStats;
+    public static bool shieldEquipped;
 
 
 
@@ -37,6 +48,24 @@ public class PlayerProgress : MonoBehaviour
         maxHealth = pc.maxHealth;
         shieldCount = TryGetShieldCount(pc.gameObject);
         HasSaved = true;
+
+         savedWeaponStats = pc.equippedWeaponStats;
+        weaponEquipped = pc.equippedWeaponStats != null;
+
+        savedChestplateStats = pc.equippedChestplateStats;
+        chestplateEquipped = pc.equippedChestplateStats != null;
+
+        savedHelmetStats = pc.equippedHelmetStats;
+        helmetEquipped = pc.equippedHelmetStats != null;
+
+        savedPantsStats = pc.equippedPantsStats;
+        pantsEquipped = pc.equippedPantsStats != null;
+
+        savedBootsStats = pc.equippedBootsStats;
+        bootsEquipped = pc.equippedBootsStats != null;
+
+        savedShieldStats = pc.equippedShieldStats;
+        shieldEquipped = pc.equippedShieldStats != null;
     }
 
     public void ApplyToInstance(PlayerController pc)
@@ -46,6 +75,16 @@ public class PlayerProgress : MonoBehaviour
         pc.health = Mathf.Clamp(health, 0, pc.maxHealth);
         pc.UpdatePlayerHealth();
         TryApplyShieldCount(pc.gameObject, shieldCount);
+
+        pc.equippedWeaponStats = savedWeaponStats;
+pc.equippedChestplateStats = savedChestplateStats;
+pc.equippedHelmetStats = savedHelmetStats;
+pc.equippedPantsStats = savedPantsStats;
+pc.equippedBootsStats = savedBootsStats;
+pc.equippedShieldStats = savedShieldStats;
+
+pc.UpdatePlayerStats();   // ← SINGLE STAT RECALC
+
     }
 
     public static void SaveFrom(PlayerController pc)
@@ -70,12 +109,13 @@ public class PlayerProgress : MonoBehaviour
 
     public static void ApplyTo(PlayerController pc)
     {
-        if (pc == null || !HasSaved) return;
-        if (Instance != null) { Instance.ApplyToInstance(pc); return; }
-        pc.maxHealth = Mathf.Clamp(maxHealth, 1, 20);
-        pc.health = Mathf.Clamp(health, 0, pc.maxHealth);
-        pc.UpdatePlayerHealth();
-        TryApplyShieldCountStatic(pc.gameObject, shieldCount);
+        Debug.Log("=== APPLYING PLAYER PROGRESS TO NEW LEVEL ===");
+
+    Debug.Log($"Weapon Equipped Saved? {weaponEquipped}");
+    Debug.Log($"Saved Weapon Stats: {savedWeaponStats}");
+
+
+
        if (savedWeaponStats != null)
     pc.EquipItemStats(savedWeaponStats, Loot.EquipmentType.Sword);
 
@@ -93,6 +133,18 @@ if (savedBootsStats != null)
 
 if (savedShieldStats != null)
     pc.EquipItemStats(savedShieldStats, Loot.EquipmentType.Shield);
+
+      Debug.Log("Calling UpdatePlayerStats after loading...");
+    pc.UpdatePlayerStats();
+
+    Debug.Log("=== DONE APPLYING PLAYER PROGRESS ===");
+
+        if (pc == null || !HasSaved) return;
+        if (Instance != null) { Instance.ApplyToInstance(pc); return; }
+        pc.maxHealth = Mathf.Clamp(maxHealth, 1, 20);
+        pc.health = Mathf.Clamp(health, 0, pc.maxHealth);
+        pc.UpdatePlayerHealth();
+        TryApplyShieldCountStatic(pc.gameObject, shieldCount);
 
     }
 
@@ -263,12 +315,22 @@ if (savedShieldStats != null)
         maxHealth = 10;
         shieldCount = 0;
         // clear any runtime singleton instance fields too
-        if (Instance != null)
-        {
-            Instance = null; // allow recreation if needed
-        }
+        savedWeaponStats = null;
+        weaponEquipped = false;
 
-        // clear player-dead flag if set
-        PlayerController.SetPlayerDead(false);
+        savedChestplateStats = null;
+        chestplateEquipped = false;
+
+        savedHelmetStats = null;
+        helmetEquipped = false;
+
+        savedPantsStats = null;
+        pantsEquipped = false;
+
+        savedBootsStats = null;
+        bootsEquipped = false;
+
+        savedShieldStats = null;
+        shieldEquipped = false;
     }
 }
