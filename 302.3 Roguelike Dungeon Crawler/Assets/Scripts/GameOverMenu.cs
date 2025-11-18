@@ -1,5 +1,8 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public class GameOverMenu : MonoBehaviour
 {
@@ -16,6 +19,10 @@ public class GameOverMenu : MonoBehaviour
    public void QuitGame()
    {
       Debug.Log("QUIT");
-      Application.Quit();
+      #if UNITY_EDITOR
+        EditorApplication.isPlaying = false; // stops play mode in Editor
+        #else
+        Application.Quit();                  // quits the built game
+        #endif
    }
 }
