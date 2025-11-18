@@ -37,14 +37,14 @@ public class LoseScreenUI : MonoBehaviour
         enemiesText.text = "Enemies Killed: " + kills;
    
         if (killedByText != null)
-        killedByText.text = "Killed By: " + (GameData.EnemyName ?? "Unknown");
-        
+    killedByText.text = "Killed By: " + (PlayerController.PlayerDeathInfo.EnemyName ?? "Unknown");
 
-    if (killedByImage != null && GameData.EnemySprite != null)
-    {
-        killedByImage.sprite = GameData.EnemySprite;
-        killedByImage.color = Color.white;
-    }
+if (killedByImage != null && PlayerController.PlayerDeathInfo.EnemySprite != null)
+{
+    killedByImage.sprite = PlayerController.PlayerDeathInfo.EnemySprite;
+    killedByImage.color = Color.white;
+}
+
 
         for (int i = 0; i < lootIcons.Length; i++)
     {

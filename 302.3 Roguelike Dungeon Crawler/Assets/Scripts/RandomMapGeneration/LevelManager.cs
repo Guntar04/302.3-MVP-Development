@@ -12,6 +12,10 @@ public class LevelManager : MonoBehaviour
     public static LevelManager Instance { get; private set; }
     public int currentFloor = 1;
 
+    [Header("Game Progression")]
+public string WinMenu = "WinMenu"; // Set this to your Win screen scene name
+public int finalLevel = 5;
+
     [Header("Player spawn waiting")]
     public float playerSpawnWaitTime = 1.0f;
 
@@ -132,6 +136,13 @@ public void RegisterEnemyKill()
         // Increment floor
         currentFloor++;
         Debug.Log($"LevelManager: Generating floor {currentFloor}...");
+
+        if (currentFloor > finalLevel)
+{
+    Debug.Log("Player completed final level! Loading Win Screen...");
+    UnityEngine.SceneManagement.SceneManager.LoadScene(WinMenu);
+    yield break; // stop the coroutine
+}
 
         if (PlayerStats.Instance != null)
         {

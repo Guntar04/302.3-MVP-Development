@@ -36,6 +36,12 @@ public class AIController : MonoBehaviour
     public Transform hpAnchor;           // optional: assign a child transform that follows the sprite/animation
     public Vector3 hpOffset = new Vector3(0f, 1f, 0f); // fallback offset if no anchor
 
+    [Header("Enemy Info")]
+public string enemyName = "Skullman";
+public Sprite enemySprite; // assign in the inspector
+
+  public static int enemiesKilled = 0;
+
     private GameObject hpBarInstance;
     private RectTransform greenBar;
     private RectTransform redBar;
@@ -365,6 +371,11 @@ public class AIController : MonoBehaviour
         if (isDead) return;
 
         isDead = true;
+
+         if (LevelManager.Instance != null)
+    {
+        LevelManager.Instance.RegisterEnemyKill();
+    }
 
         StopAllCoroutines();
         if (rb != null) { rb.linearVelocity = Vector2.zero; rb.simulated = false; }

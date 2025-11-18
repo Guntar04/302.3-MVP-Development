@@ -328,7 +328,7 @@ public EquipmentStats equippedShieldStats;
         dashIconOverlay.fillAmount = 0f; // Reset overlay when cooldown is complete
     }
 
-    public void TakeDamage(int damage)
+    public void TakeDamage(int damage, GameObject killer = null)
     {
         // First check shield component (blocks one attack if available)
         var shield = GetComponent<Shield>();
@@ -350,7 +350,8 @@ public EquipmentStats equippedShieldStats;
             isDead = true;
             PlayerDead = true;                 // notify others
             Debug.Log("Player has died.");
-            isInvincible = true;               // prevent further damage
+            isInvincible = true;    
+                    
 
             // disable collisions/physics so enemies stop detecting and hitting the player
             var col2d = GetComponent<Collider2D>();
@@ -361,6 +362,7 @@ public EquipmentStats equippedShieldStats;
             // remove the "Player" tag so tag-based targeting won't find it
             try { gameObject.tag = "Untagged"; } catch { }
             // stop any hit flash and restore original color
+
 if (flashCoroutine != null)
 {
     StopCoroutine(flashCoroutine);
@@ -397,6 +399,7 @@ return;
             flashCoroutine = StartCoroutine(FlashRedOnHit());
         }
         UpdatePlayerHealth();
+
     }
     
     private IEnumerator HandleDeathAndLoad()

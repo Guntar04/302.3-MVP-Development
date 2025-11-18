@@ -829,6 +829,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentFloor: 1
+  winSceneName: WinScreen
+  finalLevel: 5
   playerSpawnWaitTime: 1
   OnBeforeFloorUnload:
     m_PersistentCalls:
@@ -1335,7 +1337,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9013235195054371163, guid: c899dcb990fc0c7459932c74e10c3e82, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 245
+      value: 39
       objectReference: {fileID: 0}
     - target: {fileID: 9013235195054371163, guid: c899dcb990fc0c7459932c74e10c3e82, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
