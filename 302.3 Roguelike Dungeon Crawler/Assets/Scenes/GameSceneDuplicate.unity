@@ -1267,6 +1267,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: NextLevelUI
       objectReference: {fileID: 0}
+    - target: {fileID: 5587118482095702120, guid: c899dcb990fc0c7459932c74e10c3e82, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6371758405576593428, guid: c899dcb990fc0c7459932c74e10c3e82, type: 3}
       propertyPath: m_text
       value: 'Level:'
@@ -1337,7 +1341,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9013235195054371163, guid: c899dcb990fc0c7459932c74e10c3e82, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 39
+      value: 250
       objectReference: {fileID: 0}
     - target: {fileID: 9013235195054371163, guid: c899dcb990fc0c7459932c74e10c3e82, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x

@@ -317,7 +317,7 @@ public void RegisterEnemyKill()
 
     private IEnumerator DisplayLevelUI(int level)
     {
-        // UI objects often live in the newly-loaded scene. Try to resolve references here.
+        // Resolve references (will try to find even inactive children via GetComponentInChildren(true))
         EnsureUIReferences();
 
         if (levelText == null)
@@ -328,28 +328,11 @@ public void RegisterEnemyKill()
 
         levelText.text = $"{level:D2}";
 
-        // If we have a NextLevelUIController, use it (preferred)
-        EnsureUIReferences();
-        if (nextLevelUIController != null)
-        {
-            nextLevelUIController.ShowTemporary(levelUIDisplaySeconds);
-            yield break;
-        }
+        // Prefer using the robust global helper which can activate an inactive UI object
+        NextLevelUIController.ShowTemporaryGlobal(levelUIDisplaySeconds);
+        yield break;
 
-        // Fallback: use raw GameObject activation (resolve nextLevelUI if possible)
-        if (nextLevelUI == null)
-            nextLevelUI = GameObject.Find("NextLevelUI");
-
-        if (nextLevelUI != null)
-        {
-            nextLevelUI.SetActive(true);
-            yield return new WaitForSeconds(levelUIDisplaySeconds);
-            nextLevelUI.SetActive(false);
-        }
-        else
-        {
-            Debug.LogWarning("LevelManager: NextLevelUI GameObject is not assigned or present in scene.");
-        }
+        // --- kept for reference: older fallback logic removed ---
     }
 
     // New: destroys typical per-floor spawned objects so next floor starts clean
@@ -364,22 +347,105 @@ public void RegisterEnemyKill()
             Destroy(e.gameObject);
         }
 
-        // Helper to destroy by runtime type name / type object safely
+        // Helper: safe destroy by predicate on GameObject
+        void SafeDestroyIf(GameObject go, System.Func<GameObject, bool> predicate)
+        {
+            if (go == null) return;
+            // never destroy player or this manager object
+            if (player != null && go == player) return;
+            if (go == this.gameObject) return;
+            try
+            {
+                if (predicate(go))
+                    Destroy(go);
+            }
+            catch { }
+        }
+
+        // Destroy by scanning scene objects - more robust for dynamically-named loot objects
+        var allTransforms = UnityEngine.Object.FindObjectsByType<Transform>(FindObjectsSortMode.None);
+        foreach (var t in allTransforms)
+        {
+            if (t == null || t.gameObject == null) continue;
+            var go = t.gameObject;
+
+            // skip root/system objects
+            if (go == player || go == this.gameObject) continue;
+
+            string name = go.name ?? "";
+
+            // common name patterns for loot / dropped items / health / chests / exits
+            bool nameMatches =
+                name.StartsWith("Loot", System.StringComparison.OrdinalIgnoreCase) ||
+                name.IndexOf("HealthPot", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+                name.IndexOf("Health_Pot", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+                name.IndexOf("Chest", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+                name.IndexOf("Exit", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+                name.IndexOf("Pickup", System.StringComparison.OrdinalIgnoreCase) >= 0;
+
+            if (nameMatches)
+            {
+                SafeDestroyIf(go, g => true);
+                continue;
+            }
+
+            // inspect components for types that indicate loot/pickup objects
+            var comps = go.GetComponents<Component>();
+            bool hasLootComponent = false;
+            if (comps != null)
+            {
+                foreach (var c in comps)
+                {
+                    if (c == null) continue;
+                    var tname = c.GetType().Name;
+                    if (tname.IndexOf("Loot", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+                        tname.IndexOf("Pickup", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+                        tname.IndexOf("HealthPot", System.StringComparison.OrdinalIgnoreCase) >= 0)
+                    {
+                        hasLootComponent = true;
+                        break;
+                    }
+                }
+            }
+
+            if (hasLootComponent)
+            {
+                SafeDestroyIf(go, g => true);
+                continue;
+            }
+        }
+
+        // Also destroy any lingering containers named in your project (RoomManagers children etc.)
+        var rm = GameObject.Find("RoomManagers");
+        if (rm != null)
+        {
+            foreach (Transform child in rm.transform)
+            {
+                if (child == null) continue;
+                // don't destroy player if it was parented here for some reason
+                if (player != null && child.gameObject == player) continue;
+                Destroy(child.gameObject);
+            }
+        }
+
+        // Legacy: keep existing fallback attempts (try to remove by explicit type names for compatibility)
         void DestroyByTypeName(string typeName)
         {
-            // try to find as Component first (fast, typed)
             try
             {
                 var monos = UnityEngine.Object.FindObjectsByType<MonoBehaviour>(UnityEngine.FindObjectsSortMode.None);
                 foreach (var m in monos)
                 {
                     if (m == null) continue;
-                    if (m.GetType().Name == typeName) Destroy(m.gameObject);
+                    if (m.GetType().Name == typeName)
+                    {
+                        if (m.gameObject != player && m.gameObject != this.gameObject)
+                            Destroy(m.gameObject);
+                    }
                 }
             }
             catch { /* ignore */ }
 
-            // fallback: use reflection FindObjectsByType(typeof(T)) which returns UnityEngine.Object[]
             try
             {
                 var type = Type.GetType(typeName) ?? typeof(UnityEngine.Object);
@@ -389,39 +455,34 @@ public void RegisterEnemyKill()
                     foreach (var o in objs)
                     {
                         if (o == null) continue;
-                        if (o is Component c) Destroy(c.gameObject);
-                        else if (o is GameObject go) Destroy(go);
+                        if (o is Component c)
+                        {
+                            if (c.gameObject != player && c.gameObject != this.gameObject)
+                                Destroy(c.gameObject);
+                        }
+                        else if (o is GameObject go2)
+                        {
+                            if (go2 != player && go2 != this.gameObject) Destroy(go2);
+                        }
                     }
                 }
             }
             catch { /* ignore */ }
         }
 
-        // destroy loot items, health pots and chests by name/type
         DestroyByTypeName("Loot");
         DestroyByTypeName("HealthPot");
         DestroyByTypeName("Chest");
 
         // Destroy any Exit GameObjects by name convention (Exit, Exit(Clone), etc.)
-        var allTransforms = UnityEngine.Object.FindObjectsByType<Transform>(FindObjectsSortMode.None);
-        foreach (var t in allTransforms)
+        var allT = UnityEngine.Object.FindObjectsByType<Transform>(FindObjectsSortMode.None);
+        foreach (var t2 in allT)
         {
-            if (t == null || t.gameObject == null) continue;
-            var go = t.gameObject;
+            if (t2 == null || t2.gameObject == null) continue;
+            var go = t2.gameObject;
             if (go == this.gameObject) continue;
             string n = go.name ?? "";
             if (n.StartsWith("Exit")) Destroy(go);
-        }
-
-        // If you use container GameObjects (e.g. RoomManagers -> SpawnedEnemies/Chests), clear their children
-        var rm = GameObject.Find("RoomManagers");
-        if (rm != null)
-        {
-            foreach (Transform child in rm.transform)
-            {
-                if (child == null) continue;
-                Destroy(child.gameObject);
-            }
         }
     }
 
@@ -665,5 +726,20 @@ public void RegisterEnemyKill()
         }
 
         return false;
+    }
+
+    // somewhere after player spawn / when you want the "Next Level" banner to appear
+    private void DisplayLevelUIForNewFloor()
+    {
+        // ensure any NextLevelUIController instance (even inactive) is activated then shown
+        var nextUIControllers = Resources.FindObjectsOfTypeAll<NextLevelUIController>();
+        var nextUI = nextUIControllers.FirstOrDefault();
+        if (nextUI != null && !nextUI.gameObject.activeInHierarchy)
+            nextUI.gameObject.SetActive(true);
+
+        // now request it to show temporarily (this helper will auto-hide)
+        NextLevelUIController.ShowTemporaryGlobal(2f);
+
+        // ...existing code that continues level startup...
     }
 }
