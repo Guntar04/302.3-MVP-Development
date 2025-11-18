@@ -43,9 +43,6 @@ public class PlayerController : MonoBehaviour
 public float minSpeed = 0f;
 public float maxSpeed = 3f; // inspector sets this
 
-    [Header("Combat Speed")]
-public float baseAttackCooldown = 1f; // default attack delay
-private float attackSpeedMultiplier = 1f; // affected by equipment
 
 
     private Vector2 moveDirection;
@@ -511,7 +508,6 @@ private void ApplyStats(EquipmentStats stats, Loot.EquipmentType type)
     {
         case Loot.EquipmentType.Sword:
             attackDamage = baseAttack + stats.attackPower;
-            attackSpeedMultiplier = stats.attackSpeed;
             break;
         case Loot.EquipmentType.Chestplate:
         case Loot.EquipmentType.Helmet:
@@ -612,7 +608,6 @@ public void UpdatePlayerStats()
     attackDamage = baseAttack;
     defense = baseDefense;
     moveSpeed = baseMoveSpeed;
-    attackSpeedMultiplier = 1f;
 
 
 
@@ -624,7 +619,7 @@ public void UpdatePlayerStats()
     if (equippedBootsStats != null) ApplyStats(equippedBootsStats, Loot.EquipmentType.Boots);
     if (equippedShieldStats != null) ApplyStats(equippedShieldStats, Loot.EquipmentType.Shield);
 
- Debug.Log($"FINAL STATS → Attack={attackDamage}, Defense={defense}, MoveSpeed={moveSpeed}, AS Mult={attackSpeedMultiplier}");
+ Debug.Log($"FINAL STATS → Attack={attackDamage}, Defense={defense}, MoveSpeed={moveSpeed}");
     Debug.Log("=== UPDATE PLAYER STATS END ===");
     // Update health UI if necessary
     UpdatePlayerHealth();
