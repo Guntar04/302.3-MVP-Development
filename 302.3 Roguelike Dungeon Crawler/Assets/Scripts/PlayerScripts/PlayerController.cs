@@ -328,7 +328,7 @@ public EquipmentStats equippedShieldStats;
         dashIconOverlay.fillAmount = 0f; // Reset overlay when cooldown is complete
     }
 
-    public void TakeDamage(int damage, GameObject killer = null)
+    public void TakeDamage(int damage, AIController killer = null)
     {
         // First check shield component (blocks one attack if available)
         var shield = GetComponent<Shield>();
@@ -377,7 +377,7 @@ if (animator != null)
 {
     // start the death coroutine (keeps waiting for animation to finish)
     if (deathCoroutine != null) StopCoroutine(deathCoroutine);
-    deathCoroutine = StartCoroutine(HandleDeathAndLoad());
+    deathCoroutine = StartCoroutine(HandleDeathAndLoad(killer));
 }
 else
 {
@@ -402,7 +402,7 @@ return;
 
     }
     
-    private IEnumerator HandleDeathAndLoad()
+    private IEnumerator HandleDeathAndLoad(AIController killer = null)
     {
         // play the death animation
         animator.Play("Death");
@@ -421,6 +421,17 @@ return;
         if (sr != null) sr.enabled = false;
 
         if (animator != null) animator.enabled = false;
+
+        if (killer != null)
+    {
+        GameData.EnemyName = killer.enemyName;
+        GameData.EnemySprite = killer.enemySprite;
+    }
+    else
+    {
+        GameData.EnemyName = "Unknown";
+        GameData.EnemySprite = null;
+    }
 
         // small buffer then load lose menu
         yield return new WaitForSeconds(0.15f);

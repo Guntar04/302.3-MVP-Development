@@ -203,6 +203,8 @@ MonoBehaviour:
   hpBarPrefab: {fileID: 5010947230403562031, guid: abf7a5fecb1e55149aef770099a446fd, type: 3}
   hpAnchor: {fileID: 7674248178709286282}
   hpOffset: {x: 0, y: 1, z: 0}
+  enemyName: Skullman
+  enemySprite: {fileID: 21300000, guid: 729da3332f816df4ea859a34bf9b9975, type: 2}
   debugDraw: 0
   debugRayDistance: 0.6
   playerLayerMask:
@@ -210,7 +212,6 @@ MonoBehaviour:
     m_Bits: 64
   attackRangeOffset: {x: 0, y: 0}
   detectionRangeOffset: {x: 0, y: 0}
-  displayName: Skullman
 --- !u!95 &4738075739300005283
 Animator:
   serializedVersion: 7

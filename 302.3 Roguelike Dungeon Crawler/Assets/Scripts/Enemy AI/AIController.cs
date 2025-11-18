@@ -242,7 +242,7 @@ public Sprite enemySprite; // assign in the inspector
                 var playerController = hit.GetComponent<PlayerController>();
                 if (playerController != null)
                 {
-                    playerController.TakeDamage(attackPower); // Directly call TakeDamage
+                    playerController.TakeDamage(attackPower, this); // Directly call TakeDamage
                 }
                 break;
             }
