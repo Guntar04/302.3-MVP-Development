@@ -829,7 +829,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentFloor: 1
-  winSceneName: WinScreen
+  WinMenu: WinMenu
   finalLevel: 5
   playerSpawnWaitTime: 1
   OnBeforeFloorUnload:
@@ -4943,6 +4943,7 @@ GameObject:
   - component: {fileID: 455848599}
   - component: {fileID: 455848598}
   - component: {fileID: 455848602}
+  - component: {fileID: 455848603}
   m_Layer: 5
   m_Name: InventoryCanvas
   m_TagString: Untagged
@@ -5081,6 +5082,18 @@ MonoBehaviour:
   InventoryCanvas: {fileID: 0}
   slots: []
   testItems: []
+--- !u!225 &455848603
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 455848597}
+  m_Enabled: 1
+  m_Alpha: 0
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
 --- !u!1 &462478937
 GameObject:
   m_ObjectHideFlags: 0
