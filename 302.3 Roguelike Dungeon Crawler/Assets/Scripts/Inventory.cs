@@ -95,16 +95,11 @@ public class InventorySlot : MonoBehaviour,
     {
         if (inventoryController == null) return;
 
-        if (HasItem())
-        {
-            Debug.Log($"Clicked slot — discarding {itemData.itemName}.");
-            inventoryController.RemoveItem(slotIndex);
-        }
-        else if (inventoryController.testItems != null && inventoryController.testItems.Length > 0)
-        {
-            Debug.Log("Clicked empty slot — adding test item.");
-            inventoryController.AddItem(inventoryController.testItems[0]);
-        }
+            if (itemData != null)
+            {
+                inventoryController.RemoveItem(itemData); // remove by reference, not index
+                ClearItem();                              // clear the UI slot
+            }
     }
     #endregion
 
@@ -143,15 +138,25 @@ public class InventorySlot : MonoBehaviour,
                 else
                 {
                     EquipSlot equipSlot = pointerObject.GetComponentInParent<EquipSlot>();
-                    if (equipSlot != null && itemData != null)
-                    {
-                        Loot.EquipmentType lootType = EquipSlot.ConvertToLootType(itemData.itemType);
+                   if (equipSlot != null && itemData != null)
+{
+    Loot.EquipmentType lootType = EquipSlot.ConvertToLootType(itemData.itemType);
 
-                        if (equipSlot.AcceptItem(itemData, itemData.equipmentStats, lootType))
-                            ClearItem();
-                        else
-                            Debug.Log($"{itemData.itemName} cannot be equipped in {equipSlot.acceptedType} slot!");
-                    }
+    if (equipSlot.AcceptItem(itemData, itemData.equipmentStats, lootType))
+    {
+        // REMOVE item from inventory list properly
+        int index = inventoryController.inventoryItems.IndexOf(itemData);
+        if (index >= 0)
+            inventoryController.RemoveItem(index);
+
+        // And clear UI slot
+        ClearItem();
+    }
+    else
+    {
+        Debug.Log($"{itemData.itemName} cannot be equipped in {equipSlot.acceptedType} slot!");
+    }
+}
                 }
             }
 

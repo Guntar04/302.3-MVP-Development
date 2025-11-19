@@ -10,7 +10,7 @@ public class InventoryUIController : MonoBehaviour
 
     // ---------------------------
     // Persistent inventory data
-    private List<ItemData> inventoryItems = new List<ItemData>();
+    public  List<ItemData> inventoryItems = new List<ItemData>();
     private bool isOpen = false;
 
     void Awake()
@@ -44,13 +44,7 @@ public class InventoryUIController : MonoBehaviour
             }
 
             RefreshUI();
-CanvasGroup cg = InventoryCanvas.GetComponent<CanvasGroup>();
-if (cg != null)
-{
-    cg.alpha = 0f;            // hidden
-    cg.interactable = false;  // cannot click
-    cg.blocksRaycasts = false;// ignore mouse
-}
+        CanvasGroup cg = InventoryCanvas.GetComponent<CanvasGroup>();
 
 isOpen = false;    
 
@@ -101,23 +95,27 @@ isOpen = false;
 
     public void OnInventoryButtonPressed() => ToggleInventory();
 
-    public bool AddItem(ItemData item)
+public bool AddItem(ItemData item, bool allowDuplicate = true)
 {
     if (item == null) return false;
 
-    // Add to persistent inventory first
-    inventoryItems.Add(item);
-
-    // Force UI to refresh even if canvas is hidden
-     if (slots != null)
+    // Check duplicates only if not allowed
+    if (!allowDuplicate && inventoryItems.Contains(item))
     {
-        RefreshUI();  // update the slots
+        Debug.LogWarning($"Item {item.itemName} already in inventory! Skipping AddItem.");
+        return false;
     }
-    
+
+    inventoryItems.Add(item);
+    RefreshUI();
 
     Debug.Log($"Item {item.itemName} added to inventory (UI updated).");
     return true;
 }
+
+
+
+
 
 private void RefreshUI()
 {
@@ -135,18 +133,17 @@ private void RefreshUI()
 
 
 
-    public void RemoveItem(int index)
+// Removes an item using its index in the inventory list (original behaviour)
+public void RemoveItem(int index)
+{
+    if (index < 0 || index >= inventoryItems.Count) return;
+
+    // Remove from the list
+    inventoryItems.RemoveAt(index);
+
+    // Rebuild UI
+    if (slots != null)
     {
-        if (index < 0 || index >= inventoryItems.Count) return;
-
-        // Remove from persistent data
-        inventoryItems.RemoveAt(index);
-
-        // Update UI
-        if (slots != null && index < slots.Length)
-            slots[index].ClearItem();
-
-        // Refresh UI slots after removed item
         for (int i = 0; i < slots.Length; i++)
         {
             if (i < inventoryItems.Count)
@@ -155,4 +152,29 @@ private void RefreshUI()
                 slots[i].ClearItem();
         }
     }
+}
+
+// Remove item by reference
+public void RemoveItem(ItemData item)
+{
+    if (item == null) return;
+
+    int index = inventoryItems.IndexOf(item);
+    if (index >= 0)
+        RemoveItem(index); // calls the existing method
+}
+
+
+
+public string[] GetInventoryNames()
+{
+    string[] names = new string[inventoryItems.Count];
+    for (int i = 0; i < inventoryItems.Count; i++)
+    {
+        names[i] = inventoryItems[i]?.itemName ?? "null";
+    }
+    return names;
+}
+
+
 }

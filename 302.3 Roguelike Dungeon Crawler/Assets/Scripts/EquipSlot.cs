@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using System.Linq;
 
 public class EquipSlot : MonoBehaviour, IPointerClickHandler
 {
@@ -33,8 +34,15 @@ public class EquipSlot : MonoBehaviour, IPointerClickHandler
 
         if (currentItem != null) Unequip();
 
-        currentItem = newItem;
-        currentItemStats = stats;
+        if (inventoryController != null)
+        {
+            int index = inventoryController.inventoryItems.IndexOf(newItem);
+            if (index >= 0)
+                inventoryController.RemoveItem(index);
+        }
+
+            currentItem = newItem;
+            currentItemStats = stats;
 
         if (playerController == null)
             playerController = FindFirstObjectByType<PlayerController>();
@@ -46,29 +54,48 @@ public class EquipSlot : MonoBehaviour, IPointerClickHandler
         return true;
     }
 
+    public void EquipFromInventory(int slotIndex)
+{
+    if (slotIndex < 0 || slotIndex >= inventoryController.inventoryItems.Count) return;
+
+    ItemData item = inventoryController.inventoryItems[slotIndex];
+    EquipmentStats equipmentStats = item.equipmentStats; // or wherever your stats are stored
+
+    if (AcceptItem(item, equipmentStats, ConvertToLootType(item.itemType)))
+    {
+        // remove the exact item from inventory
+        inventoryController.RemoveItem(slotIndex);
+    }
+}
+
+
     public void Unequip()
     {
+        
         playerController = FindObjectOfType<PlayerController>();
 
+        if (!allowClick) return;
+        if (currentItem == null) return;
+
+        ItemData itemToReturn = currentItem;
+
+        Debug.Log($"[EquipSlot] Unequipping {currentItem.itemName} from {acceptedType} slot.");
 
         Debug.Log($"[EquipSlot] allowClick={allowClick}, currentItem={currentItem?.itemName}");
-
-        if (!allowClick)
-        {
-            Debug.Log("[EquipSlot] Unequip blocked — UI rebuild or auto-trigger.");
-            return;
-        }
-
-        if (currentItem == null) return;
 
         // Ensure inventoryController exists
         if (inventoryController == null)
             inventoryController = FindFirstObjectByType<InventoryUIController>();
 
-        // Return item to inventory
-        bool added = inventoryController != null && inventoryController.AddItem(currentItem);
+        
+
+        bool added = inventoryController.AddItem(itemToReturn, allowDuplicate: false); // always adds new reference
+        Debug.Log($"Inventory after adding back: {string.Join(", ", inventoryController?.GetInventoryNames() ?? new string[0])}");
+        Debug.Log($"Slot after clearing: {currentItem?.itemName ?? "empty"}");
+
         if (!added)
-            Debug.LogWarning($"[EquipSlot] Could not unequip {currentItem.itemName}: Inventory full!");
+            Debug.LogWarning($"Could not unequip {currentItem.itemName}: Inventory full!");
+            
 
         // Reset player stats
         if (playerController != null && currentItemStats != null)
@@ -77,12 +104,18 @@ public class EquipSlot : MonoBehaviour, IPointerClickHandler
             playerController.UnequipItemStats(lootType);
         }
 
-
         Debug.Log($"[EquipSlot] Unequipped {currentItem.itemName} from {acceptedType} slot.");
+        Debug.Log($"Inventory before adding back: {string.Join(", ", inventoryController?.GetInventoryNames() ?? new string[0])}");
+        Debug.Log($"Slot before clearing: {currentItem?.itemName ?? "empty"}");
+
 
         currentItem = null;
         currentItemStats = null;
         UpdateIcon();
+
+         Debug.Log($"Slot after clearing: {currentItem}");
+         Debug.Log("Inventory contains: " + string.Join(", ", inventoryController.inventoryItems.Select(i => i.itemName)));
+ 
     }
 
     public void OnPointerClick(PointerEventData eventData)
@@ -152,4 +185,7 @@ public class EquipSlot : MonoBehaviour, IPointerClickHandler
         allowClick = true;
         Debug.Log("[EquipSlot] Clicks re-enabled.");
     }
+
+
+
 }

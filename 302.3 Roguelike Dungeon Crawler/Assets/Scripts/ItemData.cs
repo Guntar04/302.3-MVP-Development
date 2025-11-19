@@ -8,5 +8,7 @@ public class ItemData : ScriptableObject
     public ItemType itemType;
     public EquipmentStats equipmentStats;   // link the stats object here
 
+    public int instanceID; 
+
     [HideInInspector] public Loot originalLoot; // optional reference
 }
