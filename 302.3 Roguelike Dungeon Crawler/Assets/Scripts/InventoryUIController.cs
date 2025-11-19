@@ -89,8 +89,7 @@ isOpen = false;
         cg.blocksRaycasts = isOpen;                // can click when open
     }
 
-    Cursor.visible = isOpen;
-    Cursor.lockState = isOpen ? CursorLockMode.None : CursorLockMode.Locked;
+
 }
 
     public void OnInventoryButtonPressed() => ToggleInventory();
