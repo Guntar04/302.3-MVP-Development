@@ -19,7 +19,9 @@ MonoBehaviour:
   equipmentType: 0
   minAttack: 2
   maxAttack: 10
-  minSpeed: 2
-  maxSpeed: 10
+  minSpeed: 0
+  maxSpeed: 0
   minDefense: 0
   maxDefense: 0
+  minAttackSpeed: 0
+  maxAttackSpeed: 0
