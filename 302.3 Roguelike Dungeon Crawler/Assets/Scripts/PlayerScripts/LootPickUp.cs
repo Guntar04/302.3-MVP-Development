@@ -87,7 +87,6 @@ public class LootPickup : MonoBehaviour
     {
         attackPower = lootData.minAttack + Random.Range(0, lootData.maxAttack - lootData.minAttack + 1),
         defense = lootData.minDefense + Random.Range(0, lootData.maxDefense - lootData.minDefense + 1),
-        attackSpeed = lootData.minAttackSpeed + Random.Range(0f, lootData.maxAttackSpeed - lootData.minAttackSpeed + 1)
     };
 
     // --- 2. Convert Loot → ItemData ---

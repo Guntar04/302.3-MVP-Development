@@ -11,4 +11,6 @@ public class ItemData : ScriptableObject
     public int instanceID; 
 
     [HideInInspector] public Loot originalLoot; // optional reference
+
+
 }
