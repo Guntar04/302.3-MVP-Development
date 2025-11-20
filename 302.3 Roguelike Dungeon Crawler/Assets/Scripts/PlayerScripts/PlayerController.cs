@@ -530,8 +530,7 @@ private void ApplyStats(EquipmentStats stats, Loot.EquipmentType type)
             break;
         case Loot.EquipmentType.Pants:
         case Loot.EquipmentType.Boots:
-            defense += stats.defense; // accumulate defense
-            moveSpeed = baseMoveSpeed + stats.moveSpeed; // can also accumulate if needed
+            defense += stats.defense; // accumulate defense // can also accumulate if needed
             break;
     }
 }
@@ -621,7 +620,6 @@ public void UpdatePlayerStats()
     // Reset to base stats
     attackDamage = baseAttack;
     defense = baseDefense;
-    moveSpeed = baseMoveSpeed;
 
 
 
