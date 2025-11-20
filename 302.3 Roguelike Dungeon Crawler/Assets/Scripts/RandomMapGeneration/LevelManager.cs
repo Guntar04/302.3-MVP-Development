@@ -903,18 +903,35 @@ public void RegisterEnemyKill()
         // 3) Reset health UI in inventory
 
         try
-{
-    var players = UnityEngine.Object.FindObjectsByType<PlayerController>(
-        FindObjectsInactive.Include, FindObjectsSortMode.None
-    );
+        {
+            var players = UnityEngine.Object.FindObjectsByType<PlayerController>(
+                FindObjectsInactive.Include, FindObjectsSortMode.None
+            );
 
-    foreach (var p in players)
-    {
-        p.ResetHealthForNewRun();
-        Debug.Log("PrepareForNewRun: Health reset on PlayerController");
-    }
-}
-catch { }
+            foreach (var p in players)
+            {
+                p.ResetHealthForNewRun();
+                Debug.Log("PrepareForNewRun: Health reset on PlayerController");
+            }
+        }
+        catch { }
+
+        // 4) reset inventory items
+
+        try
+        {
+            var inventoryController = FindFirstObjectByType<InventoryUIController>();
+            if (inventoryController != null)
+            {
+                inventoryController.inventoryItems.Clear();  // clear all items
+                inventoryController.RefreshUI();             // refresh UI to show empty slots
+                Debug.Log("PrepareForNewRun: Inventory cleared.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning($"PrepareForNewRun inventory reset error: {ex.Message}");
+        }
 
         // 4) Reset singleton states without destroying them
         try

@@ -112,7 +112,7 @@ public bool AddItem(ItemData item, bool allowDuplicate = true)
 
 
 
-private void RefreshUI()
+public void RefreshUI()
 {
     if (slots == null) return;
 
