@@ -562,6 +562,12 @@ public class PlayerController : MonoBehaviour
             dir.y != 0 ? attackRange : attackRadius,
             0f));
     }
+
+    public void ResetHealthForNewRun()
+{
+    health = maxHealth;  // or the base max health you want
+}
+
 }
 
 

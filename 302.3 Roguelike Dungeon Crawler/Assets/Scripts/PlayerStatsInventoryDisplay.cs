@@ -11,29 +11,21 @@ public class PlayerStatsInventoryDisplay : MonoBehaviour
     private PlayerController player;
     private Shield shield;
 
-    IEnumerator Start()
+   IEnumerator Start()
+{
+    while (true)
     {
-        // Wait until a PlayerController exists in the scene
-        while (FindFirstObjectByType<PlayerController>() == null)
+        var newPlayer = FindFirstObjectByType<PlayerController>();
+        
+        if (newPlayer != null && newPlayer != player)
         {
-            yield return null;
+            ConnectToPlayer(newPlayer);
         }
 
-        player = FindFirstObjectByType<PlayerController>();
-
-        // Get the Shield component (if it exists)
-        shield = player.GetComponent<Shield>();
-        if (shield != null && shieldText != null)
-        {
-            // Subscribe to shield changes
-            shield.OnShieldChanged += UpdateShieldUI;
-            UpdateShieldUI(shield.CurrentShields);
-        }
-
-        // Initialize health text immediately
-        if (healthText != null)
-            UpdateHealthUI();
+        yield return new WaitForSeconds(0.2f);
     }
+}
+
 
     void Update()
     {
@@ -52,6 +44,27 @@ public class PlayerStatsInventoryDisplay : MonoBehaviour
         if (shieldText != null)
             shieldText.text = value.ToString();
     }
+
+    private void ConnectToPlayer(PlayerController newPlayer)
+{
+    player = newPlayer;
+
+    // Disconnect old shield listener
+    if (shield != null)
+        shield.OnShieldChanged -= UpdateShieldUI;
+
+    // Connect new shield
+    shield = player.GetComponent<Shield>();
+    if (shield != null)
+    {
+        shield.OnShieldChanged += UpdateShieldUI;
+        UpdateShieldUI(shield.CurrentShields);
+    }
+
+    // Update health immediately
+    UpdateHealthUI();
+}
+
 
     private void OnDestroy()
     {

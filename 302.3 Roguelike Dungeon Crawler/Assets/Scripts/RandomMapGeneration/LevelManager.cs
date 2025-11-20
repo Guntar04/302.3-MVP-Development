@@ -900,7 +900,23 @@ public void RegisterEnemyKill()
             Debug.LogWarning($"PrepareForNewRun enemy cleanup error: {ex.Message}");
         }
 
-        // 3) Reset singleton states without destroying them
+        // 3) Reset health UI in inventory
+
+        try
+{
+    var players = UnityEngine.Object.FindObjectsByType<PlayerController>(
+        FindObjectsInactive.Include, FindObjectsSortMode.None
+    );
+
+    foreach (var p in players)
+    {
+        p.ResetHealthForNewRun();
+        Debug.Log("PrepareForNewRun: Health reset on PlayerController");
+    }
+}
+catch { }
+
+        // 4) Reset singleton states without destroying them
         try
         {
             if (PlayerStats.Instance != null)
