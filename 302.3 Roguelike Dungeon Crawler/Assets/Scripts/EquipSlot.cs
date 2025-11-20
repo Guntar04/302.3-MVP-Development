@@ -7,6 +7,7 @@ public class EquipSlot : MonoBehaviour, IPointerClickHandler
 {
     [Header("Slot Info")]
     public ItemType acceptedType;
+    public Image silhouetteImage;
     public Image itemIcon;
     public PlayerController playerController;
     public InventoryUIController inventoryController;
@@ -19,6 +20,10 @@ public class EquipSlot : MonoBehaviour, IPointerClickHandler
 
     private void Awake()
     {
+
+        if (silhouetteImage == null)
+        silhouetteImage = transform.Find("Silhouette").GetComponent<Image>();
+
         if (inventoryController == null)
             inventoryController = FindFirstObjectByType<InventoryUIController>();
 
@@ -48,6 +53,8 @@ public class EquipSlot : MonoBehaviour, IPointerClickHandler
             playerController = FindFirstObjectByType<PlayerController>();
 
         playerController?.EquipItemStats(currentItemStats, lootType);
+
+        silhouetteImage.enabled = false;  
 
         UpdateIcon();
         Debug.Log($"[EquipSlot] Equipped {currentItem.itemName} in {acceptedType} slot.");
@@ -108,6 +115,7 @@ public class EquipSlot : MonoBehaviour, IPointerClickHandler
         Debug.Log($"Inventory before adding back: {string.Join(", ", inventoryController?.GetInventoryNames() ?? new string[0])}");
         Debug.Log($"Slot before clearing: {currentItem?.itemName ?? "empty"}");
 
+        silhouetteImage.enabled = true;
 
         currentItem = null;
         currentItemStats = null;
@@ -134,15 +142,26 @@ public class EquipSlot : MonoBehaviour, IPointerClickHandler
             itemIcon.enabled = false;
         }
     }
-
-    private void UpdateIcon()
+    
+private void UpdateIcon()
+{
+    if (itemIcon != null)
     {
-        if (itemIcon != null)
+        if (currentItem != null)
         {
-            itemIcon.sprite = currentItem != null ? currentItem.icon : null;
-            itemIcon.enabled = currentItem != null;
+            itemIcon.sprite = currentItem.icon;
+            itemIcon.enabled = true;          // show equipped icon
+            silhouetteImage.enabled = false;  // hide silhouette
+        }
+        else
+        {
+            itemIcon.sprite = null;
+            itemIcon.enabled = false;         // hide icon when empty
+            silhouetteImage.enabled = true;   // show silhouette
         }
     }
+}
+
 
     public ItemType ConvertToItemType(Loot.EquipmentType lootType)
     {
