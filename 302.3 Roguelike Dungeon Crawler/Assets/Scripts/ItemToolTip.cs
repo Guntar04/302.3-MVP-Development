@@ -42,7 +42,7 @@ public class ItemTooltip : MonoBehaviour
             // Weapon → ATK only
             if (item.itemType == ItemType.Weapon)
             {
-                statsText.text += $"<color=#FF4A4A>Attack: {item.equipmentStats.attackPower}</color>\n";
+                statsText.text += $"<color=#FF4A4A>Attack: +{item.equipmentStats.attackPower}</color>\n";
             }
 
             // Armor → DEF only
@@ -52,7 +52,7 @@ public class ItemTooltip : MonoBehaviour
                 item.itemType == ItemType.Boots ||
                 item.itemType == ItemType.Shield)
             {
-                statsText.text += $"<color=#4AFF6C>Defense: {item.equipmentStats.defense}</color>\n";
+                statsText.text += $"<color=#4AFF6C>Defense: +{item.equipmentStats.defense}</color>\n";
             }
         }
 
