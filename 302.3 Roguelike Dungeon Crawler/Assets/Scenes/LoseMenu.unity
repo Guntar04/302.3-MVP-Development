@@ -3558,7 +3558,7 @@ MonoBehaviour:
   killedByImage: {fileID: 1860192637}
   lootIcons: []
   testLootSprites: []
-  tipText: {fileID: 0}
+  tipText: {fileID: 1454663949}
   testEnemySprite: {fileID: 0}
 --- !u!1 &1967611502
 GameObject:

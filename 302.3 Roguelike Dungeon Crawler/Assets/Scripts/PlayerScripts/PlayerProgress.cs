@@ -13,7 +13,7 @@ public class PlayerProgress : MonoBehaviour
     public static int maxHealth = 10;
     public static int shieldCount = 0;
 
- public static EquipmentStats savedWeaponStats;
+    public static EquipmentStats savedWeaponStats;
     public static bool weaponEquipped;
     
     public static EquipmentStats savedChestplateStats;
@@ -31,9 +31,6 @@ public class PlayerProgress : MonoBehaviour
     public static EquipmentStats savedShieldStats;
     public static bool shieldEquipped;
 
-
-
-
     void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
@@ -49,7 +46,7 @@ public class PlayerProgress : MonoBehaviour
         shieldCount = TryGetShieldCount(pc.gameObject);
         HasSaved = true;
 
-         savedWeaponStats = pc.equippedWeaponStats;
+        savedWeaponStats = pc.equippedWeaponStats;
         weaponEquipped = pc.equippedWeaponStats != null;
 
         savedChestplateStats = pc.equippedChestplateStats;
@@ -71,25 +68,28 @@ public class PlayerProgress : MonoBehaviour
     public void ApplyToInstance(PlayerController pc)
     {
         if (pc == null || !HasSaved) return;
-        pc.maxHealth = Mathf.Clamp(maxHealth, 1, 20);
-        pc.health = Mathf.Clamp(health, 0, pc.maxHealth);
-        pc.UpdatePlayerHealth();
+        
+        // Use the new SetHealth method instead of directly setting and invoking event
+        pc.SetHealth(health, maxHealth);
+        
         TryApplyShieldCount(pc.gameObject, shieldCount);
 
         pc.equippedWeaponStats = savedWeaponStats;
-pc.equippedChestplateStats = savedChestplateStats;
-pc.equippedHelmetStats = savedHelmetStats;
-pc.equippedPantsStats = savedPantsStats;
-pc.equippedBootsStats = savedBootsStats;
-pc.equippedShieldStats = savedShieldStats;
+        pc.equippedChestplateStats = savedChestplateStats;
+        pc.equippedHelmetStats = savedHelmetStats;
+        pc.equippedPantsStats = savedPantsStats;
+        pc.equippedBootsStats = savedBootsStats;
+        pc.equippedShieldStats = savedShieldStats;
 
-pc.UpdatePlayerStats();   // ← SINGLE STAT RECALC
-
+        pc.UpdatePlayerStats();
     }
 
     public static void SaveFrom(PlayerController pc)
     {
-        if (Instance != null) Instance.SaveFromInstance(pc);
+        if (Instance != null) 
+        {
+            Instance.SaveFromInstance(pc);
+        }
         else
         {
             if (pc == null) return;
@@ -103,65 +103,66 @@ pc.UpdatePlayerStats();   // ← SINGLE STAT RECALC
             savedPantsStats = pc.equippedPantsStats;
             savedBootsStats = pc.equippedBootsStats;
             savedShieldStats = pc.equippedShieldStats;
-
         }
     }
 
     public static void ApplyTo(PlayerController pc)
     {
-        Debug.Log("=== APPLYING PLAYER PROGRESS TO NEW LEVEL ===");
-
-    Debug.Log($"Weapon Equipped Saved? {weaponEquipped}");
-    Debug.Log($"Saved Weapon Stats: {savedWeaponStats}");
-
-
-
-       if (savedWeaponStats != null)
-    pc.EquipItemStats(savedWeaponStats, Loot.EquipmentType.Sword);
-
-if (savedChestplateStats != null)
-    pc.EquipItemStats(savedChestplateStats, Loot.EquipmentType.Chestplate);
-
-if (savedHelmetStats != null)
-    pc.EquipItemStats(savedHelmetStats, Loot.EquipmentType.Helmet);
-
-if (savedPantsStats != null)
-    pc.EquipItemStats(savedPantsStats, Loot.EquipmentType.Pants);
-
-if (savedBootsStats != null)
-    pc.EquipItemStats(savedBootsStats, Loot.EquipmentType.Boots);
-
-if (savedShieldStats != null)
-    pc.EquipItemStats(savedShieldStats, Loot.EquipmentType.Shield);
-
-      Debug.Log("Calling UpdatePlayerStats after loading...");
-    pc.UpdatePlayerStats();
-
-    Debug.Log("=== DONE APPLYING PLAYER PROGRESS ===");
-
         if (pc == null || !HasSaved) return;
-        if (Instance != null) { Instance.ApplyToInstance(pc); return; }
-        pc.maxHealth = Mathf.Clamp(maxHealth, 1, 20);
-        pc.health = Mathf.Clamp(health, 0, pc.maxHealth);
-        pc.UpdatePlayerHealth();
+        
+        Debug.Log("=== APPLYING PLAYER PROGRESS TO NEW LEVEL ===");
+        Debug.Log($"Weapon Equipped Saved? {weaponEquipped}");
+        Debug.Log($"Saved Weapon Stats: {savedWeaponStats}");
+
+        // Use the new SetHealth method
+        pc.SetHealth(health, maxHealth);
+        
+        // Apply shield count
         TryApplyShieldCountStatic(pc.gameObject, shieldCount);
 
+        // Apply equipment stats
+        if (savedWeaponStats != null)
+            pc.EquipItemStats(savedWeaponStats, Loot.EquipmentType.Sword);
+
+        if (savedChestplateStats != null)
+            pc.EquipItemStats(savedChestplateStats, Loot.EquipmentType.Chestplate);
+
+        if (savedHelmetStats != null)
+            pc.EquipItemStats(savedHelmetStats, Loot.EquipmentType.Helmet);
+
+        if (savedPantsStats != null)
+            pc.EquipItemStats(savedPantsStats, Loot.EquipmentType.Pants);
+
+        if (savedBootsStats != null)
+            pc.EquipItemStats(savedBootsStats, Loot.EquipmentType.Boots);
+
+        if (savedShieldStats != null)
+            pc.EquipItemStats(savedShieldStats, Loot.EquipmentType.Shield);
+
+        Debug.Log("Calling UpdatePlayerStats after loading...");
+        pc.UpdatePlayerStats();
+
+        Debug.Log("=== DONE APPLYING PLAYER PROGRESS ===");
+        
+        // Call instance method if it exists
+        if (Instance != null) 
+        {
+            Instance.ApplyToInstance(pc);
+        }
     }
 
-    // Prefer field/property names that reference "shield"/"armor"/"charge"/"count"
     private int TryGetShieldCount(GameObject go) => TryGetShieldCountStatic(go);
+    
     private static int TryGetShieldCountStatic(GameObject go)
     {
         if (go == null) return 0;
         var candidate = go.GetComponent("Shield") ?? go.GetComponent("ShieldController") ?? go.GetComponent("Armor");
         if (candidate == null)
         {
-            // fallback: search components for likely int field/property
             foreach (var comp in go.GetComponents<Component>())
             {
                 if (comp == null) continue;
                 var t = comp.GetType();
-                // prefer named fields/properties
                 var f = t.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                          .FirstOrDefault(x => x.FieldType == typeof(int) && (x.Name.IndexOf("shield", StringComparison.OrdinalIgnoreCase) >= 0 || x.Name.IndexOf("armor", StringComparison.OrdinalIgnoreCase) >= 0 || x.Name.IndexOf("charge", StringComparison.OrdinalIgnoreCase) >= 0 || x.Name.IndexOf("count", StringComparison.OrdinalIgnoreCase) >= 0));
                 if (f != null) return (int)f.GetValue(comp);
@@ -170,7 +171,6 @@ if (savedShieldStats != null)
                 if (p != null) return (int)p.GetValue(comp);
             }
 
-            // final fallback: any int field/property on any component
             foreach (var comp in go.GetComponents<Component>())
             {
                 if (comp == null) continue;
@@ -187,7 +187,6 @@ if (savedShieldStats != null)
         }
 
         var tt = candidate.GetType();
-        // prefer named fields/properties
         var field = tt.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                       .FirstOrDefault(x => x.FieldType == typeof(int) && (x.Name.IndexOf("shield", StringComparison.OrdinalIgnoreCase) >= 0 || x.Name.IndexOf("armor", StringComparison.OrdinalIgnoreCase) >= 0 || x.Name.IndexOf("charge", StringComparison.OrdinalIgnoreCase) >= 0 || x.Name.IndexOf("count", StringComparison.OrdinalIgnoreCase) >= 0));
         if (field != null) return (int)field.GetValue(candidate);
@@ -195,7 +194,6 @@ if (savedShieldStats != null)
                      .FirstOrDefault(x => x.PropertyType == typeof(int) && (x.Name.IndexOf("shield", StringComparison.OrdinalIgnoreCase) >= 0 || x.Name.IndexOf("armor", StringComparison.OrdinalIgnoreCase) >= 0 || x.Name.IndexOf("charge", StringComparison.OrdinalIgnoreCase) >= 0 || x.Name.IndexOf("count", StringComparison.OrdinalIgnoreCase) >= 0));
         if (prop != null) return (int)prop.GetValue(candidate);
 
-        // fallback to any int
         var anyField = tt.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                          .FirstOrDefault(x => x.FieldType == typeof(int));
         if (anyField != null) return (int)anyField.GetValue(candidate);
@@ -207,20 +205,18 @@ if (savedShieldStats != null)
     }
 
     private void TryApplyShieldCount(GameObject go, int value) => TryApplyShieldCountStatic(go, value);
+    
     private static void TryApplyShieldCountStatic(GameObject go, int value)
     {
         if (go == null) return;
 
-        // try direct known component names first
         var candidate = go.GetComponent("Shield") ?? go.GetComponent("ShieldController") ?? go.GetComponent("Armor");
         if (candidate == null)
         {
-            // search all components for a likely field/property
             foreach (var comp in go.GetComponents<Component>())
             {
                 if (comp == null) continue;
                 var t = comp.GetType();
-                // try named fields/properties first
                 var f = t.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                          .FirstOrDefault(x => x.FieldType == typeof(int) && (x.Name.IndexOf("shield", StringComparison.OrdinalIgnoreCase) >= 0 || x.Name.IndexOf("armor", StringComparison.OrdinalIgnoreCase) >= 0 || x.Name.IndexOf("charge", StringComparison.OrdinalIgnoreCase) >= 0 || x.Name.IndexOf("count", StringComparison.OrdinalIgnoreCase) >= 0));
                 if (f != null) { f.SetValue(comp, value); TryInvokeShieldUpdate(comp); return; }
@@ -229,7 +225,6 @@ if (savedShieldStats != null)
                 if (p != null) { p.SetValue(comp, value); TryInvokeShieldUpdate(comp); return; }
             }
 
-            // final fallback: any int field/property
             foreach (var comp in go.GetComponents<Component>())
             {
                 if (comp == null) continue;
@@ -246,7 +241,6 @@ if (savedShieldStats != null)
         }
 
         var tt = candidate.GetType();
-        // named field/property
         var field = tt.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                       .FirstOrDefault(x => x.FieldType == typeof(int) && (x.Name.IndexOf("shield", StringComparison.OrdinalIgnoreCase) >= 0 || x.Name.IndexOf("armor", StringComparison.OrdinalIgnoreCase) >= 0 || x.Name.IndexOf("charge", StringComparison.OrdinalIgnoreCase) >= 0 || x.Name.IndexOf("count", StringComparison.OrdinalIgnoreCase) >= 0));
         if (field != null) { field.SetValue(candidate, value); TryInvokeShieldUpdate(candidate); return; }
@@ -254,7 +248,6 @@ if (savedShieldStats != null)
                      .FirstOrDefault(x => x.PropertyType == typeof(int) && x.CanWrite && (x.Name.IndexOf("shield", StringComparison.OrdinalIgnoreCase) >= 0 || x.Name.IndexOf("armor", StringComparison.OrdinalIgnoreCase) >= 0 || x.Name.IndexOf("charge", StringComparison.OrdinalIgnoreCase) >= 0 || x.Name.IndexOf("count", StringComparison.OrdinalIgnoreCase) >= 0));
         if (prop != null) { prop.SetValue(candidate, value); TryInvokeShieldUpdate(candidate); return; }
 
-        // fallback any int
         var anyField = tt.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                          .FirstOrDefault(x => x.FieldType == typeof(int));
         if (anyField != null) { anyField.SetValue(candidate, value); TryInvokeShieldUpdate(candidate); return; }
@@ -262,12 +255,10 @@ if (savedShieldStats != null)
                         .FirstOrDefault(x => x.PropertyType == typeof(int) && x.CanWrite);
         if (anyProp != null) { anyProp.SetValue(candidate, value); TryInvokeShieldUpdate(candidate); return; }
 
-        // last resort: try SetShields(int)
         var setMethod = tt.GetMethod("SetShields", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
         if (setMethod != null) { setMethod.Invoke(candidate, new object[] { value }); TryInvokeShieldUpdate(candidate); return; }
     }
 
-    // try to call common update/refresh methods on the shield component so UI refreshes
     private static void TryInvokeShieldUpdate(object comp)
     {
         if (comp == null) return;
@@ -288,7 +279,6 @@ if (savedShieldStats != null)
             }
         }
 
-        // try parameterized "UpdateShields(int)" style
         foreach (var m in t.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
         {
             if (m.Name.IndexOf("shield", StringComparison.OrdinalIgnoreCase) >= 0 && m.GetParameters().Length == 1 && m.GetParameters()[0].ParameterType == typeof(int))
@@ -298,7 +288,6 @@ if (savedShieldStats != null)
             }
         }
 
-        // if nothing found, also attempt to send a Unity message (if component inherits MonoBehaviour)
         var mb = comp as MonoBehaviour;
         if (mb != null)
         {
@@ -307,14 +296,13 @@ if (savedShieldStats != null)
         }
     }
 
-    // Clear saved progress so a new game starts fresh
     public static void ResetProgress()
     {
         HasSaved = false;
         health = 10;
         maxHealth = 10;
         shieldCount = 0;
-        // clear any runtime singleton instance fields too
+        
         savedWeaponStats = null;
         weaponEquipped = false;
 

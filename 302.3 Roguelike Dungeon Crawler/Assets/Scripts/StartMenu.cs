@@ -6,23 +6,23 @@ using UnityEditor;
 
 public class StartMenu : MonoBehaviour
 {
-   public void StartGame()
-   {
-      // Clear saved run progress so a new game starts fresh
-      PlayerProgress.ResetProgress();
+    public void StartGame()
+    {
+        // Clean up before starting new run
+        LevelManager.PrepareForNewRun();
+        
+        // Load character selection or game scene
+        SceneManager.LoadScene("CharacterSelection", LoadSceneMode.Single);
+    }
 
-      // Load gameplay scene (index 1)
-      SceneManager.LoadSceneAsync(1);
-   }
+    public void QuitGame()
+    {
+        Debug.Log("QUIT");
+        #if UNITY_EDITOR
+            EditorApplication.isPlaying = false; // stops play mode in Editor
+            #else
+            Application.Quit();                  // quits the built game
+            #endif
 
-   public void QuitGame()
-   {
-      Debug.Log("QUIT");
-      #if UNITY_EDITOR
-        EditorApplication.isPlaying = false; // stops play mode in Editor
-        #else
-        Application.Quit();                  // quits the built game
-        #endif
-
-   }
+    }
 }

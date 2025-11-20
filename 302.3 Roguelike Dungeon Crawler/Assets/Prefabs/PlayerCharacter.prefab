@@ -71,6 +71,9 @@ MonoBehaviour:
   maxHealth: 15
   attackDamage: 2
   defense: 1
+  baseAttack: 2
+  baseMoveSpeed: 5
+  baseDefense: 1
   moveSpeed: 7
   dashSpeed: 20
   dashDuration: 0.2
@@ -83,7 +86,33 @@ MonoBehaviour:
   criticalHitChance: 0.2
   criticalHitUIPrefab: {fileID: 3283098216751668891, guid: 64d3580928f6b2041b9d2ac5315caa3b, type: 3}
   criticalHitUIDuration: 1
+  minSpeed: 0
+  maxSpeed: 3
   dashIconOverlay: {fileID: 0}
+  equippedWeaponStats:
+    equipmentType: 0
+    attackPower: 0
+    defense: 0
+  equippedChestplateStats:
+    equipmentType: 0
+    attackPower: 0
+    defense: 0
+  equippedHelmetStats:
+    equipmentType: 0
+    attackPower: 0
+    defense: 0
+  equippedPantsStats:
+    equipmentType: 0
+    attackPower: 0
+    defense: 0
+  equippedBootsStats:
+    equipmentType: 0
+    attackPower: 0
+    defense: 0
+  equippedShieldStats:
+    equipmentType: 0
+    attackPower: 0
+    defense: 0
 --- !u!114 &-6988257082530981728
 MonoBehaviour:
   m_ObjectHideFlags: 0

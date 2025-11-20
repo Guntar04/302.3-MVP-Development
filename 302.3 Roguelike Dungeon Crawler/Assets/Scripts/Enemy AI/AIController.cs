@@ -97,25 +97,65 @@ public Sprite enemySprite; // assign in the inspector
 
     void Start()
     {
-        rb = GetComponent<Rigidbody2D>();
-        baseScale = transform.localScale;
+        // Find the correct HUD canvas specifically (not inventory or other UI canvases)
+        var allCanvases = UnityEngine.Object.FindObjectsByType<Canvas>(FindObjectsSortMode.None);
+        
+        // First try: look for UIManager's canvas
+        if (UIManager.Instance != null)
+        {
+            var uiCanvas = UIManager.Instance.GetComponentInChildren<Canvas>();
+            if (uiCanvas != null)
+            {
+                cachedCanvas = uiCanvas;
+                Debug.Log($"AIController: Found UIManager's canvas '{cachedCanvas.name}'");
+            }
+        }
+        
+        // Second try: look for a canvas named HUDCanvas or similar
+        if (cachedCanvas == null)
+        {
+            foreach (var c in allCanvases)
+            {
+                if (c.name.Contains("HUD") && !c.name.Contains("Inventory"))
+                {
+                    cachedCanvas = c;
+                    Debug.Log($"AIController: Found HUD canvas '{cachedCanvas.name}'");
+                    break;
+                }
+            }
+        }
+        
+        // Last resort: use any canvas that's NOT the inventory canvas
+        if (cachedCanvas == null)
+        {
+            foreach (var c in allCanvases)
+            {
+                if (!c.name.Contains("Inventory"))
+                {
+                    cachedCanvas = c;
+                    Debug.Log($"AIController: Using fallback canvas '{cachedCanvas.name}'");
+                    break;
+                }
+            }
+        }
 
-        // cache canvas and camera once
-        cachedCanvas = UnityEngine.Object.FindAnyObjectByType<Canvas>();
         if (cachedCanvas != null)
         {
             cachedCanvasRect = cachedCanvas.GetComponent<RectTransform>();
             cachedCanvasCamera = (cachedCanvas.renderMode == RenderMode.ScreenSpaceOverlay) ? null : cachedCanvas.worldCamera ?? Camera.main;
         }
+        else
+        {
+            Debug.LogError("AIController: Could not find any suitable canvas for HP bars!");
+        }
 
-        // If no explicit hpAnchor assigned, try to find a child named "HPAnchor" (create in prefab under the animated graphics)
+        // If no explicit hpAnchor assigned, try to find a child named "HPAnchor"
         if (hpAnchor == null)
         {
             var found = transform.Find("HPAnchor");
             if (found != null) hpAnchor = found;
             else
             {
-                // try common child name "Graphics" then its child "HPAnchor"
                 var g = transform.Find("Graphics");
                 if (g != null)
                 {
@@ -129,16 +169,25 @@ public Sprite enemySprite; // assign in the inspector
         if (rb != null) rb.simulated = true;
         if (animator != null) animator.applyRootMotion = false;
         TryAssignPlayer();
+
+        // DON'T create HP bar here - wait until enemy takes damage
     }
 
     void Update()
     {
-        // Create HP bar lazily if needed
-        if (currentHealth < maxHealth) CreateHpBarIfNeeded();
+        // Only create HP bar when damaged (currentHealth < maxHealth)
+        if (currentHealth < maxHealth && hpBarInstance == null && cachedCanvas != null)
+        {
+            Debug.Log($"AIController ({gameObject.name}): Health dropped to {currentHealth}/{maxHealth}, creating HP bar");
+            CreateHpBarIfNeeded();
+        }
 
-        // Update fills and position every frame so it follows animation (alive or dying)
-        UpdateHPBar();
-        UpdateHPBarPosition();
+        // Update fills and position every frame (if bar exists)
+        if (hpBarInstance != null)
+        {
+            UpdateHPBar();
+            UpdateHPBarPosition();
+        }
 
         if (isDead) return;
 
@@ -270,11 +319,16 @@ public Sprite enemySprite; // assign in the inspector
         if (isDead) return;
 
         currentHealth -= damage;
+        Debug.Log($"{gameObject.name} took {damage} damage. Health: {currentHealth}/{maxHealth}");
 
         if (currentHealth > 0)
         {
             // Show the HP bar if it hasn't been instantiated yet
-            CreateHpBarIfNeeded();
+            if (hpBarInstance == null)
+            {
+                CreateHpBarIfNeeded();
+                Debug.Log($"AIController ({gameObject.name}): Created HP bar after taking damage");
+            }
 
             // Update the HP bar
             UpdateHPBar();
@@ -297,14 +351,33 @@ public Sprite enemySprite; // assign in the inspector
     // Ensure HP bar exists (create and cache references)
     private void CreateHpBarIfNeeded()
     {
-        if (hpBarInstance != null || hpBarPrefab == null || cachedCanvas == null) return;
+        if (hpBarInstance != null || hpBarPrefab == null || cachedCanvas == null)
+        {
+            if (hpBarInstance == null && hpBarPrefab != null && cachedCanvas == null)
+            {
+                Debug.LogWarning($"AIController ({gameObject.name}): Cannot create HP bar - no canvas available!");
+            }
+            return;
+        }
+
+        Debug.Log($"AIController ({gameObject.name}): Creating HP bar on canvas '{cachedCanvas.name}'");
 
         hpBarInstance = Instantiate(hpBarPrefab, cachedCanvas.transform);
-        // preserve prefab layout/scaling
         hpBarInstance.transform.SetParent(cachedCanvas.transform, false);
+        hpBarInstance.name = $"EnemyHPBar_{gameObject.name}";
 
+        // Find the bar components
         greenBar = hpBarInstance.transform.Find("GreenBar")?.GetComponent<RectTransform>();
         redBar = hpBarInstance.transform.Find("RedBar")?.GetComponent<RectTransform>();
+
+        if (greenBar == null || redBar == null)
+        {
+            Debug.LogWarning($"AIController ({gameObject.name}): HP bar prefab missing GreenBar or RedBar children!");
+        }
+
+        // Initial update
+        UpdateHPBar();
+        UpdateHPBarPosition();
     }
 
     private void UpdateHPBar()
@@ -598,6 +671,12 @@ public Sprite enemySprite; // assign in the inspector
             hpBarInstance = null;
             greenBar = null;
             redBar = null;
+        }
+
+        // Clean up health bar when enemy dies
+        if (hpBarInstance != null)
+        {
+            Destroy(hpBarInstance);
         }
     }
 }

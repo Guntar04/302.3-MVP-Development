@@ -55,7 +55,7 @@ public class ButtonScaler : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     CharacterSelection selection = FindFirstObjectByType<CharacterSelection>();
     if (selection != null && selection.CanPressStart()) // add a public getter
     {
-        Debug.Log("Starting the game from ButtonScaler");
+        //Debug.Log("Starting the game from ButtonScaler");
         SceneManager.LoadScene(2);
     }
     else

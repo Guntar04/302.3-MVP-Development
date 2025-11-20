@@ -72,7 +72,7 @@ public class EquipSlot : MonoBehaviour, IPointerClickHandler
     public void Unequip()
     {
         
-        playerController = FindObjectOfType<PlayerController>();
+        playerController = FindFirstObjectByType<PlayerController>();
 
         if (!allowClick) return;
         if (currentItem == null) return;

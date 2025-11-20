@@ -14,12 +14,12 @@ public class PlayerStatsInventoryDisplay : MonoBehaviour
     IEnumerator Start()
     {
         // Wait until a PlayerController exists in the scene
-        while (FindObjectOfType<PlayerController>() == null)
+        while (FindFirstObjectByType<PlayerController>() == null)
         {
             yield return null;
         }
 
-        player = FindObjectOfType<PlayerController>();
+        player = FindFirstObjectByType<PlayerController>();
 
         // Get the Shield component (if it exists)
         shield = player.GetComponent<Shield>();

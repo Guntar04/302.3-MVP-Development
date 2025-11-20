@@ -5504,7 +5504,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 875593012}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: PauseMenu, Assembly-CSharp
         m_MethodName: GoToMainMenu
         m_Mode: 1
@@ -7688,7 +7688,6 @@ GameObject:
   - component: {fileID: 875593015}
   - component: {fileID: 875593014}
   - component: {fileID: 875593013}
-  - component: {fileID: 875593012}
   - component: {fileID: 875593017}
   m_Layer: 5
   m_Name: Pause
@@ -7697,18 +7696,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &875593012
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 875593011}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 76dafd394f2ebf4448f99ad647fb3680, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &875593013
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8662,7 +8649,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 875593012}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: PauseMenu, Assembly-CSharp
         m_MethodName: ResumeGame
         m_Mode: 1
@@ -10671,6 +10658,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1341527284}
   m_CullTransparentMesh: 1
+--- !u!224 &1344712789 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 2033490967013449776, guid: fd5f95725e0e5c24793aaf738a1704df, type: 3}
+  m_PrefabInstance: {fileID: 1594900645}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1373802544
 GameObject:
   m_ObjectHideFlags: 0
@@ -11933,6 +11925,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7855680875566351664, guid: fd5f95725e0e5c24793aaf738a1704df, type: 3}
+      propertyPath: m_FillRect
+      value: 
+      objectReference: {fileID: 1344712789}
     - target: {fileID: 8586061948987095809, guid: fd5f95725e0e5c24793aaf738a1704df, type: 3}
       propertyPath: m_Name
       value: HealthUI
@@ -18794,7 +18790,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 875593012}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: PauseMenu, Assembly-CSharp
         m_MethodName: ExitGame
         m_Mode: 1

@@ -3,15 +3,31 @@ using System.Collections;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
+using System;
 
+[DisallowMultipleComponent]
 public class PlayerController : MonoBehaviour
 {
     private const int MAX_HEALTH_CAP = 20;
 
+    // Make this public so other scripts can fire the event
+    public event Action<int, int> OnHealthChanged; // (currentHealth, maxHealth)
+
+    // Add this new method after the event declaration
+    public void SetHealth(int newHealth, int newMaxHealth)
+    {
+        maxHealth = Mathf.Clamp(newMaxHealth, 1, MAX_HEALTH_CAP);
+        health = Mathf.Clamp(newHealth, 0, maxHealth);
+        
+        // Fire the health changed event
+        OnHealthChanged?.Invoke(health, maxHealth);
+        
+        Debug.Log($"PlayerController.SetHealth: Set to {health}/{maxHealth}");
+    }
+
     [Header("Stats")]
     [SerializeField] private Animator animator;
     public int health = 10;
-    public Slider healthSlider;
     public int maxHealth = 10;
     public int attackDamage = 2;
     public int defense = 1;
@@ -40,10 +56,8 @@ public class PlayerController : MonoBehaviour
     public float criticalHitUIDuration = 1f;
 
     [Header("Equipment stat ranges")]
-public float minSpeed = 0f;
-public float maxSpeed = 3f; // inspector sets this
-
-
+    public float minSpeed = 0f;
+    public float maxSpeed = 3f;
 
     private Vector2 moveDirection;
     private Vector2 lastMoveDirection = Vector2.down;
@@ -59,85 +73,89 @@ public float maxSpeed = 3f; // inspector sets this
     private Color spriteOriginalColor = Color.white;
 
     // Equipped stats
-public EquipmentStats equippedWeaponStats;
-public EquipmentStats equippedChestplateStats;
-public EquipmentStats equippedHelmetStats;
-public EquipmentStats equippedPantsStats;
-public EquipmentStats equippedBootsStats;
-public EquipmentStats equippedShieldStats;
-
-
+    public EquipmentStats equippedWeaponStats;
+    public EquipmentStats equippedChestplateStats;
+    public EquipmentStats equippedHelmetStats;
+    public EquipmentStats equippedPantsStats;
+    public EquipmentStats equippedBootsStats;
+    public EquipmentStats equippedShieldStats;
 
     public static bool PlayerDead { get; private set; } = false;
 
     public static void SetPlayerDead(bool value) => PlayerDead = value;
 
     public static class PlayerDeathInfo
-{
-    public static string EnemyName;
-    public static Sprite EnemySprite;
-}
-    
+    {
+        public static string EnemyName;
+        public static Sprite EnemySprite;
+    }
 
     private void Start()
-{
-    // enforce cap on configured maxHealth
-    maxHealth = Mathf.Clamp(maxHealth, 1, MAX_HEALTH_CAP);
-
-    // Apply saved progress (if any) so spawned player receives previous HP/shields
-    if (PlayerProgress.HasSaved)
     {
-        PlayerProgress.ApplyTo(this);
-    }
+        // enforce cap on configured maxHealth
+        maxHealth = Mathf.Clamp(maxHealth, 1, MAX_HEALTH_CAP);
 
-    // Dynamically assign the DashIconOverlay and HealthSlider from the UIManager
-    if (UIManager.Instance != null)
-    {
-        dashIconOverlay = UIManager.Instance.dashIconOverlay;
-
-        if (healthSlider == null && UIManager.Instance.healthSlider != null)
+        // Apply saved progress (if any)
+        if (PlayerProgress.HasSaved)
         {
-            healthSlider = UIManager.Instance.healthSlider;
-            healthSlider.maxValue = maxHealth;
-            health = Mathf.Clamp(health, 0, maxHealth);
-            healthSlider.value = health;
+            PlayerProgress.ApplyTo(this);
         }
+
+        // cache original sprite color
+        var sr = GetComponent<SpriteRenderer>();
+        if (sr != null) spriteOriginalColor = sr.color;
+
+        // Tell UIManager to bind to this player
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.BindPlayer(gameObject);
+            Debug.Log($"PlayerController.Start: Requested UIManager bind for instanceID {GetInstanceID()}");
+        }
+
+        // Get dash icon reference
+        if (UIManager.Instance != null && dashIconOverlay == null)
+        {
+            dashIconOverlay = UIManager.Instance.dashIconOverlay;
+            if (dashIconOverlay != null)
+                dashIconOverlay.fillAmount = 0f;
+        }
+
+        // Fire initial health event after UIManager has time to bind
+        StartCoroutine(FireInitialHealthEvent());
     }
-    else
+
+    private IEnumerator FireInitialHealthEvent()
     {
-        Debug.LogError("UIManager is not present in the scene.");
+        // Wait for UIManager to finish binding (3 frames)
+        yield return null;
+        yield return null;
+        yield return null;
+
+        // NOW fire the initial health change event
+        OnHealthChanged?.Invoke(health, maxHealth);
+        Debug.Log($"PlayerController: Fired initial OnHealthChanged - {health}/{maxHealth}");
     }
-
-    // Initialize the dash icon overlay to show the ability is not ready
-    if (dashIconOverlay != null)
-        dashIconOverlay.fillAmount = 0f;
-
-    // cache original sprite color so flashes always restore to the correct value
-    var sr = GetComponent<SpriteRenderer>();
-    if (sr != null) spriteOriginalColor = sr.color;
-}
-
 
     private void Update()
     {
         if (isDead) return;
-         if (!isDashing)
-         {
-             HandleMovementInput();
+        if (!isDashing)
+        {
+            HandleMovementInput();
 
-             if (Input.GetKeyDown(KeyCode.Space))
-                 StartCoroutine(Dash());
+            if (Input.GetKeyDown(KeyCode.Space))
+                StartCoroutine(Dash());
 
-             if (Input.GetMouseButtonDown(0) && !isAttacking)
-                 StartCoroutine(PlayerAttack());
-         }
+            if (Input.GetMouseButtonDown(0) && !isAttacking)
+                StartCoroutine(PlayerAttack());
+        }
     }
 
     private void FixedUpdate()
     {
         if (isDead) return;
-         if (!isDashing)
-             Move();
+        if (!isDashing)
+            Move();
     }
 
     private void HandleMovementInput()
@@ -179,11 +197,9 @@ public EquipmentStats equippedShieldStats;
     {
         isAttacking = true;
 
-        // Get mouse position in world space
         Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         Vector2 directionToMouse = (mouseWorldPos - transform.position).normalized;
 
-        // Determine attack animation and direction
         string attackAnim = "Attack_Down";
         Vector2 attackDir = Vector2.zero;
 
@@ -214,26 +230,21 @@ public EquipmentStats equippedShieldStats;
             }
         }
 
-        // Play animation
         animator.Play(attackAnim);
 
-        // Calculate attack hitbox
         Vector2 attackOrigin = (Vector2)transform.position + attackDir * attackRange * 0.5f;
         Vector2 attackSize = attackDir.x != 0
-            ? new Vector2(attackRange, attackRadius)  // horizontal attack
-            : new Vector2(attackRadius, attackRange); // vertical attack
+            ? new Vector2(attackRange, attackRadius)
+            : new Vector2(attackRadius, attackRange);
 
-        // Detect enemies in hitbox
         Collider2D[] hitEnemies = Physics2D.OverlapBoxAll(attackOrigin, attackSize, 0f, enemyLayer);
-        //Debug.Log($"Number of enemies detected: {hitEnemies.Length}");
 
         foreach (Collider2D enemy in hitEnemies)
         {
             AIController ai = enemy.GetComponent<AIController>();
             if (ai != null)
             {
-                // Determine if the attack is a critical hit
-                bool isCriticalHit = Random.value < criticalHitChance;
+                bool isCriticalHit = UnityEngine.Random.value < criticalHitChance;
                 int damage = isCriticalHit ? attackDamage * 2 : attackDamage;
 
                 ai.TakeDamage(damage);
@@ -242,7 +253,6 @@ public EquipmentStats equippedShieldStats;
                 {
                     Debug.Log("Critical Hit! Damage: " + damage);
 
-                    // Display critical hit UI
                     if (criticalHitUIPrefab != null)
                     {
                         var canvas = FindFirstObjectByType<Canvas>();
@@ -253,29 +263,17 @@ public EquipmentStats equippedShieldStats;
 
                             if (rectTransform != null)
                             {
-                                Vector3 worldPosition = transform.position + new Vector3(0, 1, 0); // Offset by 1 unit vertically
-                                rectTransform.position = Camera.main.WorldToScreenPoint(worldPosition); // Convert world position to screen position
-                                Destroy(criticalHitUIInstance, criticalHitUIDuration); // Automatically destroy the UI after the duration
-                            }
-                            else
-                            {
-                                Debug.LogError("Critical Hit UI prefab does not have a RectTransform component.");
+                                Vector3 worldPosition = transform.position + new Vector3(0, 1, 0);
+                                rectTransform.position = Camera.main.WorldToScreenPoint(worldPosition);
+                                Destroy(criticalHitUIInstance, criticalHitUIDuration);
                             }
                         }
-                        else
-                        {
-                            Debug.LogError("No Canvas found in the scene.");
-                        }
-                    }
-                    else
-                    {
-                        Debug.LogError("CriticalHitUIPrefab is not assigned in the Inspector.");
                     }
                 }
             }
         }
 
-        yield return new WaitForSeconds(0.3f); // adjust to match animation length
+        yield return new WaitForSeconds(0.3f);
         isAttacking = false;
     }
 
@@ -290,12 +288,11 @@ public EquipmentStats equippedShieldStats;
 
         canDash = false;
         isDashing = true;
-        isInvincible = true; // Enable invincibility during dash
+        isInvincible = true;
 
         Vector2 dashDirection = moveDirection == Vector2.zero ? lastMoveDirection : moveDirection;
         float dashEndTime = Time.time + dashDuration;
 
-        // Perform the dash
         while (Time.time < dashEndTime)
         {
             transform.Translate(dashDirection * dashSpeed * Time.deltaTime);
@@ -303,16 +300,14 @@ public EquipmentStats equippedShieldStats;
         }
 
         isDashing = false;
-        isInvincible = false; // Disable invincibility after dash
+        isInvincible = false;
 
-        // Start cooldown visual
         StartCoroutine(DashCooldownVisual());
 
         yield return new WaitForSeconds(dashCooldown);
         canDash = true;
     }
 
-    // Cooldown visual logic
     private IEnumerator DashCooldownVisual()
     {
         float elapsedTime = 0f;
@@ -320,135 +315,125 @@ public EquipmentStats equippedShieldStats;
         while (elapsedTime < dashCooldown)
         {
             elapsedTime += Time.deltaTime;
-            float fillAmount = 1f - (elapsedTime / dashCooldown); // Calculate fill amount
-            dashIconOverlay.fillAmount = fillAmount; // Update overlay fill amount
+            float fillAmount = 1f - (elapsedTime / dashCooldown);
+            if (dashIconOverlay != null)
+                dashIconOverlay.fillAmount = fillAmount;
             yield return null;
         }
 
-        dashIconOverlay.fillAmount = 0f; // Reset overlay when cooldown is complete
+        if (dashIconOverlay != null)
+            dashIconOverlay.fillAmount = 0f;
     }
 
     public void TakeDamage(int damage, AIController killer = null)
     {
-        // First check shield component (blocks one attack if available)
+        if (isDead || isInvincible) return;
+
         var shield = GetComponent<Shield>();
         if (shield != null && shield.TryConsumeShield())
         {
             Debug.Log("PlayerShield: blocked incoming damage.");
-            // Optional: play shield block VFX/sound/animation here
-            return; // damage blocked, do not reduce HP
+            return;
         }
 
-        if (isInvincible) return; // Prevent damage if the player is invincible
-
         health -= damage;
+        if (health < 0) health = 0;
 
-        Debug.Log($"Player Health: {health}");
-        if (health <= 0 && !isDead)
+        Debug.Log($"Player took {damage} damage. Remaining health: {health}");
+
+        OnHealthChanged?.Invoke(health, maxHealth);
+
+        if (flashCoroutine != null)
         {
-            health = 0;
-            isDead = true;
-            PlayerDead = true;                 // notify others
-            Debug.Log("Player has died.");
-            isInvincible = true;    
-                    
+            StopCoroutine(flashCoroutine);
+        }
+        flashCoroutine = StartCoroutine(FlashRedOnHit());
 
-            // disable collisions/physics so enemies stop detecting and hitting the player
-            var col2d = GetComponent<Collider2D>();
-            if (col2d != null) col2d.enabled = false;
-            var rb2d = GetComponent<Rigidbody2D>();
-            if (rb2d != null) rb2d.simulated = false;
+        if (health <= 0)
+        {
+            Die(killer);
+        }
+    }
 
-            // remove the "Player" tag so tag-based targeting won't find it
-            try { gameObject.tag = "Untagged"; } catch { }
-            // stop any hit flash and restore original color
+    public void Heal(int amount)
+    {
+        if (isDead) return;
+        if (amount <= 0) return;
 
-if (flashCoroutine != null)
-{
-    StopCoroutine(flashCoroutine);
-    flashCoroutine = null;
-    var sr = GetComponent<SpriteRenderer>();
-    if (sr != null) sr.color = spriteOriginalColor;
-}
-// optionally disable other player components that drive targeting/input here
-// e.g. GetComponent<PlayerController>().enabled = false; (don't disable this script if it controls death coroutine)
-// play death and start coroutine that waits for animation end then loads LoseMenu
-if (animator != null)
-{
-    // start the death coroutine (keeps waiting for animation to finish)
-    if (deathCoroutine != null) StopCoroutine(deathCoroutine);
-    deathCoroutine = StartCoroutine(HandleDeathAndLoad(killer));
-}
-else
-{
-    Debug.LogError("Animator is not assigned to PlayerController. Loading LoseMenu immediately.");
-    SceneManager.LoadScene("LoseMenu");
-}
-return;
+        health += amount;
+        if (health > maxHealth) health = maxHealth;
+
+        Debug.Log($"Player healed {amount}. Current health: {health}/{maxHealth}");
+
+        OnHealthChanged?.Invoke(health, maxHealth);
+    }
+
+    private void Die(AIController killer = null)
+    {
+        health = 0;
+        isDead = true;
+        PlayerDead = true;
+        Debug.Log("Player has died.");
+        isInvincible = true;
+
+        var col2d = GetComponent<Collider2D>();
+        if (col2d != null) col2d.enabled = false;
+        var rb2d = GetComponent<Rigidbody2D>();
+        if (rb2d != null) rb2d.simulated = false;
+
+        try { gameObject.tag = "Untagged"; } catch { }
+
+        if (flashCoroutine != null)
+        {
+            StopCoroutine(flashCoroutine);
+            flashCoroutine = null;
+            var sr = GetComponent<SpriteRenderer>();
+            if (sr != null) sr.color = spriteOriginalColor;
+        }
+
+        if (animator != null)
+        {
+            if (deathCoroutine != null) StopCoroutine(deathCoroutine);
+            deathCoroutine = StartCoroutine(HandleDeathAndLoad(killer));
         }
         else
         {
-            Debug.Log($"Player took {damage} damage. Remaining health: {health}");
-            if (flashCoroutine != null)
-            {
-                StopCoroutine(flashCoroutine);
-                flashCoroutine = null;
-                var sr = GetComponent<SpriteRenderer>();
-                if (sr != null) sr.color = spriteOriginalColor;
-            }
-            flashCoroutine = StartCoroutine(FlashRedOnHit());
+            Debug.LogError("Animator is not assigned. Loading LoseMenu immediately.");
+            SceneManager.LoadScene("LoseMenu");
         }
-        UpdatePlayerHealth();
-
     }
-    
+
     private IEnumerator HandleDeathAndLoad(AIController killer = null)
     {
-        // play the death animation
         animator.Play("Death");
 
-        // wait until the animator is actually in the Death state
         while (!animator.GetCurrentAnimatorStateInfo(0).IsName("Death"))
             yield return null;
 
-        // wait for the death animation to finish (normalizedTime >= 1)
         while (animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1f)
             yield return null;
 
-        // Animation finished — immediately hide the player so the animation won't replay
-        // Disable SpriteRenderer and the Animator to prevent further state changes
         var sr = GetComponent<SpriteRenderer>();
         if (sr != null) sr.enabled = false;
 
         if (animator != null) animator.enabled = false;
 
         if (killer != null)
-    {
-        GameData.EnemyName = killer.enemyName;
-        GameData.EnemySprite = killer.enemySprite;
-    }
-    else
-    {
-        GameData.EnemyName = "Unknown";
-        GameData.EnemySprite = null;
-    }
+        {
+            GameData.EnemyName = killer.enemyName;
+            GameData.EnemySprite = killer.enemySprite;
+        }
+        else
+        {
+            GameData.EnemyName = "Unknown";
+            GameData.EnemySprite = null;
+        }
 
-        // small buffer then load lose menu
         yield return new WaitForSeconds(0.15f);
 
-        // reset static flag (scene change will unload but keep defensive)
         PlayerDead = false;
 
         SceneManager.LoadScene("LoseMenu");
-    }
-
-    // Public heal method that other scripts (potions) should call.
-    // This guarantees health never exceeds maxHealth and the global cap.
-    public void Heal(int amount)
-    {
-        if (amount <= 0) return;
-        health = Mathf.Clamp(health + amount, 0, maxHealth);
-        UpdatePlayerHealth();
     }
 
     private IEnumerator FlashRedOnHit()
@@ -456,48 +441,113 @@ return;
         SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
         if (spriteRenderer != null)
         {
-            // set to red, wait, then restore cached original color
             spriteRenderer.color = Color.red;
             yield return new WaitForSeconds(0.1f);
             spriteRenderer.color = spriteOriginalColor;
-            flashCoroutine = null;
-        }
-        else
-        {
-            Debug.LogError("SpriteRenderer is not assigned to PlayerController.");
         }
     }
 
-    public void UpdatePlayerHealth()
+    private void ApplyStats(EquipmentStats stats, Loot.EquipmentType type)
     {
-        // Enforce global caps before updating UI
-        // clamp health to valid range (ensures external direct writes get corrected)
-        health = Mathf.Clamp(health, 0, Mathf.Min(maxHealth, MAX_HEALTH_CAP));
+        if (stats == null) return;
 
-        if (healthSlider != null)
+        switch (type)
         {
-            // ensure slider ranges are correct
-            healthSlider.maxValue = maxHealth;
-            healthSlider.value = health;
-        }
-        else
-        {
-            // fallback: try to find a Slider named "HealthUI" in the scene (non-Editor-safe)
-            var go = GameObject.Find("HealthUI");
-            if (go != null)
-            {
-                var s = go.GetComponent<UnityEngine.UI.Slider>();
-                if (s != null)
-                {
-                    healthSlider = s;
-                    healthSlider.maxValue = maxHealth;
-                    healthSlider.value = health;
-                }
-            }
+            case Loot.EquipmentType.Sword:
+                attackDamage = baseAttack + stats.attackPower;
+                break;
+            case Loot.EquipmentType.Chestplate:
+            case Loot.EquipmentType.Helmet:
+            case Loot.EquipmentType.Shield:
+            case Loot.EquipmentType.Pants:
+            case Loot.EquipmentType.Boots:
+                defense += stats.defense;
+                break;
         }
     }
 
-    // Draw attack hitbox in Scene view for debugging
+    public void EquipItemStats(EquipmentStats stats, Loot.EquipmentType type)
+    {
+        switch (type)
+        {
+            case Loot.EquipmentType.Sword:
+                equippedWeaponStats = stats;
+                break;
+            case Loot.EquipmentType.Chestplate:
+                equippedChestplateStats = stats;
+                break;
+            case Loot.EquipmentType.Helmet:
+                equippedHelmetStats = stats;
+                break;
+            case Loot.EquipmentType.Pants:
+                equippedPantsStats = stats;
+                break;
+            case Loot.EquipmentType.Boots:
+                equippedBootsStats = stats;
+                break;
+            case Loot.EquipmentType.Shield:
+                equippedShieldStats = stats;
+                break;
+        }
+
+        UpdatePlayerStats();
+    }
+
+    public void UnequipItemStats(Loot.EquipmentType type)
+    {
+        Debug.Log($"UnequipItemStats CALLED → {type}");
+
+        switch (type)
+        {
+            case Loot.EquipmentType.Sword:
+                if (equippedWeaponStats != null)
+                {
+                    attackDamage -= equippedWeaponStats.attackPower;
+                    equippedWeaponStats = null;
+                }
+                break;
+            case Loot.EquipmentType.Chestplate:
+                if (equippedChestplateStats != null)
+                {
+                    defense -= equippedChestplateStats.defense;
+                    equippedChestplateStats = null;
+                }
+                break;
+            case Loot.EquipmentType.Helmet:
+                equippedHelmetStats = null;
+                break;
+            case Loot.EquipmentType.Pants:
+                equippedPantsStats = null;
+                break;
+            case Loot.EquipmentType.Boots:
+                equippedBootsStats = null;
+                break;
+            case Loot.EquipmentType.Shield:
+                equippedShieldStats = null;
+                break;
+        }
+
+        UpdatePlayerStats();
+    }
+
+    public void UpdatePlayerStats()
+    {
+        Debug.Log("=== UPDATE PLAYER STATS START ===");
+
+        attackDamage = baseAttack;
+        defense = baseDefense;
+
+        if (equippedWeaponStats != null) ApplyStats(equippedWeaponStats, Loot.EquipmentType.Sword);
+        if (equippedChestplateStats != null) ApplyStats(equippedChestplateStats, Loot.EquipmentType.Chestplate);
+        if (equippedHelmetStats != null) ApplyStats(equippedHelmetStats, Loot.EquipmentType.Helmet);
+        if (equippedPantsStats != null) ApplyStats(equippedPantsStats, Loot.EquipmentType.Pants);
+        if (equippedBootsStats != null) ApplyStats(equippedBootsStats, Loot.EquipmentType.Boots);
+        if (equippedShieldStats != null) ApplyStats(equippedShieldStats, Loot.EquipmentType.Shield);
+
+        Debug.Log($"FINAL STATS → Attack={attackDamage}, Defense={defense}, MoveSpeed={moveSpeed}");
+        Debug.Log("=== UPDATE PLAYER STATS END ===");
+    }
+
     private void OnDrawGizmosSelected()
     {
         if (!Application.isPlaying) return;
@@ -512,130 +562,6 @@ return;
             dir.y != 0 ? attackRange : attackRadius,
             0f));
     }
-
-   // Apply equipped item stats locally (without touching PlayerProgress)
-private void ApplyStats(EquipmentStats stats, Loot.EquipmentType type)
-{
-    if (stats == null) return;
-
-    switch (type)
-    {
-        case Loot.EquipmentType.Sword:
-            attackDamage = baseAttack + stats.attackPower;
-            break;
-        case Loot.EquipmentType.Chestplate:
-        case Loot.EquipmentType.Helmet:
-        case Loot.EquipmentType.Shield:
-            defense += stats.defense; // accumulate defense instead of overwriting
-            break;
-        case Loot.EquipmentType.Pants:
-        case Loot.EquipmentType.Boots:
-            defense += stats.defense; // accumulate defense // can also accumulate if needed
-            break;
-    }
-}
-
-public void EquipItemStats(EquipmentStats stats, Loot.EquipmentType type)
-{
-    switch (type)
-    {
-        case Loot.EquipmentType.Sword:
-            equippedWeaponStats = stats;
-            break;
-        case Loot.EquipmentType.Chestplate:
-            equippedChestplateStats = stats;
-            break;
-        case Loot.EquipmentType.Helmet:
-            equippedHelmetStats = stats;
-            break;
-        case Loot.EquipmentType.Pants:
-            equippedPantsStats = stats;
-            break;
-        case Loot.EquipmentType.Boots:
-            equippedBootsStats = stats;
-            break;
-        case Loot.EquipmentType.Shield:
-            equippedShieldStats = stats;
-            break;
-    }
-
-    UpdatePlayerStats();  // ← the only correct way
-}
-
-// Unequip an item
-public void UnequipItemStats(Loot.EquipmentType type)
-{
-    Debug.Log($"UnequipItemStats CALLED → {type}");
-
-    switch (type)
-    {
-        case Loot.EquipmentType.Sword:
-            if(equippedWeaponStats != null)
-            {
-                attackDamage -= equippedWeaponStats.attackPower; // subtract the weapon's attack
-                equippedWeaponStats = null;
-            }
-            break;
-        case Loot.EquipmentType.Chestplate:
-            if(equippedChestplateStats != null)
-            {
-                defense -= equippedChestplateStats.defense;
-                equippedChestplateStats = null;
-            }
-            break;
-        case Loot.EquipmentType.Helmet:
-            equippedHelmetStats = null;
-            Debug.Log("Unequipped Helmet");
-            break;
-        case Loot.EquipmentType.Pants:
-            equippedPantsStats = null;
-            Debug.Log("Unequipped Pants");
-            break;
-        case Loot.EquipmentType.Boots:
-            equippedBootsStats = null;
-            Debug.Log("Unequipped Boots");
-            break;
-        case Loot.EquipmentType.Shield:
-            equippedShieldStats = null;
-            Debug.Log("Unequipped Shield");
-            break;
-    }
-
-    Debug.Log($"Unequipping {type}, currentAttack before: {attackDamage}");
-    Debug.Log($"currentAttack after: {attackDamage}");
-
-
-
-    UpdatePlayerStats();
-}
-
-
-// Recalculate all player stats based on currently equipped items
-public void UpdatePlayerStats()
-{
-    Debug.Log("=== UPDATE PLAYER STATS START ===");
-
-    // Reset to base stats
-    Debug.Log($"Resetting to base stats: baseAttack={baseAttack}, baseDef={baseDefense}, baseMove={baseMoveSpeed}");
-    // Reset to base stats
-    attackDamage = baseAttack;
-    defense = baseDefense;
-
-
-
-    // Apply all equipped items and accumulate bonuses correctly
-    if (equippedWeaponStats != null) ApplyStats(equippedWeaponStats, Loot.EquipmentType.Sword);
-    if (equippedChestplateStats != null) ApplyStats(equippedChestplateStats, Loot.EquipmentType.Chestplate);
-    if (equippedHelmetStats != null) ApplyStats(equippedHelmetStats, Loot.EquipmentType.Helmet);
-    if (equippedPantsStats != null) ApplyStats(equippedPantsStats, Loot.EquipmentType.Pants);
-    if (equippedBootsStats != null) ApplyStats(equippedBootsStats, Loot.EquipmentType.Boots);
-    if (equippedShieldStats != null) ApplyStats(equippedShieldStats, Loot.EquipmentType.Shield);
-
- Debug.Log($"FINAL STATS → Attack={attackDamage}, Defense={defense}, MoveSpeed={moveSpeed}");
-    Debug.Log("=== UPDATE PLAYER STATS END ===");
-    // Update health UI if necessary
-    UpdatePlayerHealth();
-}
 }
 
 

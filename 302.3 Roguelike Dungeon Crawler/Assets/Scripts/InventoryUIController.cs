@@ -57,10 +57,6 @@ isOpen = false;
 }
 
         }
-        else
-        {
-            Debug.LogWarning("InventoryCanvas not found in this scene.");
-        }
     }
 
     void Update()

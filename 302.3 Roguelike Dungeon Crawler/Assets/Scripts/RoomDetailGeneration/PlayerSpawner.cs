@@ -74,6 +74,20 @@ public class PlayerSpawner : MonoBehaviour
         if (cam != null) cam.player = p.transform;
     }
 
+    public void SpawnPlayer()
+    {
+        // Safety: destroy any existing player first
+        var existingPlayers = GameObject.FindGameObjectsWithTag("Player");
+        foreach (var p in existingPlayers)
+        {
+            Debug.Log($"PlayerSpawner: Destroying existing player '{p.name}' before spawn");
+            Destroy(p);
+        }
+
+        // Now spawn the new player
+        PlacePlayer();
+    }
+
     private System.Collections.IEnumerator WaitAndPlacePlayerCoroutine(float timeout)
     {
         float t = 0f;

@@ -25,20 +25,16 @@ public class HealthPot : MonoBehaviour
     {
         if (!other.CompareTag(playerTag)) return;
 
-        // Try to heal via PlayerController.health
+        // Heal the player using the Heal() method
         var pc = other.GetComponent<PlayerController>();
         if (pc != null)
         {
-            Debug.Log("HealthPot picked up, healing player by " + healAmount);
-            pc.health += healAmount;
-
-            // Clamp health to maxHealth
-            pc.health = Mathf.Clamp(pc.health, 0, pc.maxHealth);
-
-            // Update the health bar UI
-            pc.UpdatePlayerHealth();
-
-            Debug.Log("Player health is now " + pc.health);
+            Debug.Log($"HealthPot picked up, healing player by {healAmount}");
+            
+            // Use the Heal method which handles clamping and fires OnHealthChanged event
+            pc.Heal(healAmount);
+            
+            Debug.Log($"Player health is now {pc.health}/{pc.maxHealth}");
         }
 
         OnPickedUp?.Invoke();

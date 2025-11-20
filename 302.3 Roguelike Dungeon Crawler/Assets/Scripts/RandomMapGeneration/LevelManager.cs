@@ -1,10 +1,10 @@
 using System;
 using System.Collections;
 using System.Linq;
-using System.Reflection;
-using System.Threading;
-using TMPro; // Required for TextMeshPro
+using System.Reflection; // <-- added
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using TMPro; // Required for TextMeshPro
 using UnityEngine.Events;
 
 public class LevelManager : MonoBehaviour
@@ -89,6 +89,101 @@ public void RegisterEnemyKill()
 
         // show at startup briefly if desired (uses same path as transitions)
         StartCoroutine(DisplayLevelUI(currentFloor));
+    }
+
+    void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
+    }
+
+    // Call this before starting a fresh run to remove any leftover persistent objects
+    public static void ResetPersistentGameState()
+    {
+        Debug.Log("ResetPersistentGameState: cleaning persistent objects...");
+
+        // 1) Destroy the common persistent root (if your project uses a GameObject named "DontDestroyOnLoad")
+        var ddolRoot = GameObject.Find("DontDestroyOnLoad");
+        if (ddolRoot != null)
+        {
+            Debug.Log("ResetPersistentGameState: Destroying DontDestroyOnLoad root");
+            UnityEngine.Object.Destroy(ddolRoot);
+        }
+
+        // 2) Destroy any leftover player GameObjects (tagged "Player")
+        var players = GameObject.FindGameObjectsWithTag("Player");
+        foreach (var p in players)
+        {
+            Debug.Log($"ResetPersistentGameState: Destroying leftover player {p.name}");
+            UnityEngine.Object.Destroy(p);
+        }
+
+        // 3) Destroy any runtime-created loot/ pickups etc that might not be children of the root
+        //    (look for common name patterns and components)
+        var all = Resources.FindObjectsOfTypeAll<GameObject>();
+        foreach (var go in all)
+        {
+            if (go == null) continue;
+
+            // skip scene objects that are in a different scene asset (prefabs)
+            if (!go.scene.isLoaded) continue;
+
+            var name = go.name ?? "";
+
+            bool shouldDestroyByName =
+                name.StartsWith("Loot", System.StringComparison.OrdinalIgnoreCase) ||
+                name.IndexOf("HealthPot", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+                name.IndexOf("Chest", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+                name.IndexOf("Exit", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+                name.IndexOf("Pickup", System.StringComparison.OrdinalIgnoreCase) >= 0;
+
+            if (shouldDestroyByName)
+            {
+                Debug.Log($"ResetPersistentGameState: destroying by name {name}");
+                UnityEngine.Object.Destroy(go);
+                continue;
+            }
+
+            // or destroy objects that have components with type names indicating singletons/pickups
+            var comps = go.GetComponents<Component>();
+            if (comps != null)
+            {
+                foreach (var c in comps)
+                {
+                    if (c == null) continue;
+                    var tname = c.GetType().Name;
+                    if (tname.IndexOf("Inventory", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+                        tname.IndexOf("UIManager", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+                        tname.IndexOf("PlayerStats", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+                        tname.IndexOf("Loot", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+                        tname.IndexOf("Pickup", System.StringComparison.OrdinalIgnoreCase) >= 0)
+                    {
+                        Debug.Log($"ResetPersistentGameState: destroying by component {go.name} ({tname})");
+                        UnityEngine.Object.Destroy(go);
+                        break;
+                    }
+                }
+            }
+        }
+
+        // 4) Clear common singleton static Instance fields via reflection if present.
+        string[] singletonTypeNames = { "UIManager", "PlayerStats", "InventoryUIController", "PlayerProgress", "LevelManager" };
+        foreach (var typeName in singletonTypeNames)
+        {
+            try
+            {
+                var type = AppDomain.CurrentDomain.GetAssemblies()
+                    .SelectMany(a => a.GetTypes().Where(t => t.Name == typeName))
+                    .FirstOrDefault();
+                if (type == null) continue;
+                var field = type.GetField("Instance", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+                if (field != null)
+                {
+                    field.SetValue(null, null);
+                    Debug.Log($"ResetPersistentGameState: cleared static Instance on {typeName}");
+                }
+            }
+            catch { /* ignore */ }
+        }
     }
 
     public void GoToNextFloor(GameObject player)
@@ -433,7 +528,7 @@ public void RegisterEnemyKill()
         {
             try
             {
-                var monos = UnityEngine.Object.FindObjectsByType<MonoBehaviour>(UnityEngine.FindObjectsSortMode.None);
+                var monos = UnityEngine.Object.FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None);
                 foreach (var m in monos)
                 {
                     if (m == null) continue;
@@ -697,7 +792,7 @@ public void RegisterEnemyKill()
         // added "Regenerate" to cover generators that expose that method
         string[] methodNames = new[] { "Generate", "GenerateDungeon", "GenerateMap", "GenerateRooms", "GenerateLevel", "StartGeneration", "Regenerate" };
 
-        var allBehaviours = UnityEngine.Object.FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None);
+        var allBehaviours = UnityEngine.Object.FindObjectsByType<MonoBehaviour>(UnityEngine.FindObjectsSortMode.None);
         foreach (var mb in allBehaviours)
         {
             if (mb == null) continue;
@@ -741,5 +836,92 @@ public void RegisterEnemyKill()
         NextLevelUIController.ShowTemporaryGlobal(2f);
 
         // ...existing code that continues level startup...
+    }
+
+    // Safe cleanup before starting a new run
+    public static void PrepareForNewRun()
+    {
+        Debug.Log("=== LevelManager.PrepareForNewRun START ===");
+
+        // 1) Find and destroy ALL player GameObjects (including clones)
+        try
+        {
+            var allObjects = UnityEngine.Object.FindObjectsByType<GameObject>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            foreach (var obj in allObjects)
+            {
+                if (obj == null) continue;
+                
+                // SKIP UIManager, HUDCanvas, and other persistent UI
+                if (obj.name.Contains("UIManager") || 
+                    obj.name.Contains("HUD") || 
+                    obj.name.Contains("Canvas") ||
+                    obj.GetComponent<Canvas>() != null)
+                {
+                    continue; // Don't destroy UI objects
+                }
+                
+                // Check if it's a player by tag OR name
+                if (obj.CompareTag("Player") || 
+                    obj.name.Contains("PlayerCharacter") ||
+                    obj.GetComponent<PlayerController>() != null)
+                {
+                    Debug.Log($"PrepareForNewRun: Destroying player object '{obj.name}'");
+                    UnityEngine.Object.Destroy(obj);
+                }
+            }
+        }
+        catch (Exception ex) 
+        { 
+            Debug.LogWarning($"PrepareForNewRun player cleanup error: {ex.Message}"); 
+        }
+
+        // 2) Destroy all enemies
+        try
+        {
+            var allMonos = UnityEngine.Object.FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            foreach (var mb in allMonos)
+            {
+                if (mb == null || mb.gameObject == null) continue;
+                
+                // Skip UI components
+                if (mb.GetComponent<Canvas>() != null || mb.name.Contains("UI")) continue;
+                
+                var typeName = mb.GetType().Name;
+                
+                if (typeName.Contains("AI") || typeName.Contains("Enemy"))
+                {
+                    Debug.Log($"PrepareForNewRun: Destroying enemy '{mb.gameObject.name}'");
+                    UnityEngine.Object.Destroy(mb.gameObject);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning($"PrepareForNewRun enemy cleanup error: {ex.Message}");
+        }
+
+        // 3) Reset singleton states without destroying them
+        try
+        {
+            if (PlayerStats.Instance != null)
+            {
+                PlayerStats.Instance.ResetStats();
+                Debug.Log("PrepareForNewRun: Reset PlayerStats");
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning($"PrepareForNewRun stats reset error: {ex.Message}");
+        }
+
+        // 4) Reset LevelManager state
+        if (Instance != null)
+        {
+            Instance.currentFloor = 1;
+            Instance.enemiesKilled = 0;
+            Debug.Log("PrepareForNewRun: Reset LevelManager state");
+        }
+
+        Debug.Log("=== LevelManager.PrepareForNewRun END ===");
     }
 }
